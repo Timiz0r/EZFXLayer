@@ -1,9 +1,4 @@
-Thumbs.db
-Thumbs.db.meta
-*.blend?
-*.blend??
-*.blend?.meta
-*.blend??.meta
+/Assets/Avatars/
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
