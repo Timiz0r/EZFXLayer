@@ -19,7 +19,7 @@ namespace TimiUtils.EZFXLayer
     public class EZFXLayerRootConfiguration : MonoBehaviour
     {
         public RuntimeAnimatorController FXLayerController;
-        public bool generateOnUpload;
+        public bool generateOnUpload = true;
 
         private void Reset()
         {
@@ -39,11 +39,73 @@ namespace TimiUtils.EZFXLayer
             // }
         }
 
+        [MenuItem("GameObject/Enable EZFXLayer in Scene", isValidateFunction: false, 20)]
+        private static void EnableEZFXLayerInScene()
+        {
+            var existingComponents = FindObjectsOfType<EZFXLayerRootConfiguration>();
+            if (existingComponents.Length > 0)
+            {
+                Logger.DisplayError($"EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'.");
+                return;
+            }
+
+            var ezFXLayerObject = GameObject.Find("EZFXLayer") ?? new GameObject("EZFXLayer");
+            var ezFXLayerComponent = ezFXLayerObject.AddComponent<EZFXLayerRootConfiguration>();
+
+            var firstAvatar = FindObjectOfType<VRCAvatarDescriptor>();
+            if (firstAvatar == null || !HasFXLayer(firstAvatar, out _))
+            {
+                ezFXLayerComponent.CreateBasicFXLayerController();
+            }
+            else
+            {
+                ezFXLayerComponent.PopulateFXLayerControllerFromFirstAvatarInScene();
+            }
+        }
+
+        public void CreateBasicFXLayerController()
+        {
+            var scene = gameObject.scene;
+            var newAssetPath = AssetDatabase.GenerateUniqueAssetPath(
+                $"{Path.GetDirectoryName(scene.path)}/EZFXLayer_{scene.name}.controller");
+
+            //need to AssetManager.CopyAsseting because we cant CreateAsset a loaded asset
+            //also there are no details in testing lol
+            if (!AssetDatabase.CopyAsset(
+                "Assets/VRCSDK/Examples3/Animation/Controllers/vrc_AvatarV3HandsLayer.controller",
+                newAssetPath
+            ))
+            {
+                Logger.DisplayError("Unable to copy 'vrc_AvatarV3HandsLayer.controller'. See log for details.");
+                return;
+            }
+
+            var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(newAssetPath);
+            FXLayerController = controller;
+        }
+
+        public void PopulateFXLayerControllerFromFirstAvatarInScene()
+        {
+            var firstAvatar = FindObjectOfType<VRCAvatarDescriptor>();
+            if (firstAvatar == null)
+            {
+                Logger.DisplayError("No avatar could be found in the scene.");
+                return;
+            }
+
+            if (HasFXLayer(firstAvatar, out var fxLayerController))
+            {
+                FXLayerController = fxLayerController;
+                return;
+            }
+
+            Logger.DisplayError($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
+
+        }
+
         [CustomEditor(typeof(EZFXLayerRootConfiguration))]
         public class Editor : UnityEditor.Editor
         {
-            //could add a button to select from scene, but, since this is an inspector editor,
-            //it would only be useful if going out of ones' way to lock it
             public override void OnInspectorGUI()
             {
                 var target = (EZFXLayerRootConfiguration)base.target;
@@ -55,47 +117,28 @@ namespace TimiUtils.EZFXLayer
 
                 if (GUILayout.Button("Populate from first avatar"))
                 {
-                    var firstAvatar = FindObjectOfType<VRCAvatarDescriptor>();
-                    if (firstAvatar is null)
-                    {
-                        Logger.DisplayError("No avatar could be found in the scene.");
-                    }
-                    else if (firstAvatar.baseAnimationLayers[4].animatorController is var fxLayerController)
-                    {
-                        target.FXLayerController = fxLayerController;
-                    }
-                    else
-                    {
-                        Logger.DisplayError($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
-                    }
+                    target.PopulateFXLayerControllerFromFirstAvatarInScene();
                 }
 
                 if (GUILayout.Button("Create basic FX layer animator controller"))
                 {
-                    var scene = target.gameObject.scene;
-                    var newAssetPath = AssetDatabase.GenerateUniqueAssetPath(
-                        $"{Path.GetDirectoryName(scene.path)}/EZFXLayer_{scene.name}.controller");
-
-                    //need to AssetManager.CopyAsseting because we cant CreateAsset a loaded asset
-                    //also there are no details in testing lol
-                    if (!AssetDatabase.CopyAsset(
-                        "Assets/VRCSDK/Examples3/Animation/Controllers/vrc_AvatarV3HandsLayer.controller",
-                        newAssetPath
-                    ))
-                    {
-                        Logger.DisplayError("Unable to copy 'vrc_AvatarV3HandsLayer.controller'. See log for details.");
-                    }
-                    else
-                    {
-                        var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(newAssetPath);
-                        target.FXLayerController = controller;
-                    }
+                    target.CreateBasicFXLayerController();
                 }
 
                 EditorGUILayout.Separator();
 
                 target.generateOnUpload = EditorGUILayout.Toggle("Generate on upload", target.generateOnUpload);
             }
+        }
+
+        private static bool HasFXLayer(VRCAvatarDescriptor avatar, out RuntimeAnimatorController fxLayerController)
+        {
+            //not sure why, but `is RuntimeAnimatorController fxLayerController` lets nulls through??
+            //if (avatar.baseAnimationLayers[4].animatorController is RuntimeAnimatorController fxLayerController)
+
+            fxLayerController = avatar.baseAnimationLayers[4].animatorController;
+
+            return fxLayerController != null;
         }
     }
 }
