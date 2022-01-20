@@ -67,7 +67,7 @@ namespace TimiUtils.EZFXLayer
         {
             var scene = gameObject.scene;
             var newAssetPath = AssetDatabase.GenerateUniqueAssetPath(
-                $"{Path.GetDirectoryName(scene.path)}/EZFXLayer_{scene.name}.controller");
+                $"{Path.GetDirectoryName(scene.path)}/FX_{scene.name}.controller");
 
             //need to AssetManager.CopyAsseting because we cant CreateAsset a loaded asset
             //also there are no details in testing lol
