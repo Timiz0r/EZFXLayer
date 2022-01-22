@@ -76,12 +76,27 @@ namespace TimiUtils.EZFXLayer
                     EditorGUILayout.BeginFoldoutHeaderGroup(animationSet.showGameObjects, "GameObjects")
                 )
                 {
+                    AnimationSet.AnimatableGameObject gameObjectToDelete = null;
                     foreach (var gameObject in animationSet.gameObjects)
                     {
-                        EditorGUILayout.LabelField($"{gameObject.gameObject.name}_{gameObject.path}_{gameObject.active}");
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUI.BeginDisabledGroup(true);
+                        EditorGUILayout.ObjectField(gameObject.gameObject, typeof(GameObject), allowSceneObjects: true);
+                        EditorGUI.EndDisabledGroup();
+                        gameObject.active = Checkbox(gameObject.active);
+                        if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                        {
+                            gameObjectToDelete = gameObject;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    if (gameObjectToDelete != null)
+                    {
+                        animationSet.gameObjects.Remove(gameObjectToDelete);
                     }
 
-                    var newGameObject = (GameObject)EditorGUILayout.ObjectField("Add GameObject", null, typeof(GameObject), allowSceneObjects: true);
+                    var newGameObject = (GameObject)EditorGUILayout.ObjectField(
+                        "Add GameObject", null, typeof(GameObject), allowSceneObjects: true);
                     if (newGameObject != null)
                     {
                         animationSet.gameObjects.Add(new AnimationSet.AnimatableGameObject()
@@ -101,6 +116,13 @@ namespace TimiUtils.EZFXLayer
                 rect = GUILayoutUtility.GetRect(content, GUI.skin.button);
                 return GUI.Button(rect, content, GUI.skin.button);
             }
+
+            //cant get EditorGUILayout to not take a bunch of space for the toggle
+            private static bool Checkbox(bool value)
+                => EditorGUI.Toggle(
+                    GUILayoutUtility.GetRect(
+                        GUIContent.none, GUI.skin.toggle, GUILayout.ExpandWidth(false)),
+                    value);
 
             private static string GetPath(GameObject gameObject)
             {
