@@ -16,6 +16,7 @@ namespace TimiUtils.EZFXLayer
     //TODO: move this comment to a more appropriate place when implemented
     //not generating in place because generating a new one keeps the controller cleaner if stuff is removed later,
     //among other good reasons surely.
+    [AddComponentMenu("EZFXLayer/EZFXLayer Root Configuration")]
     public class EZFXLayerRootConfiguration : MonoBehaviour
     {
         public RuntimeAnimatorController FXLayerController;
