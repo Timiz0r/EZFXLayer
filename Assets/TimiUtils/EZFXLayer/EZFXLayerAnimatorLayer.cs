@@ -42,14 +42,21 @@ namespace TimiUtils.EZFXLayer
                 var target = (EZFXLayerAnimatorLayer)base.target;
 
                 EditorGUILayout.LabelField("Default animation set");
-                if (target.defaultAnimationSet.showBlendShapes =
-                    EditorGUILayout.BeginFoldoutHeaderGroup(target.defaultAnimationSet.showBlendShapes, "Blend shapes")
+                RenderAnimationSetEditor(target, target.defaultAnimationSet);
+                EditorGUILayout.Separator();
+            }
+
+            private void RenderAnimationSetEditor(EZFXLayerAnimatorLayer animatorLayer, AnimationSet animationSet)
+            {
+                if (animationSet.showBlendShapes =
+                    EditorGUILayout.BeginFoldoutHeaderGroup(animationSet.showBlendShapes, "Blend shapes")
                 )
                 {
                     //TODO: might do the skinnedmeshrenderer-based grouping here, as well
-                    foreach (var blendShape in target.defaultAnimationSet.blendShapes)
+                    foreach (var blendShape in animationSet.blendShapes)
                     {
-                        EditorGUILayout.LabelField($"{blendShape.skinnedMeshRenderer.name}_{blendShape.name}_{blendShape.value}");
+                        EditorGUILayout.LabelField(
+                            $"{blendShape.skinnedMeshRenderer.name}_{blendShape.name}_{blendShape.value}");
                     }
 
                     if (Button("Select blend shapes", out var selectBlendShapesButtonRect))
@@ -57,27 +64,27 @@ namespace TimiUtils.EZFXLayer
                         PopupWindow.Show(
                             selectBlendShapesButtonRect,
                             new BlendShapeSelectionPopup(
-                                target.gameObject.scene,
-                                target.defaultAnimationSet.blendShapes,
-                                blendShapeRecords => target.UpdateBlendShapeSelection(
-                                    target.defaultAnimationSet, blendShapeRecords)));
+                                animatorLayer.gameObject.scene,
+                                animationSet.blendShapes,
+                                blendShapeRecords => animatorLayer.UpdateBlendShapeSelection(
+                                    animationSet, blendShapeRecords)));
                     }
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
 
-                if (target.defaultAnimationSet.showGameObjects =
-                    EditorGUILayout.BeginFoldoutHeaderGroup(target.defaultAnimationSet.showGameObjects, "GameObjects")
+                if (animationSet.showGameObjects =
+                    EditorGUILayout.BeginFoldoutHeaderGroup(animationSet.showGameObjects, "GameObjects")
                 )
                 {
-                    foreach (var gameObject in target.defaultAnimationSet.gameObjects)
+                    foreach (var gameObject in animationSet.gameObjects)
                     {
                         EditorGUILayout.LabelField($"{gameObject.gameObject.name}_{gameObject.path}_{gameObject.active}");
                     }
 
-                    var newGameObject = (GameObject)EditorGUILayout.ObjectField(null, typeof(GameObject), allowSceneObjects: true);
+                    var newGameObject = (GameObject)EditorGUILayout.ObjectField("Add GameObject", null, typeof(GameObject), allowSceneObjects: true);
                     if (newGameObject != null)
                     {
-                        target.defaultAnimationSet.gameObjects.Add(new AnimationSet.AnimatableGameObject()
+                        animationSet.gameObjects.Add(new AnimationSet.AnimatableGameObject()
                         {
                             gameObject = newGameObject,
                             path = GetPath(newGameObject)
@@ -86,30 +93,27 @@ namespace TimiUtils.EZFXLayer
                     }
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
-                EditorGUILayout.Separator();
-
-
             }
-        }
 
-        private static bool Button(string text, out Rect rect)
-        {
-            var content = new GUIContent(text);
-            rect = GUILayoutUtility.GetRect(content, GUI.skin.button);
-            return GUI.Button(rect, content, GUI.skin.button);
-        }
-
-        private static string GetPath(GameObject gameObject)
-        {
-            List<string> names = new List<string>();
-            while (gameObject != null && gameObject.GetComponent<VRCAvatarDescriptor>() == null)
+            private static bool Button(string text, out Rect rect)
             {
-                names.Add(gameObject.name);
-                gameObject = gameObject.transform.parent.gameObject;
+                var content = new GUIContent(text);
+                rect = GUILayoutUtility.GetRect(content, GUI.skin.button);
+                return GUI.Button(rect, content, GUI.skin.button);
             }
-            names.Reverse();
-            var result = string.Join("/", names);
-            return result;
+
+            private static string GetPath(GameObject gameObject)
+            {
+                List<string> names = new List<string>();
+                while (gameObject != null && gameObject.GetComponent<VRCAvatarDescriptor>() == null)
+                {
+                    names.Add(gameObject.name);
+                    gameObject = gameObject.transform.parent.gameObject;
+                }
+                names.Reverse();
+                var result = string.Join("/", names);
+                return result;
+            }
         }
     }
 }
