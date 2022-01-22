@@ -5,13 +5,11 @@ namespace TimiUtils.EZFXLayer
     using System.Linq;
     using UnityEditor;
     using UnityEngine;
+    using UnityEngine.SceneManagement;
     using VRC.SDK3.Avatars.Components;
 
     public class EZFXLayerAnimatorLayer : MonoBehaviour
     {
-        //this is not critical to generating the fx layer; it's used for easy configuration
-        public VRCAvatarDescriptor targetAvatar;
-
         public AnimationSet defaultAnimationSet = new AnimationSet();
 
         //TODO: in order to maintain the strict ordering, reproduce a new list each update, instead of add and remove
@@ -44,10 +42,6 @@ namespace TimiUtils.EZFXLayer
             public override void OnInspectorGUI()
             {
                 var target = (EZFXLayerAnimatorLayer)base.target;
-                target.targetAvatar = (VRCAvatarDescriptor)EditorGUILayout.ObjectField(
-                    target.targetAvatar, typeof(VRCAvatarDescriptor), allowSceneObjects: true);
-
-                if (target.targetAvatar == null) return;
 
                 EditorGUILayout.LabelField("Default animation set");
                 if (target.defaultAnimationSet.showBlendShapes =
@@ -65,7 +59,7 @@ namespace TimiUtils.EZFXLayer
                         PopupWindow.Show(
                             selectBlendShapesButtonRect,
                             new BlendShapeSelectionPopup(
-                                target.targetAvatar.gameObject,
+                                target.gameObject.scene,
                                 target.defaultAnimationSet.blendShapes,
                                 blendShapeRecords => target.UpdateBlendShapeSelection(
                                     target.defaultAnimationSet, blendShapeRecords)));
@@ -130,26 +124,32 @@ namespace TimiUtils.EZFXLayer
 
     public class BlendShapeSelectionPopup : PopupWindowContent
     {
+        private readonly MultiFoldoutHeaderGroup foldout = new MultiFoldoutHeaderGroup();
         private readonly List<BlendShapeRecord> blendShapes = new List<BlendShapeRecord>();
         private readonly Action<List<BlendShapeRecord>> callback;
         private Vector2 scrollPosition = Vector2.zero;
         private readonly Vector2 windowSize;
 
         public BlendShapeSelectionPopup(
-
-            GameObject targetAvatar,
+            Scene scene,
             IReadOnlyList<AnimationSet.AnimatableBlendShape> alreadySelectedBlendShapes,
             Action<List<BlendShapeRecord>> callback)
         {
             //including inactive in case the parent gameobject is just temp deactivated
-            foreach (var smr in targetAvatar.GetComponentsInChildren<SkinnedMeshRenderer>(includeInactive: true))
+            var avatarGameObjects = scene.GetRootGameObjects()
+                .SelectMany(go => go.GetComponentsInChildren<VRCAvatarDescriptor>(includeInactive: true))
+                .Select(c => c.gameObject);
+            foreach (var avatar in avatarGameObjects)
             {
-                var mesh = smr.sharedMesh;
-                foreach (var blendShape in Enumerable.Range(0, mesh.blendShapeCount).Select(i => mesh.GetBlendShapeName(i)))
+                foreach (var smr in avatar.GetComponentsInChildren<SkinnedMeshRenderer>(includeInactive: true))
                 {
-                    bool alreadySelected = alreadySelectedBlendShapes.Any(
-                        bs => bs.skinnedMeshRenderer == smr && bs.name == blendShape);
-                    blendShapes.Add(new BlendShapeRecord(smr, blendShape, alreadySelected));
+                    var mesh = smr.sharedMesh;
+                    foreach (var blendShape in Enumerable.Range(0, mesh.blendShapeCount).Select(i => mesh.GetBlendShapeName(i)))
+                    {
+                        bool alreadySelected = alreadySelectedBlendShapes.Any(
+                            bs => bs.skinnedMeshRenderer == smr && bs.name == blendShape);
+                        blendShapes.Add(new BlendShapeRecord(avatar, smr, blendShape, alreadySelected));
+                    }
                 }
             }
 
@@ -165,17 +165,25 @@ namespace TimiUtils.EZFXLayer
         public override void OnGUI(Rect rect)
         {
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-            foreach (var group in blendShapes.GroupBy(r => r.SkinnedMeshRenderer))
+            foreach (var avatarGroup in blendShapes.GroupBy(r => r.Avatar))
             {
-                EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.ObjectField(group.Key, typeof(SkinnedMeshRenderer), allowSceneObjects: false);
-                EditorGUI.EndDisabledGroup();
-
-                foreach (var blendShape in group)
+                var unfoldByDefault = avatarGroup.Any(r => avatarGroup.Key == r.Avatar && r.AlreadySelected);
+                if (foldout.Begin(avatarGroup.Key, avatarGroup.Key.name, defaultFoldoutStatus: unfoldByDefault))
                 {
-                    blendShape.CurrentlySelected =
-                        EditorGUILayout.Toggle($"  {blendShape.Name}", blendShape.CurrentlySelected);
+                    foreach (var smrGroup in avatarGroup.GroupBy(r => r.SkinnedMeshRenderer))
+                    {
+                        EditorGUI.BeginDisabledGroup(true);
+                        EditorGUILayout.ObjectField(smrGroup.Key, typeof(SkinnedMeshRenderer), allowSceneObjects: false);
+                        EditorGUI.EndDisabledGroup();
+
+                        foreach (var blendShape in smrGroup)
+                        {
+                            blendShape.CurrentlySelected =
+                                EditorGUILayout.Toggle($"  {blendShape.Name}", blendShape.CurrentlySelected);
+                        }
+                    }
                 }
+                foldout.End();
             }
             EditorGUILayout.EndScrollView();
         }
@@ -184,13 +192,15 @@ namespace TimiUtils.EZFXLayer
 
         public class BlendShapeRecord
         {
+            public readonly GameObject Avatar;
             public readonly SkinnedMeshRenderer SkinnedMeshRenderer;
             public readonly string Name;
             public readonly bool AlreadySelected;
             public bool CurrentlySelected;
 
-            public BlendShapeRecord(SkinnedMeshRenderer skinnedMeshRenderer, string name, bool alreadySelected)
+            public BlendShapeRecord(GameObject avatar, SkinnedMeshRenderer skinnedMeshRenderer, string name, bool alreadySelected)
             {
+                Avatar = avatar;
                 SkinnedMeshRenderer = skinnedMeshRenderer;
                 Name = name;
                 AlreadySelected = CurrentlySelected = alreadySelected;
