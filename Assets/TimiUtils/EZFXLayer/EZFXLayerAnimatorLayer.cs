@@ -1,6 +1,7 @@
 namespace TimiUtils.EZFXLayer
 {
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEditor;
     using UnityEngine;
     using VRC.SDK3.Avatars.Components;
@@ -46,6 +47,7 @@ namespace TimiUtils.EZFXLayer
                 EditorGUILayout.Separator();
             }
 
+            //TODO: undo doesn't seem to work, so gotta do it manually!
             private void RenderAnimationSetEditor(EZFXLayerAnimatorLayer animatorLayer, AnimationSet animationSet)
             {
                 if (animationSet.showBlendShapes =
@@ -53,10 +55,29 @@ namespace TimiUtils.EZFXLayer
                 )
                 {
                     //TODO: might do the skinnedmeshrenderer-based grouping here, as well
-                    foreach (var blendShape in animationSet.blendShapes)
+                    //and might change the modeling based around that
+                    AnimationSet.AnimatableBlendShape blendShapeToDelete = null;
+                    foreach (var smrGroup in animationSet.blendShapes.GroupBy(bs => bs.skinnedMeshRenderer))
                     {
-                        EditorGUILayout.LabelField(
-                            $"{blendShape.skinnedMeshRenderer.name}_{blendShape.name}_{blendShape.value}");
+                        EditorGUI.BeginDisabledGroup(true);
+                        EditorGUILayout.ObjectField(smrGroup.Key, typeof(SkinnedMeshRenderer), allowSceneObjects: true);
+                        EditorGUI.EndDisabledGroup();
+
+                        foreach (var blendShape in smrGroup)
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            blendShape.value = EditorGUILayout.Slider(blendShape.name, blendShape.value, 0, 100);
+
+                            if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                            {
+                                blendShapeToDelete = blendShape;
+                            }
+                            EditorGUILayout.EndHorizontal();
+                        }
+                    }
+                    if (blendShapeToDelete != null)
+                    {
+                        animationSet.blendShapes.Remove(blendShapeToDelete);
                     }
 
                     if (Button("Select blend shapes", out var selectBlendShapesButtonRect))
@@ -83,7 +104,9 @@ namespace TimiUtils.EZFXLayer
                         EditorGUI.BeginDisabledGroup(true);
                         EditorGUILayout.ObjectField(gameObject.gameObject, typeof(GameObject), allowSceneObjects: true);
                         EditorGUI.EndDisabledGroup();
+
                         gameObject.active = Checkbox(gameObject.active);
+
                         if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                         {
                             gameObjectToDelete = gameObject;
