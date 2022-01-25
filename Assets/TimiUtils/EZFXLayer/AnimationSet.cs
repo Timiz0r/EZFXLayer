@@ -12,11 +12,21 @@ namespace TimiUtils.EZFXLayer
     [Serializable]
     public class AnimationSet
     {
+        public string name;
+        //useful, for instance, for gestures, where we typically keep the state names the same but have animations
+        //with actually accurate names
+        public string animatorStateNameOverride;
+
         public bool showBlendShapes = true;
         public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
 
         public bool showGameObjects = true;
         public List<AnimatableGameObject> gameObjects = new List<AnimatableGameObject>();
+
+        //overrides the AnimatorLayer's one. tho, typically, one wouldn't do this; just clarifying behavior in case done.
+        public string menuPath = null;
+
+        public string AnimatorStateName => animatorStateNameOverride ?? name;
 
         [Serializable]
         public class AnimatableBlendShape
