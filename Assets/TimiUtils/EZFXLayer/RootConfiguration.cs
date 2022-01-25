@@ -16,20 +16,26 @@ namespace TimiUtils.EZFXLayer
     //TODO: move this comment to a more appropriate place when implemented
     //not generating in place because generating a new one keeps the controller cleaner if stuff is removed later,
     //among other good reasons surely.
+
+    //TODO: add a button to import to convert the fx layer
+    //  will not be all-or-nothing; instead, "fail slow" and partially.
+    //  dont delete animations; we just wont reference those assets.
+    //  will attempt to convert as much as we go. if we cant convert all transitions, leave them in place.
+    //    parameters, menus, etc. but we'll do as much as possible.
     [AddComponentMenu("EZFXLayer/EZFXLayer Root Configuration")]
-    public class EZFXLayerRootConfiguration : MonoBehaviour
+    public class RootConfiguration : MonoBehaviour
     {
         public RuntimeAnimatorController FXLayerController;
         public bool generateOnUpload = true;
 
         private void Reset()
         {
-            var allComponents = FindObjectsOfType<EZFXLayerRootConfiguration>();
+            var allComponents = FindObjectsOfType<RootConfiguration>();
             if (allComponents.Length == 1) return;
 
             var parentNames = string.Join(", ", allComponents.Select(c => c.gameObject.name));
             Logger.DisplayError(
-                $"Only one {nameof(EZFXLayerRootConfiguration)} should exist per scene." +
+                $"Only one {nameof(RootConfiguration)} should exist per scene." +
                 $"Game objects with the component: {parentNames}.");
             //crashes unity if the reset is clicked. works fine on first add tho.
             //but if we bring this back, use the DisplayError overload
@@ -43,7 +49,7 @@ namespace TimiUtils.EZFXLayer
         [MenuItem("GameObject/Enable EZFXLayer in Scene", isValidateFunction: false, 20)]
         private static void EnableEZFXLayerInScene()
         {
-            var existingComponents = FindObjectsOfType<EZFXLayerRootConfiguration>();
+            var existingComponents = FindObjectsOfType<RootConfiguration>();
             if (existingComponents.Length > 0)
             {
                 Logger.DisplayError($"EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'.");
@@ -51,7 +57,7 @@ namespace TimiUtils.EZFXLayer
             }
 
             var ezFXLayerObject = GameObject.Find("EZFXLayer") ?? new GameObject("EZFXLayer");
-            var ezFXLayerComponent = ezFXLayerObject.AddComponent<EZFXLayerRootConfiguration>();
+            var ezFXLayerComponent = ezFXLayerObject.AddComponent<RootConfiguration>();
 
             var firstAvatar = FindObjectOfType<VRCAvatarDescriptor>();
             if (firstAvatar == null || !HasFXLayer(firstAvatar, out _))
@@ -104,12 +110,12 @@ namespace TimiUtils.EZFXLayer
 
         }
 
-        [CustomEditor(typeof(EZFXLayerRootConfiguration))]
+        [CustomEditor(typeof(RootConfiguration))]
         public class Editor : UnityEditor.Editor
         {
             public override void OnInspectorGUI()
             {
-                var target = (EZFXLayerRootConfiguration)base.target;
+                var target = (RootConfiguration)base.target;
                 EditorGUILayout.LabelField(
                     "This animation controller will serve as the base animation controller" +
                     "when generating the FX layer for all avatars in the scene.", EditorStyles.wordWrappedLabel);
@@ -129,6 +135,12 @@ namespace TimiUtils.EZFXLayer
                 EditorGUILayout.Separator();
 
                 target.generateOnUpload = EditorGUILayout.Toggle("Generate on upload", target.generateOnUpload);
+
+                if (GUILayout.Button("Generate"))
+                {
+                    var generator = new FXLayerGenerator(target.gameObject.scene);
+                    generator.Generate();
+                }
             }
         }
 

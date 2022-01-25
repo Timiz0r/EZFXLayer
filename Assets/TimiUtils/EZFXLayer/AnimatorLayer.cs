@@ -7,9 +7,23 @@ namespace TimiUtils.EZFXLayer
     using VRC.SDK3.Avatars.Components;
 
     [AddComponentMenu("EZFXLayer/EZFXLayer Animator Layer")]
-    public class EZFXLayerAnimatorLayer : MonoBehaviour
+    public class AnimatorLayer : MonoBehaviour
     {
-        public AnimationSet defaultAnimationSet = new AnimationSet();
+        public string layerName;
+        public AnimationSet defaultAnimationSet = new AnimationSet() { name = "Default" };
+        public List<AnimationSet> animations = new List<AnimationSet>();
+
+        //parameter name to be layerName
+        public bool manageStateMachine = true;
+        public string menuPath = null;
+        public bool generateSubmenuForMultipleAnimationSets = true;
+
+        public AnimatorLayer()
+        {
+            //for the initial value of the component
+            //but we dont exclusively go with it because we dont disallow multiple components per GameObject
+            layerName = this.gameObject.name;
+        }
 
         //TODO: in order to maintain the strict ordering, reproduce a new list each update, instead of add and remove
         public void UpdateBlendShapeSelection(AnimationSet animationSet, IReadOnlyList<BlendShapeSelectionPopup.BlendShapeRecord> blendShapeRecords)
@@ -35,12 +49,16 @@ namespace TimiUtils.EZFXLayer
             }
         }
 
-        [CustomEditor(typeof(EZFXLayerAnimatorLayer))]
+        //TODO: will prob also end up adding to list
+        public AnimationSet CreateAnimationSet()
+            => new AnimationSet() { name = $"{gameObject.name}_{animations.Count}" };
+
+        [CustomEditor(typeof(AnimatorLayer))]
         public class Editor : UnityEditor.Editor
         {
             public override void OnInspectorGUI()
             {
-                var target = (EZFXLayerAnimatorLayer)base.target;
+                var target = (AnimatorLayer)base.target;
 
                 EditorGUILayout.LabelField("Default animation set");
                 RenderAnimationSetEditor(target, target.defaultAnimationSet);
@@ -48,7 +66,10 @@ namespace TimiUtils.EZFXLayer
             }
 
             //TODO: undo doesn't seem to work, so gotta do it manually!
-            private void RenderAnimationSetEditor(EZFXLayerAnimatorLayer animatorLayer, AnimationSet animationSet)
+            //TODO: add a button for populating the base controller with a placeholder layer and states
+            //  but not transitions, unless we wanna generate parameters too. not generating parameters reduces the
+            //impact of stale states from a rename. do we wanna force transition generation toggle on if off?
+            private void RenderAnimationSetEditor(AnimatorLayer animatorLayer, AnimationSet animationSet)
             {
                 if (animationSet.showBlendShapes =
                     EditorGUILayout.BeginFoldoutHeaderGroup(animationSet.showBlendShapes, "Blend shapes")
