@@ -18,6 +18,11 @@ namespace TimiUtils.EZFXLayer
     //  dont delete animations; we just wont reference those assets.
     //  will attempt to convert as much as we go. if we cant convert all transitions, leave them in place.
     //    parameters, menus, etc. but we'll do as much as possible.
+
+    //TODO: sdk-style csproj
+    //mainly langversion=latest is just annoying
+    //also can then do some unit testing
+    //and could hypothetically release as dll instead of source, tho i think source will be better
     [AddComponentMenu("EZFXLayer/EZFXLayer Root Configuration")]
     public class RootConfiguration : MonoBehaviour
     {

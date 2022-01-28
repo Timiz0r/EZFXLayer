@@ -73,189 +73,26 @@ namespace TimiUtils.EZFXLayer
 
             //TODO: progress bars wooooo
 
-            string lastProcessedLayerName = null;
+            AnimatorControllerLayer lastProcessedLayer = null;
             foreach (var animatorLayer in animatorLayers)
             {
-                ProcessAnimatorLayer((AnimatorController)controller, animatorLayer, lastProcessedLayerName);
-                lastProcessedLayerName = animatorLayer.layerName;
+                lastProcessedLayer = ProcessAnimatorLayer(
+                    (AnimatorController)controller, animatorLayer, lastProcessedLayer);
             }
         }
 
-        private void ProcessAnimatorLayer(
+        private AnimatorControllerLayer ProcessAnimatorLayer(
             AnimatorController controller,
             AnimatorLayer animatorLayer,
-            string lastProcessedLayerName)
+            AnimatorControllerLayer lastProcessedLayer)
         {
-            var targetLayer = controller.layers.SingleOrDefault(l => l.name == animatorLayer.layerName);
-            if (targetLayer == null)
-            {
-                targetLayer = new AnimatorControllerLayer()
-                {
-                    blendingMode = AnimatorLayerBlendingMode.Override,
-                    name = animatorLayer.layerName,
-                    stateMachine = new AnimatorStateMachine()
-                    {
-                        name = animatorLayer.layerName,
-                        hideFlags = HideFlags.HideInHierarchy
-                    },
-                    defaultWeight = 1
-                };
-
-                var lastProcessedLayerIndex = Array.FindIndex(controller.layers, l => l.name == lastProcessedLayerName);
-                if (lastProcessedLayerIndex == -1)
-                {
-                    controller.AddLayer(targetLayer);
-                }
-                else
-                {
-                    //the configuration assumes the order of the components matter,
-                    //since layers can obviously blend together
-                    var newLayerSet = new List<AnimatorControllerLayer>(controller.layers);
-                    newLayerSet.Insert(lastProcessedLayerIndex + 1, targetLayer);
-                    controller.layers = newLayerSet.ToArray();
-                }
-
-                //unity code does an undo record, but we dont since we're generating in a temp folder
-                AssetDatabase.AddObjectToAsset(targetLayer.stateMachine, controller);
-            }
-
+            var targetLayer = FindOrAddLayer();
             var stateMachine = targetLayer.stateMachine;
 
-            //removing before add because we're gonna mess with the positioning of the ChildAnimatorStates
-            //and only wanna do that once
             if (animatorLayer.manageStateMachine)
             {
-                //the main reason for generating this array is for convenience of logging and removing the subassets
-                //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
-                var statesToRemove = stateMachine.states
-                    .Select(cs => cs.state)
-                    .Where(cs =>
-                        cs.name != animatorLayer.defaultAnimationSet.AnimatorStateName
-                        && !animatorLayer.animationSets.Any(a => cs.name == a.AnimatorStateName))
-                    .ToArray();
-                stateMachine.states = stateMachine.states
-                    .Where(cs => !statesToRemove.Any(s => s == cs.state))
-                    .ToArray();
-                foreach (var state in statesToRemove)
-                {
-                    AssetDatabase.RemoveObjectFromAsset(state);
-                    //TODO: should perhaps tag log lines with ezfxlayer
-                    //TODO: verify these have a tostring. not playing it safe cos curious myself.
-                    Debug.LogWarning(
-                        $"The animator state '{state}' of layer '{targetLayer}' exists in the " +
-                        $"base animator controller '{controller}' but has no corresponding animation set. " +
-                        "Consider removing the state from the controller. It has been removed from the generated " +
-                        "controller automatically, but not the base one.");
-                }
-            }
-
-            if (animatorLayer.manageStateMachine)
-            {
-                //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
-                //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
-                //where we shouldnt.
-                var states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
-
-                foreach (var animationSet in animatorLayer.animationSets)
-                {
-                    if (states.Any(s => s.name == animationSet.AnimatorStateName)) continue;
-                    states.Add(GenerateAnimatorState(animationSet));
-                }
-
-                AnimatorState defaultState = states.SingleOrDefault(
-                    s => s.name == animatorLayer.defaultAnimationSet.AnimatorStateName);
-                if (defaultState == null)
-                {
-                    states.Add(defaultState = GenerateAnimatorState(animatorLayer.defaultAnimationSet));
-                }
-                stateMachine.defaultState = defaultState;
-
-                int extraStateCounter = 0;
-                stateMachine.states = states
-                    .Select(s => new ChildAnimatorState()
-                    {
-                        state = s,
-                        //TODO: see how it looks
-                        position = new Vector3(250, GetYPosition(s), 0)
-                    })
-                    .ToArray();
-                //TODO: we'll see if the non-expression version looks better
-                float GetYPosition(AnimatorState state)
-                    => state.name == animatorLayer.defaultAnimationSet.AnimatorStateName
-                        ? 0
-                        : animatorLayer.animationSets.FindIndex(a => state.name == a.AnimatorStateName) is var index && index == -1
-                            ? --extraStateCounter * 100
-                            : (index + 1) * 100;
-                AnimatorState GenerateAnimatorState(AnimationSet animationSet)
-                {
-                    var state = new AnimatorState()
-                    {
-                        hideFlags = HideFlags.HideInHierarchy,
-                        name = animationSet.AnimatorStateName
-                    };
-                    //feels strange to add it to the asset before adding it to the state machine,
-                    //but we're about to do that anyway
-                    AssetDatabase.AddObjectToAsset(state, controller);
-                    return state;
-                }
-            }
-
-            //if the configuration has addMissingStates but not this, then, indeed, no transition!
-            if (animatorLayer.manageStateMachine)
-            {
-                var parameterType = animatorLayer.animationSets.Count > 1
-                    ? AnimatorControllerParameterType.Int
-                    : AnimatorControllerParameterType.Bool;
-                var existingParameter = controller.parameters.FirstOrDefault(p => p.name == animatorLayer.layerName);
-                if (existingParameter == null)
-                {
-                    controller.AddParameter(animatorLayer.layerName, parameterType);
-                }
-                else
-                {
-                    existingParameter.type = parameterType;
-                }
-
-                var transitions = new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
-
-                foreach (var state in stateMachine.states.Select(cs => cs.state))
-                {
-                    var targetTransition = transitions.FirstOrDefault(t => t.destinationState == state);
-                    if (targetTransition == null)
-                    {
-                        targetTransition = new AnimatorStateTransition()
-                        {
-                            hasExitTime = false,
-                            hasFixedDuration = true,
-                            duration = 0,
-                            exitTime = 0,
-                            hideFlags = HideFlags.HideInHierarchy,
-                            destinationState = state,
-                            name = state.name
-                        };
-                        transitions.Add(targetTransition);
-                        AssetDatabase.AddObjectToAsset(targetTransition, controller);
-                    }
-
-                    float parameterValue = animatorLayer.animationSets.FindIndex(
-                        anim => state.name == anim.AnimatorStateName) is var index && index == -1
-                            ? 0 //default state, since it's the only one not in animatorLayer.animations
-                            : index + 1;
-                    Debug.Log(parameterValue);
-                    targetTransition.conditions = new[] {
-                        new AnimatorCondition()
-                        {
-                            mode = parameterType == AnimatorControllerParameterType.Int
-                                ? AnimatorConditionMode.Equals
-                                : parameterValue == 0
-                                    ? AnimatorConditionMode.IfNot
-                                    : AnimatorConditionMode.If,
-                            parameter = animatorLayer.layerName,
-                            threshold = parameterValue //seems to be ignored if bool parameter
-                        }
-                    };
-                }
-                stateMachine.anyStateTransitions = transitions.ToArray();
+                AddAndRemoveStates();
+                ReconfigureStateTransitions();
             }
 
             //note for resuming:
@@ -300,6 +137,181 @@ namespace TimiUtils.EZFXLayer
 
             //TODO: only did parameters in the controller,  but didnt do them for vrc
             //TODO: also, still gotta do menus
+
+            return targetLayer;
+
+
+            AnimatorControllerLayer FindOrAddLayer()
+            {
+                var targetLayer = controller.layers.SingleOrDefault(l => l.name == animatorLayer.layerName);
+                if (targetLayer == null)
+                {
+                    targetLayer = new AnimatorControllerLayer()
+                    {
+                        blendingMode = AnimatorLayerBlendingMode.Override,
+                        name = animatorLayer.layerName,
+                        stateMachine = new AnimatorStateMachine()
+                        {
+                            name = animatorLayer.layerName,
+                            hideFlags = HideFlags.HideInHierarchy
+                        },
+                        defaultWeight = 1
+                    };
+
+                    var lastProcessedLayerIndex = Array.FindIndex(
+                        controller.layers, l => l.name == lastProcessedLayer.name);
+                    if (lastProcessedLayerIndex == -1)
+                    {
+                        controller.AddLayer(targetLayer);
+                    }
+                    else
+                    {
+                        //the configuration assumes the order of the components matter,
+                        //since layers can obviously blend together
+                        //we dont do a sort later based on AnimatorLayers because not every AnimatorControllerLayer has a
+                        //corresponding animatorlayer
+                        var newLayerSet = new List<AnimatorControllerLayer>(controller.layers);
+                        newLayerSet.Insert(lastProcessedLayerIndex + 1, targetLayer);
+                        controller.layers = newLayerSet.ToArray();
+                    }
+
+                    //unity code does an undo record, but we dont since we're generating in a temp folder
+                    AssetDatabase.AddObjectToAsset(targetLayer.stateMachine, controller);
+                }
+                return targetLayer;
+            }
+
+            void AddAndRemoveStates()
+            {
+                //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
+                //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
+                //where we shouldnt.
+                //therefore, we can ditch them!
+                var states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
+
+                //the main reason for generating this array is for convenience of logging and removing the subassets
+                //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
+                var statesToRemove = states
+                    .Where(s =>
+                        s.name != animatorLayer.defaultAnimationSet.AnimatorStateName
+                        && !animatorLayer.animationSets.Any(a => s.name == a.AnimatorStateName))
+                    .ToArray();
+                foreach (var state in statesToRemove)
+                {
+                    states.Remove(state);
+                    AssetDatabase.RemoveObjectFromAsset(state);
+                    Debug.LogWarning(
+                        $"The animator state '{state.name}' of layer '{targetLayer.name}' exists in the " +
+                        $"base animator controller '{controller.name}' but has no corresponding animation set. " +
+                        "Consider removing the state from the controller. It has been removed from the generated " +
+                        "controller automatically, but not the base one. This has been done because we replace all " +
+                        "of the transitions' conditions and have no way to know how to create them for unknown states.");
+                }
+
+                foreach (var animationSet in animatorLayer.animationSets)
+                {
+                    if (states.Any(s => s.name == animationSet.AnimatorStateName)) continue;
+                    states.Add(GenerateAnimatorState(animationSet));
+                }
+
+                AnimatorState defaultState = states.SingleOrDefault(
+                    s => s.name == animatorLayer.defaultAnimationSet.AnimatorStateName);
+                if (defaultState == null)
+                {
+                    states.Add(defaultState = GenerateAnimatorState(animatorLayer.defaultAnimationSet));
+                }
+                stateMachine.defaultState = defaultState;
+
+                stateMachine.states = states
+                    .Select(s => new ChildAnimatorState()
+                    {
+                        state = s,
+                        position = new Vector3(250, GetYPosition(s), 0)
+                    })
+                    .ToArray();
+                //we could do a trick where we assume the -1 only happens for defaultAnimationSet and not need
+                //a ternary expression, but that'll surely backfire at some point
+                float GetYPosition(AnimatorState state)
+                    => state.name == animatorLayer.defaultAnimationSet.AnimatorStateName
+                        ? 0
+                        : (animatorLayer.animationSets.FindIndex(a => state.name == a.AnimatorStateName) + 1) * 100;
+            }
+
+            AnimatorState GenerateAnimatorState(AnimationSet animationSet)
+            {
+                var state = new AnimatorState()
+                {
+                    hideFlags = HideFlags.HideInHierarchy,
+                    name = animationSet.AnimatorStateName
+                };
+                //feels strange to add it to the asset before adding it to the state machine,
+                //but we're about to do that anyway
+                AssetDatabase.AddObjectToAsset(state, controller);
+                return state;
+            }
+
+            void ReconfigureStateTransitions()
+            {
+                var parameterType = animatorLayer.animationSets.Count > 1
+                    ? AnimatorControllerParameterType.Int
+                    : AnimatorControllerParameterType.Bool;
+                var existingParameter = controller.parameters.FirstOrDefault(p => p.name == animatorLayer.layerName);
+                if (existingParameter == null)
+                {
+                    //no undos, so we're okay using this method
+                    controller.AddParameter(animatorLayer.layerName, parameterType);
+                }
+                else
+                {
+                    //in case of type updates, we still need to ensure it's correct, even if already existing
+                    existingParameter.type = parameterType;
+                }
+
+                var transitions = new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
+
+                foreach (var state in stateMachine.states.Select(cs => cs.state))
+                {
+                    var isDefaultState = state == stateMachine.defaultState;
+                    var targetTransition = transitions.FirstOrDefault(t => t.destinationState == state);
+                    if (targetTransition == null)
+                    {
+                        targetTransition = new AnimatorStateTransition()
+                        {
+                            hasExitTime = false,
+                            hasFixedDuration = true,
+                            duration = 0,
+                            exitTime = 0,
+                            hideFlags = HideFlags.HideInHierarchy,
+                            destinationState = state,
+                            name = state.name
+                        };
+                        transitions.Add(targetTransition);
+                        AssetDatabase.AddObjectToAsset(targetTransition, controller);
+                    }
+
+                    targetTransition.conditions = new[]
+                    {
+                        parameterType == AnimatorControllerParameterType.Int
+                            ? new AnimatorCondition()
+                            {
+                                mode = AnimatorConditionMode.Equals,
+                                parameter = animatorLayer.layerName,
+                                threshold = isDefaultState
+                                    ? 0
+                                    : animatorLayer.animationSets.FindIndex(
+                                        anim => state.name == anim.AnimatorStateName) + 1
+                            }
+                            : new AnimatorCondition()
+                            {
+                                mode = isDefaultState
+                                    ? AnimatorConditionMode.IfNot
+                                    : AnimatorConditionMode.If,
+                                parameter = animatorLayer.layerName
+                            }
+                    };
+                }
+                stateMachine.anyStateTransitions = transitions.ToArray();
+            }
         }
 
         private static string GetAnimationName(AnimatorLayer animatorLayer, AnimationSet animationSet)
