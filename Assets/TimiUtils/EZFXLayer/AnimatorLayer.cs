@@ -79,14 +79,15 @@ namespace TimiUtils.EZFXLayer
                     target.defaultAnimationSet.isFoldedOut, "Default animation set"))
                 {
                     //TODO: button indenting
-                    EditorGUI.indentLevel++;
+                    //indenting off for now because the toggle for gameobjects ends up behind the button for some reason
+                    //EditorGUI.indentLevel++;
                     RenderAnimationSetEditor(target, target.defaultAnimationSet, isDefaultAnimationSet: true);
 
                     foreach (var animationSet in target.animationSets)
                     {
                         animationSet.ProcessUpdatedDefault(target.defaultAnimationSet);
                     }
-                    EditorGUI.indentLevel--;
+                    //EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
                 EditorGUILayout.Separator();
@@ -104,9 +105,9 @@ namespace TimiUtils.EZFXLayer
                         content: null,
                         foldoutContents: () =>
                         {
-                            EditorGUI.indentLevel++;
+                            //EditorGUI.indentLevel++;
                             RenderAnimationSetEditor(target, animationSet, isDefaultAnimationSet: false);
-                            EditorGUI.indentLevel--;
+                            //EditorGUI.indentLevel--;
                         },
                         foldoutControls: () =>
                         {
