@@ -2,6 +2,7 @@ namespace TimiUtils.EZFXLayer
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
 
     //TODO: do testing for when certain game objects from the scene are deleted, etc.
@@ -17,16 +18,33 @@ namespace TimiUtils.EZFXLayer
         //with actually accurate names
         public string animatorStateNameOverride;
 
-        public bool showBlendShapes = true;
+        public bool isFoldedOut = true;
+
         public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
 
-        public bool showGameObjects = true;
         public List<AnimatableGameObject> gameObjects = new List<AnimatableGameObject>();
 
         //overrides the AnimatorLayer's one. tho, typically, one wouldn't do this; just clarifying behavior in case done.
         public string menuPath = null;
 
-        public string AnimatorStateName => animatorStateNameOverride ?? name;
+        public void ProcessUpdatedDefault(AnimationSet defaultAnimationSet)
+        {
+            blendShapes.RemoveAll(bs => !defaultAnimationSet.blendShapes.Any(dbs => bs.Matches(dbs)));
+            gameObjects.RemoveAll(go => !defaultAnimationSet.gameObjects.Any(dgo => go.Matches(dgo)));
+
+            blendShapes.AddRange(
+                defaultAnimationSet.blendShapes
+                    .Where(dbs => !blendShapes.Any(bs => bs.Matches(dbs)))
+                    .Select(bs => bs.Clone()));
+            gameObjects.AddRange(
+                defaultAnimationSet.gameObjects
+                    .Where(dgo => !gameObjects.Any(go => go.Matches(dgo)))
+                    .Select(go => go.Clone()));
+        }
+
+        public string AnimatorStateName => string.IsNullOrEmpty(animatorStateNameOverride)
+            ? name
+            : animatorStateNameOverride;
 
         [Serializable]
         public class AnimatableBlendShape
@@ -34,6 +52,16 @@ namespace TimiUtils.EZFXLayer
             public SkinnedMeshRenderer skinnedMeshRenderer;
             public string name;
             public float value;
+
+            public bool Matches(AnimatableBlendShape blendShape)
+                => skinnedMeshRenderer == blendShape.skinnedMeshRenderer && name == blendShape.name;
+
+            public AnimatableBlendShape Clone() => new AnimatableBlendShape()
+            {
+                skinnedMeshRenderer = skinnedMeshRenderer,
+                name = name,
+                value = value
+            };
         }
 
         [Serializable]
@@ -44,6 +72,16 @@ namespace TimiUtils.EZFXLayer
             //TODO: will also need a way to keep it up-to-date if things get renamed
             public string path;
             public bool active;
+
+            public AnimatableGameObject Clone() => new AnimatableGameObject()
+            {
+                gameObject = gameObject,
+                path = path,
+                active = active
+            };
+
+            internal bool Matches(AnimatableGameObject gameObject)
+                => this.gameObject == gameObject.gameObject;
         }
     }
 }
