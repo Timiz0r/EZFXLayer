@@ -12,7 +12,7 @@ namespace TimiUtils.EZFXLayer
     {
         public string layerName;
         public AnimationSet defaultAnimationSet = new AnimationSet() { name = "Default" };
-        public List<AnimationSet> animations = new List<AnimationSet>();
+        public List<AnimationSet> animationSets = new List<AnimationSet>();
 
         //parameter name to be layerName
         public bool manageStateMachine = true;
@@ -54,10 +54,10 @@ namespace TimiUtils.EZFXLayer
 
         public void AddAnimationSet()
         {
-            var animation = new AnimationSet() { name = $"{gameObject.name}_{animations.Count}" };
-            animation.blendShapes.AddRange(defaultAnimationSet.blendShapes.Select(bs => bs.Clone()));
-            animation.gameObjects.AddRange(defaultAnimationSet.gameObjects.Select(go => go.Clone()));
-            animations.Add(animation);
+            var animationSet = new AnimationSet() { name = $"{gameObject.name}_{animationSets.Count}" };
+            animationSet.blendShapes.AddRange(defaultAnimationSet.blendShapes.Select(bs => bs.Clone()));
+            animationSet.gameObjects.AddRange(defaultAnimationSet.gameObjects.Select(go => go.Clone()));
+            animationSets.Add(animationSet);
         }
 
         [CustomEditor(typeof(AnimatorLayer))]
@@ -69,7 +69,6 @@ namespace TimiUtils.EZFXLayer
 
                 target.layerName = EditorGUILayout.DelayedTextField("Name", target.layerName);
                 target.menuPath = EditorGUILayout.DelayedTextField("Menu path", target.menuPath);
-                //TODO: rename AnimationSet to Animation or something
                 target.generateSubmenuForMultipleAnimationSets = EditorGUILayout.ToggleLeft(
                     "Generate submenu if multiple animations", target.generateSubmenuForMultipleAnimationSets);
                 target.manageStateMachine = EditorGUILayout.ToggleLeft(
@@ -77,52 +76,52 @@ namespace TimiUtils.EZFXLayer
                 EditorGUILayout.Separator();
 
                 if (target.defaultAnimationSet.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(
-                    target.defaultAnimationSet.isFoldedOut, "Default animation"))
+                    target.defaultAnimationSet.isFoldedOut, "Default animation set"))
                 {
                     //TODO: button indenting
                     EditorGUI.indentLevel++;
-                    RenderAnimationSetEditor(target, target.defaultAnimationSet, isDefaultAnimation: true);
+                    RenderAnimationSetEditor(target, target.defaultAnimationSet, isDefaultAnimationSet: true);
 
-                    foreach (var animation in target.animations)
+                    foreach (var animationSet in target.animationSets)
                     {
-                        animation.ProcessUpdatedDefault(target.defaultAnimationSet);
+                        animationSet.ProcessUpdatedDefault(target.defaultAnimationSet);
                     }
                     EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
                 EditorGUILayout.Separator();
 
-                if (GUILayout.Button("Add new animation"))
+                if (GUILayout.Button("Add new animation set"))
                 {
                     target.AddAnimationSet();
                 }
 
-                AnimationSet animationToDelete = null;
-                foreach (var animation in target.animations)
+                AnimationSet animationSetToDelete = null;
+                foreach (var animationSet in target.animationSets)
                 {
-                    animation.isFoldedOut = FoldoutWithControls(
-                        animation.isFoldedOut,
+                    animationSet.isFoldedOut = FoldoutWithControls(
+                        animationSet.isFoldedOut,
                         content: null,
                         foldoutContents: () =>
                         {
                             EditorGUI.indentLevel++;
-                            RenderAnimationSetEditor(target, animation, isDefaultAnimation: false);
+                            RenderAnimationSetEditor(target, animationSet, isDefaultAnimationSet: false);
                             EditorGUI.indentLevel--;
                         },
                         foldoutControls: () =>
                         {
-                            animation.name = EditorGUILayout.DelayedTextField(animation.name);
+                            animationSet.name = EditorGUILayout.DelayedTextField(animationSet.name);
                             if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                             {
-                                animationToDelete = animation;
+                                animationSetToDelete = animationSet;
                             }
                         }
                     );
                     EditorGUILayout.Separator();
                 }
-                if (animationToDelete != null)
+                if (animationSetToDelete != null)
                 {
-                    target.animations.Remove(animationToDelete);
+                    target.animationSets.Remove(animationSetToDelete);
                 }
             }
 
@@ -131,11 +130,10 @@ namespace TimiUtils.EZFXLayer
             //  but not transitions, unless we wanna generate parameters too. not generating parameters reduces the
             //impact of stale states from a rename. do we wanna force transition generation toggle on if off?
             private void RenderAnimationSetEditor(
-                AnimatorLayer animatorLayer, AnimationSet animationSet, bool isDefaultAnimation)
+                AnimatorLayer animatorLayer, AnimationSet animationSet, bool isDefaultAnimationSet)
             {
                 EditorGUILayout.LabelField("Blend shapes", EditorStyles.boldLabel);
-                //TODO: might do the skinnedmeshrenderer-based grouping here, as well
-                //and might change the modeling based around that
+
                 AnimationSet.AnimatableBlendShape blendShapeToDelete = null;
                 foreach (var smrGroup in animationSet.blendShapes.GroupBy(bs => bs.skinnedMeshRenderer))
                 {
@@ -149,7 +147,7 @@ namespace TimiUtils.EZFXLayer
                         EditorGUILayout.BeginHorizontal();
                         blendShape.value = EditorGUILayout.Slider(blendShape.name, blendShape.value, 0, 100);
 
-                        if (isDefaultAnimation && GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                        if (isDefaultAnimationSet && GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                         {
                             blendShapeToDelete = blendShape;
                         }
@@ -160,7 +158,7 @@ namespace TimiUtils.EZFXLayer
                 {
                     animationSet.blendShapes.Remove(blendShapeToDelete);
                 }
-                if (isDefaultAnimation && Button("Select blend shapes", out var selectBlendShapesButtonRect))
+                if (isDefaultAnimationSet && Button("Select blend shapes", out var selectBlendShapesButtonRect))
                 {
                     PopupWindow.Show(
                         selectBlendShapesButtonRect,
@@ -183,7 +181,7 @@ namespace TimiUtils.EZFXLayer
 
                     gameObject.active = Checkbox(gameObject.active);
 
-                    if (isDefaultAnimation && GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                    if (isDefaultAnimationSet && GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                     {
                         gameObjectToDelete = gameObject;
                     }
@@ -194,7 +192,7 @@ namespace TimiUtils.EZFXLayer
                     animationSet.gameObjects.Remove(gameObjectToDelete);
                 }
 
-                if (isDefaultAnimation)
+                if (isDefaultAnimationSet)
                 {
                     var newGameObject = (GameObject)EditorGUILayout.ObjectField(
                         "Add GameObject", null, typeof(GameObject), allowSceneObjects: true);

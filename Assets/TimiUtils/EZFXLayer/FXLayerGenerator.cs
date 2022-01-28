@@ -131,7 +131,7 @@ namespace TimiUtils.EZFXLayer
                     .Select(cs => cs.state)
                     .Where(cs =>
                         cs.name != animatorLayer.defaultAnimationSet.AnimatorStateName
-                        && !animatorLayer.animations.Any(a => cs.name == a.AnimatorStateName))
+                        && !animatorLayer.animationSets.Any(a => cs.name == a.AnimatorStateName))
                     .ToArray();
                 stateMachine.states = stateMachine.states
                     .Where(cs => !statesToRemove.Any(s => s == cs.state))
@@ -156,10 +156,10 @@ namespace TimiUtils.EZFXLayer
                 //where we shouldnt.
                 var states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
 
-                foreach (var animation in animatorLayer.animations)
+                foreach (var animationSet in animatorLayer.animationSets)
                 {
-                    if (states.Any(s => s.name == animation.AnimatorStateName)) continue;
-                    states.Add(GenerateAnimatorState(animation));
+                    if (states.Any(s => s.name == animationSet.AnimatorStateName)) continue;
+                    states.Add(GenerateAnimatorState(animationSet));
                 }
 
                 AnimatorState defaultState = states.SingleOrDefault(
@@ -183,7 +183,7 @@ namespace TimiUtils.EZFXLayer
                 float GetYPosition(AnimatorState state)
                     => state.name == animatorLayer.defaultAnimationSet.AnimatorStateName
                         ? 0
-                        : animatorLayer.animations.FindIndex(a => state.name == a.AnimatorStateName) is var index && index == -1
+                        : animatorLayer.animationSets.FindIndex(a => state.name == a.AnimatorStateName) is var index && index == -1
                             ? --extraStateCounter * 100
                             : (index + 1) * 100;
                 AnimatorState GenerateAnimatorState(AnimationSet animationSet)
@@ -203,7 +203,7 @@ namespace TimiUtils.EZFXLayer
             //if the configuration has addMissingStates but not this, then, indeed, no transition!
             if (animatorLayer.manageStateMachine)
             {
-                var parameterType = animatorLayer.animations.Count > 1
+                var parameterType = animatorLayer.animationSets.Count > 1
                     ? AnimatorControllerParameterType.Int
                     : AnimatorControllerParameterType.Bool;
                 var existingParameter = controller.parameters.FirstOrDefault(p => p.name == animatorLayer.layerName);
@@ -237,7 +237,7 @@ namespace TimiUtils.EZFXLayer
                         AssetDatabase.AddObjectToAsset(targetTransition, controller);
                     }
 
-                    float parameterValue = animatorLayer.animations.FindIndex(
+                    float parameterValue = animatorLayer.animationSets.FindIndex(
                         anim => state.name == anim.AnimatorStateName) is var index && index == -1
                             ? 0 //default state, since it's the only one not in animatorLayer.animations
                             : index + 1;
