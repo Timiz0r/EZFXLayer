@@ -101,7 +101,7 @@ namespace TimiUtils.EZFXLayer
                 {
                     animation.isFoldedOut = FoldoutWithControls(
                         animation.isFoldedOut,
-                        animation.name,
+                        content: null,
                         foldoutContents: () =>
                         {
                             EditorGUI.indentLevel++;
@@ -110,6 +110,7 @@ namespace TimiUtils.EZFXLayer
                         },
                         foldoutControls: () =>
                         {
+                            animation.name = EditorGUILayout.DelayedTextField(animation.name);
                             if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                             {
                                 animationToDelete = animation;
@@ -223,8 +224,15 @@ namespace TimiUtils.EZFXLayer
 
             private static bool FoldoutWithControls(bool foldout, string content, Action foldoutContents, Action foldoutControls)
             {
+                //still a small gap between foldout icon and foldoutControls when no content, but not too bad
+                //gap is bigger with EditorGUILayout
+                var guiContent = new GUIContent(content);
                 EditorGUILayout.BeginHorizontal();
-                if (foldout = EditorGUILayout.BeginFoldoutHeaderGroup(foldout, content))
+                if (foldout = EditorGUI.Foldout(
+                    GUILayoutUtility.GetRect(guiContent, EditorStyles.foldoutHeader, GUILayout.ExpandWidth(false)),
+                    foldout,
+                    guiContent
+                ))
                 {
                     foldoutControls();
                     EditorGUILayout.EndHorizontal();
@@ -236,7 +244,6 @@ namespace TimiUtils.EZFXLayer
                     foldoutControls();
                     EditorGUILayout.EndHorizontal();
                 }
-                EditorGUILayout.EndFoldoutHeaderGroup();
                 return foldout;
             }
 
