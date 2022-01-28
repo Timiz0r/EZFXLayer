@@ -1,5 +1,6 @@
 namespace TimiUtils.EZFXLayer
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using UnityEditor;
@@ -74,18 +75,21 @@ namespace TimiUtils.EZFXLayer
                     "Manage states, conditions, and parameters", target.manageStateMachine);
                 EditorGUILayout.Separator();
 
-                if (target.defaultAnimationSet.isFoldedOut =
-                    EditorGUILayout.BeginFoldoutHeaderGroup(
-                        target.defaultAnimationSet.isFoldedOut, "Default animation"))
+                if (target.defaultAnimationSet.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(
+                    target.defaultAnimationSet.isFoldedOut, "Default animation"))
                 {
+                    //TODO: button indenting
+                    EditorGUI.indentLevel++;
                     RenderAnimationSetEditor(target, target.defaultAnimationSet, isDefaultAnimation: true);
 
                     foreach (var animation in target.animations)
                     {
                         animation.ProcessUpdatedDefault(target.defaultAnimationSet);
                     }
+                    EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUILayout.Separator();
 
                 if (GUILayout.Button("Add new animation"))
                 {
@@ -95,18 +99,24 @@ namespace TimiUtils.EZFXLayer
                 AnimationSet animationToDelete = null;
                 foreach (var animation in target.animations)
                 {
-                    if (animation.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(
-                        animation.isFoldedOut, animation.name
-                    ))
-                    {
-                        if (GUILayout.Button("Delete animation"))
+                    animation.isFoldedOut = FoldoutWithControls(
+                        animation.isFoldedOut,
+                        animation.name,
+                        foldoutContents: () =>
                         {
-                            animationToDelete = animation;
-                            continue;
+                            EditorGUI.indentLevel++;
+                            RenderAnimationSetEditor(target, animation, isDefaultAnimation: false);
+                            EditorGUI.indentLevel--;
+                        },
+                        foldoutControls: () =>
+                        {
+                            if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                            {
+                                animationToDelete = animation;
+                            }
                         }
-                        RenderAnimationSetEditor(target, animation, isDefaultAnimation: false);
-                    }
-                    EditorGUILayout.EndFoldoutHeaderGroup();
+                    );
+                    EditorGUILayout.Separator();
                 }
                 if (animationToDelete != null)
                 {
@@ -210,6 +220,25 @@ namespace TimiUtils.EZFXLayer
                     GUILayoutUtility.GetRect(
                         GUIContent.none, GUI.skin.toggle, GUILayout.ExpandWidth(false)),
                     value);
+
+            private static bool FoldoutWithControls(bool foldout, string content, Action foldoutContents, Action foldoutControls)
+            {
+                EditorGUILayout.BeginHorizontal();
+                if (foldout = EditorGUILayout.BeginFoldoutHeaderGroup(foldout, content))
+                {
+                    foldoutControls();
+                    EditorGUILayout.EndHorizontal();
+
+                    foldoutContents();
+                }
+                else
+                {
+                    foldoutControls();
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                return foldout;
+            }
 
             private static string GetPath(GameObject gameObject)
             {
