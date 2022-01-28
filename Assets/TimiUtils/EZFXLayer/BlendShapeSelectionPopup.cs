@@ -30,7 +30,7 @@ namespace TimiUtils.EZFXLayer
                 foreach (var smr in avatar.GetComponentsInChildren<SkinnedMeshRenderer>(includeInactive: true))
                 {
                     var mesh = smr.sharedMesh;
-                    foreach (var blendShape in Enumerable.Range(0, mesh.blendShapeCount).Select(i => mesh.GetBlendShapeName(i)))
+                    foreach (var blendShape in mesh.GetBlendShapeNames())
                     {
                         bool alreadySelected = alreadySelectedBlendShapes.Any(
                             bs => bs.skinnedMeshRenderer == smr && bs.name == blendShape);

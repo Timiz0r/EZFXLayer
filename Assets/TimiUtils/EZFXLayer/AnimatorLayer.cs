@@ -27,7 +27,6 @@ namespace TimiUtils.EZFXLayer
             layerName = layerName ?? this.gameObject.name;
         }
 
-        //TODO: in order to maintain the strict ordering, reproduce a new list each update, instead of add and remove
         public void UpdateBlendShapeSelection(AnimationSet animationSet, IReadOnlyList<BlendShapeSelectionPopup.BlendShapeRecord> blendShapeRecords)
         {
             Undo.RecordObject(this, "Changed selection of blend shapes");
@@ -37,6 +36,8 @@ namespace TimiUtils.EZFXLayer
 
                 if (record.CurrentlySelected)
                 {
+                    //was considering inserting this into the same place it would be in the list of blendshapes
+                    //but since that order can just change thanks to mesh changes, we'll just order it in editor
                     animationSet.blendShapes.Add(new AnimationSet.AnimatableBlendShape()
                     {
                         skinnedMeshRenderer = record.SkinnedMeshRenderer,
@@ -142,7 +143,8 @@ namespace TimiUtils.EZFXLayer
                     EditorGUILayout.ObjectField(smrGroup.Key, typeof(SkinnedMeshRenderer), allowSceneObjects: true);
                     EditorGUI.EndDisabledGroup();
 
-                    foreach (var blendShape in smrGroup)
+                    var meshBlendShapes = smrGroup.Key.sharedMesh.GetBlendShapeNames().ToList();
+                    foreach (var blendShape in smrGroup.OrderBy(bs => meshBlendShapes.FindIndex(bsn => bs.name == bsn)))
                     {
                         EditorGUILayout.BeginHorizontal();
                         blendShape.value = EditorGUILayout.Slider(blendShape.name, blendShape.value, 0, 100);
