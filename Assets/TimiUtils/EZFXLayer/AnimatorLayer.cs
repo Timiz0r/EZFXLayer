@@ -18,11 +18,12 @@ namespace TimiUtils.EZFXLayer
         public string menuPath = null;
         public bool generateSubmenuForMultipleAnimationSets = true;
 
-        public AnimatorLayer()
+        public void Reset()
         {
             //for the initial value of the component
             //but we dont exclusively go with it because we dont disallow multiple components per GameObject
-            layerName = this.gameObject.name;
+            //TODO: get more unique default names. tho, still will be uncommon to have multiple per gameobject.
+            layerName = layerName ?? this.gameObject.name;
         }
 
         //TODO: in order to maintain the strict ordering, reproduce a new list each update, instead of add and remove
@@ -49,9 +50,13 @@ namespace TimiUtils.EZFXLayer
             }
         }
 
-        //TODO: will prob also end up adding to list
-        public AnimationSet CreateAnimationSet()
-            => new AnimationSet() { name = $"{gameObject.name}_{animations.Count}" };
+        public void AddAnimationSet()
+        {
+            var animation = new AnimationSet() { name = $"{gameObject.name}_{animations.Count}" };
+            animation.blendShapes.AddRange(defaultAnimationSet.blendShapes.Select(bs => bs.Clone()));
+            animation.gameObjects.AddRange(defaultAnimationSet.gameObjects.Select(go => go.Clone()));
+            animations.Add(animation);
+        }
 
         [CustomEditor(typeof(AnimatorLayer))]
         public class Editor : UnityEditor.Editor
@@ -60,85 +65,124 @@ namespace TimiUtils.EZFXLayer
             {
                 var target = (AnimatorLayer)base.target;
 
-                EditorGUILayout.LabelField("Default animation set");
-                RenderAnimationSetEditor(target, target.defaultAnimationSet);
+                target.layerName = EditorGUILayout.DelayedTextField("Name", target.layerName);
+                target.menuPath = EditorGUILayout.DelayedTextField("Menu path", target.menuPath);
+                //TODO: rename AnimationSet to Animation or something
+                target.generateSubmenuForMultipleAnimationSets = EditorGUILayout.ToggleLeft(
+                    "Generate submenu if multiple animations", target.generateSubmenuForMultipleAnimationSets);
+                target.manageStateMachine = EditorGUILayout.ToggleLeft(
+                    "Manage states, conditions, and parameters", target.manageStateMachine);
                 EditorGUILayout.Separator();
+
+                if (target.defaultAnimationSet.isFoldedOut =
+                    EditorGUILayout.BeginFoldoutHeaderGroup(
+                        target.defaultAnimationSet.isFoldedOut, "Default animation"))
+                {
+                    RenderAnimationSetEditor(target, target.defaultAnimationSet, isDefaultAnimation: true);
+
+                    foreach (var animation in target.animations)
+                    {
+                        animation.ProcessUpdatedDefault(target.defaultAnimationSet);
+                    }
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+
+                if (GUILayout.Button("Add new animation"))
+                {
+                    target.AddAnimationSet();
+                }
+
+                AnimationSet animationToDelete = null;
+                foreach (var animation in target.animations)
+                {
+                    if (animation.isFoldedOut = EditorGUILayout.BeginFoldoutHeaderGroup(
+                        animation.isFoldedOut, animation.name
+                    ))
+                    {
+                        if (GUILayout.Button("Delete animation"))
+                        {
+                            animationToDelete = animation;
+                            continue;
+                        }
+                        RenderAnimationSetEditor(target, animation, isDefaultAnimation: false);
+                    }
+                    EditorGUILayout.EndFoldoutHeaderGroup();
+                }
+                if (animationToDelete != null)
+                {
+                    target.animations.Remove(animationToDelete);
+                }
             }
 
             //TODO: undo doesn't seem to work, so gotta do it manually!
             //TODO: add a button for populating the base controller with a placeholder layer and states
             //  but not transitions, unless we wanna generate parameters too. not generating parameters reduces the
             //impact of stale states from a rename. do we wanna force transition generation toggle on if off?
-            private void RenderAnimationSetEditor(AnimatorLayer animatorLayer, AnimationSet animationSet)
+            private void RenderAnimationSetEditor(
+                AnimatorLayer animatorLayer, AnimationSet animationSet, bool isDefaultAnimation)
             {
-                if (animationSet.showBlendShapes =
-                    EditorGUILayout.BeginFoldoutHeaderGroup(animationSet.showBlendShapes, "Blend shapes")
-                )
+                EditorGUILayout.LabelField("Blend shapes", EditorStyles.boldLabel);
+                //TODO: might do the skinnedmeshrenderer-based grouping here, as well
+                //and might change the modeling based around that
+                AnimationSet.AnimatableBlendShape blendShapeToDelete = null;
+                foreach (var smrGroup in animationSet.blendShapes.GroupBy(bs => bs.skinnedMeshRenderer))
                 {
-                    //TODO: might do the skinnedmeshrenderer-based grouping here, as well
-                    //and might change the modeling based around that
-                    AnimationSet.AnimatableBlendShape blendShapeToDelete = null;
-                    foreach (var smrGroup in animationSet.blendShapes.GroupBy(bs => bs.skinnedMeshRenderer))
-                    {
-                        EditorGUI.BeginDisabledGroup(true);
-                        EditorGUILayout.ObjectField(smrGroup.Key, typeof(SkinnedMeshRenderer), allowSceneObjects: true);
-                        EditorGUI.EndDisabledGroup();
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.ObjectField(smrGroup.Key, typeof(SkinnedMeshRenderer), allowSceneObjects: true);
+                    EditorGUI.EndDisabledGroup();
 
-                        foreach (var blendShape in smrGroup)
-                        {
-                            EditorGUILayout.BeginHorizontal();
-                            blendShape.value = EditorGUILayout.Slider(blendShape.name, blendShape.value, 0, 100);
-
-                            if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
-                            {
-                                blendShapeToDelete = blendShape;
-                            }
-                            EditorGUILayout.EndHorizontal();
-                        }
-                    }
-                    if (blendShapeToDelete != null)
-                    {
-                        animationSet.blendShapes.Remove(blendShapeToDelete);
-                    }
-
-                    if (Button("Select blend shapes", out var selectBlendShapesButtonRect))
-                    {
-                        PopupWindow.Show(
-                            selectBlendShapesButtonRect,
-                            new BlendShapeSelectionPopup(
-                                animatorLayer.gameObject.scene,
-                                animationSet.blendShapes,
-                                blendShapeRecords => animatorLayer.UpdateBlendShapeSelection(
-                                    animationSet, blendShapeRecords)));
-                    }
-                }
-                EditorGUILayout.EndFoldoutHeaderGroup();
-
-                if (animationSet.showGameObjects =
-                    EditorGUILayout.BeginFoldoutHeaderGroup(animationSet.showGameObjects, "GameObjects")
-                )
-                {
-                    AnimationSet.AnimatableGameObject gameObjectToDelete = null;
-                    foreach (var gameObject in animationSet.gameObjects)
+                    foreach (var blendShape in smrGroup)
                     {
                         EditorGUILayout.BeginHorizontal();
-                        EditorGUI.BeginDisabledGroup(true);
-                        EditorGUILayout.ObjectField(gameObject.gameObject, typeof(GameObject), allowSceneObjects: true);
-                        EditorGUI.EndDisabledGroup();
+                        blendShape.value = EditorGUILayout.Slider(blendShape.name, blendShape.value, 0, 100);
 
-                        gameObject.active = Checkbox(gameObject.active);
-
-                        if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                        if (isDefaultAnimation && GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                         {
-                            gameObjectToDelete = gameObject;
+                            blendShapeToDelete = blendShape;
                         }
                         EditorGUILayout.EndHorizontal();
                     }
-                    if (gameObjectToDelete != null)
-                    {
-                        animationSet.gameObjects.Remove(gameObjectToDelete);
-                    }
+                }
+                if (blendShapeToDelete != null)
+                {
+                    animationSet.blendShapes.Remove(blendShapeToDelete);
+                }
+                if (isDefaultAnimation && Button("Select blend shapes", out var selectBlendShapesButtonRect))
+                {
+                    PopupWindow.Show(
+                        selectBlendShapesButtonRect,
+                        new BlendShapeSelectionPopup(
+                            animatorLayer.gameObject.scene,
+                            animationSet.blendShapes,
+                            blendShapeRecords => animatorLayer.UpdateBlendShapeSelection(
+                                animationSet, blendShapeRecords)));
+                }
+                EditorGUILayout.Separator();
 
+                EditorGUILayout.LabelField("GameObjects", EditorStyles.boldLabel);
+                AnimationSet.AnimatableGameObject gameObjectToDelete = null;
+                foreach (var gameObject in animationSet.gameObjects)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.ObjectField(gameObject.gameObject, typeof(GameObject), allowSceneObjects: true);
+                    EditorGUI.EndDisabledGroup();
+
+                    gameObject.active = Checkbox(gameObject.active);
+
+                    if (isDefaultAnimation && GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                    {
+                        gameObjectToDelete = gameObject;
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                if (gameObjectToDelete != null)
+                {
+                    animationSet.gameObjects.Remove(gameObjectToDelete);
+                }
+
+                if (isDefaultAnimation)
+                {
                     var newGameObject = (GameObject)EditorGUILayout.ObjectField(
                         "Add GameObject", null, typeof(GameObject), allowSceneObjects: true);
                     if (newGameObject != null)
@@ -151,7 +195,6 @@ namespace TimiUtils.EZFXLayer
                         newGameObject = null;
                     }
                 }
-                EditorGUILayout.EndFoldoutHeaderGroup();
             }
 
             private static bool Button(string text, out Rect rect)

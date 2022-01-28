@@ -95,9 +95,10 @@ namespace TimiUtils.EZFXLayer
                     name = animatorLayer.layerName,
                     stateMachine = new AnimatorStateMachine()
                     {
-                        name = animatorLayer.name,
+                        name = animatorLayer.layerName,
                         hideFlags = HideFlags.HideInHierarchy
-                    }
+                    },
+                    defaultWeight = 1
                 };
 
                 var lastProcessedLayerIndex = Array.FindIndex(controller.layers, l => l.name == lastProcessedLayerName);
@@ -110,7 +111,7 @@ namespace TimiUtils.EZFXLayer
                     //the configuration assumes the order of the components matter,
                     //since layers can obviously blend together
                     var newLayerSet = new List<AnimatorControllerLayer>(controller.layers);
-                    newLayerSet.Insert(lastProcessedLayerIndex, targetLayer);
+                    newLayerSet.Insert(lastProcessedLayerIndex + 1, targetLayer);
                     controller.layers = newLayerSet.ToArray();
                 }
 
@@ -175,7 +176,7 @@ namespace TimiUtils.EZFXLayer
                     {
                         state = s,
                         //TODO: see how it looks
-                        position = new Vector3(100, GetYPosition(s), 0)
+                        position = new Vector3(250, GetYPosition(s), 0)
                     })
                     .ToArray();
                 //TODO: we'll see if the non-expression version looks better
@@ -190,7 +191,7 @@ namespace TimiUtils.EZFXLayer
                     var state = new AnimatorState()
                     {
                         hideFlags = HideFlags.HideInHierarchy,
-                        name = animationSet.animatorStateNameOverride ?? animationSet.name
+                        name = animationSet.AnimatorStateName
                     };
                     //feels strange to add it to the asset before adding it to the state machine,
                     //but we're about to do that anyway
@@ -219,11 +220,6 @@ namespace TimiUtils.EZFXLayer
 
                 foreach (var state in stateMachine.states.Select(cs => cs.state))
                 {
-                    float parameterValue = animatorLayer.animations.FindIndex(
-                        anim => state.name == anim.AnimatorStateName) is var index && index == -1
-                            ? 0 //default state, since it's the only one not in animatorLayer.animations
-                            : index + 1;
-
                     var targetTransition = transitions.FirstOrDefault(t => t.destinationState == state);
                     if (targetTransition == null)
                     {
@@ -234,20 +230,32 @@ namespace TimiUtils.EZFXLayer
                             duration = 0,
                             exitTime = 0,
                             hideFlags = HideFlags.HideInHierarchy,
-                            destinationState = state
+                            destinationState = state,
+                            name = state.name
                         };
                         transitions.Add(targetTransition);
                         AssetDatabase.AddObjectToAsset(targetTransition, controller);
                     }
+
+                    float parameterValue = animatorLayer.animations.FindIndex(
+                        anim => state.name == anim.AnimatorStateName) is var index && index == -1
+                            ? 0 //default state, since it's the only one not in animatorLayer.animations
+                            : index + 1;
+                    Debug.Log(parameterValue);
                     targetTransition.conditions = new[] {
                         new AnimatorCondition()
                         {
-                            mode = AnimatorConditionMode.If,
+                            mode = parameterType == AnimatorControllerParameterType.Int
+                                ? AnimatorConditionMode.Equals
+                                : parameterValue == 0
+                                    ? AnimatorConditionMode.IfNot
+                                    : AnimatorConditionMode.If,
                             parameter = animatorLayer.layerName,
-                            threshold = parameterValue
+                            threshold = parameterValue //seems to be ignored if bool parameter
                         }
                     };
                 }
+                stateMachine.anyStateTransitions = transitions.ToArray();
             }
 
             //note for resuming:
