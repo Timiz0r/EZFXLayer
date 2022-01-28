@@ -70,6 +70,7 @@ namespace TimiUtils.EZFXLayer
             public GameObject gameObject;
             //the path will only be used for finding a new GameObject if the original is deleted or something
             //TODO: will also need a way to keep it up-to-date if things get renamed
+            //  perhaps [UnityEditor.InitializeOnLoad] and EditorSceneManager.activeSceneChangedInEditMode?
             public string path;
             public bool active;
 

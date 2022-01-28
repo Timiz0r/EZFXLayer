@@ -13,10 +13,6 @@ namespace TimiUtils.EZFXLayer
     //instead of generating the asset itself.
     //but being able to look at the result in a natural way is nice, so we'll go with that even if we dont have to.
 
-    //TODO: move this comment to a more appropriate place when implemented
-    //not generating in place because generating a new one keeps the controller cleaner if stuff is removed later,
-    //among other good reasons surely.
-
     //TODO: add a button to import to convert the fx layer
     //  will not be all-or-nothing; instead, "fail slow" and partially.
     //  dont delete animations; we just wont reference those assets.
