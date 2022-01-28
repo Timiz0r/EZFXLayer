@@ -201,7 +201,7 @@ namespace TimiUtils.EZFXLayer
                         animationSet.gameObjects.Add(new AnimationSet.AnimatableGameObject()
                         {
                             gameObject = newGameObject,
-                            path = GetPath(newGameObject)
+                            path = newGameObject.GetRelativePath()
                         });
                         newGameObject = null;
                     }
@@ -245,19 +245,6 @@ namespace TimiUtils.EZFXLayer
                     EditorGUILayout.EndHorizontal();
                 }
                 return foldout;
-            }
-
-            private static string GetPath(GameObject gameObject)
-            {
-                List<string> names = new List<string>();
-                while (gameObject != null && gameObject.GetComponent<VRCAvatarDescriptor>() == null)
-                {
-                    names.Add(gameObject.name);
-                    gameObject = gameObject.transform.parent.gameObject;
-                }
-                names.Reverse();
-                var result = string.Join("/", names);
-                return result;
             }
         }
     }

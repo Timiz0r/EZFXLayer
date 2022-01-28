@@ -11,6 +11,8 @@ namespace TimiUtils.EZFXLayer
 {
     public class FXLayerGenerator
     {
+        //🤷
+        private static readonly float ApparentFrameRate = new AnimationClip().frameRate;
         private readonly RootConfiguration rootConfiguration;
         private readonly IReadOnlyList<AnimatorLayer> animatorLayers;
         private readonly string baseFXLayerPath;
@@ -31,7 +33,6 @@ namespace TimiUtils.EZFXLayer
 
             animatorLayers = rootGameObjects.SelectMany(go => go.GetComponentsInChildren<AnimatorLayer>()).ToArray();
             //or why not just validate this here, too? 🤷
-            //if (animatorLayers.Select(al => al.layerName).Distinct().Count() != animatorLayers.Count)
             var layersWithDuplicateNames = animatorLayers.GroupBy(l => l.layerName).Where(g => g.Count() > 1).ToArray();
             if (layersWithDuplicateNames.Length > 0)
             {
@@ -41,10 +42,13 @@ namespace TimiUtils.EZFXLayer
                     .Select(l => l.gameObject)
                     .Distinct();
                 //would also be interested in logging the layer names,
-                //but gameobjects more important (can also find name there)
+                //but gameobjects more important (can also find layer name there)
                 throw new Exception(
                     $"There are multiple animator layers with the same name. GameObjects: {gameObjectsWithDuplicates} ");
             }
+
+            //TODO: want to do a lot of the same validations in both the generator and in the scene
+            //so rather than splitting them up, just wont add any yet! 😅
 
             //TODO: these feel like htey need refactoring
             //also remove the side-effect from the ctor and dedupe a bit in Generate
@@ -95,6 +99,8 @@ namespace TimiUtils.EZFXLayer
                 ReconfigureStateTransitions();
             }
 
+            GenerateAnimations();
+
             //note for resuming:
             //need to think about parameters more
             //in general, want the layer name and parameter name to basically match (with some dedupe logic if conflicting).
@@ -108,7 +114,7 @@ namespace TimiUtils.EZFXLayer
             //  for matching states. if there's an animation without a matching state, we fail.
             //generate-only is done if there is no matching layer. we generate the animations, states, and parameters.
             //
-            //an interesting case came up where we generate a placeholder layer in the base, then rename the animationlayer. we'd be
+            //an interesting case came up where we generate a placeholder layer in the base, then rename the animatorlayer. we'd be
             //  left with the old conditions. one solution is to store additional state in the components to detect it
             //  and warn -- like layerNameAtPlaceholderGeneration. instead, since there are surely other cases where
             //  "auto-behavior" sux, we'll add a foldout that specifies what to generate:
@@ -116,9 +122,9 @@ namespace TimiUtils.EZFXLayer
             //  ~generate parameters~ (see below), generate menus (more than just toggle)
             //
             //prob will also introduce the base menu and parameters into the root configuration
-            //submenus will be fun. the only peculiar case is if an animationlayer has multiple animationsets, thereby
-            //  requiring either a submenu for that animationlayer or per-animationset configuration. will prob go with both,
-            //  allowing an animationset to override the animationlayer (probably atypical tho).
+            //submenus will be fun. the only peculiar case is if an animatorlayer has multiple animationsets, thereby
+            //  requiring either a submenu for that animatorlayer or per-animationset configuration. will prob go with both,
+            //  allowing an animationset to override the animatorlayer (probably atypical tho).
             //
             //what about if we generate placeholder states, rename an animation, and arent removing unmatched states?
             //
@@ -143,10 +149,10 @@ namespace TimiUtils.EZFXLayer
 
             AnimatorControllerLayer FindOrAddLayer()
             {
-                var targetLayer = controller.layers.SingleOrDefault(l => l.name == animatorLayer.layerName);
-                if (targetLayer == null)
+                var layer = controller.layers.SingleOrDefault(l => l.name == animatorLayer.layerName);
+                if (layer == null)
                 {
-                    targetLayer = new AnimatorControllerLayer()
+                    layer = new AnimatorControllerLayer()
                     {
                         blendingMode = AnimatorLayerBlendingMode.Override,
                         name = animatorLayer.layerName,
@@ -159,10 +165,10 @@ namespace TimiUtils.EZFXLayer
                     };
 
                     var lastProcessedLayerIndex = Array.FindIndex(
-                        controller.layers, l => l.name == lastProcessedLayer.name);
+                        controller.layers, l => l.name == lastProcessedLayer?.name);
                     if (lastProcessedLayerIndex == -1)
                     {
-                        controller.AddLayer(targetLayer);
+                        controller.AddLayer(layer);
                     }
                     else
                     {
@@ -171,14 +177,14 @@ namespace TimiUtils.EZFXLayer
                         //we dont do a sort later based on AnimatorLayers because not every AnimatorControllerLayer has a
                         //corresponding animatorlayer
                         var newLayerSet = new List<AnimatorControllerLayer>(controller.layers);
-                        newLayerSet.Insert(lastProcessedLayerIndex + 1, targetLayer);
+                        newLayerSet.Insert(lastProcessedLayerIndex + 1, layer);
                         controller.layers = newLayerSet.ToArray();
                     }
 
                     //unity code does an undo record, but we dont since we're generating in a temp folder
-                    AssetDatabase.AddObjectToAsset(targetLayer.stateMachine, controller);
+                    AssetDatabase.AddObjectToAsset(layer.stateMachine, controller);
                 }
-                return targetLayer;
+                return layer;
             }
 
             void AddAndRemoveStates()
@@ -312,10 +318,49 @@ namespace TimiUtils.EZFXLayer
                 }
                 stateMachine.anyStateTransitions = transitions.ToArray();
             }
-        }
 
-        private static string GetAnimationName(AnimatorLayer animatorLayer, AnimationSet animationSet)
-            => $"{animatorLayer.layerName}_{animationSet.animatorStateNameOverride ?? animationSet.name}";
+            void GenerateAnimations()
+            {
+                //TODO: see if we can actually use .name in a component cos it would be less error-prone
+                //TODO: need path-safe naming for all the stuff we generating
+                EnsureFolderCreated(basePath, animatorLayer.layerName);
+                foreach (var animationSet in animatorLayer.animationSets.Append(animatorLayer.defaultAnimationSet))
+                {
+
+                    var clip = new AnimationClip();
+                    //note that AnimationClip
+                    foreach (var blendShape in animationSet.blendShapes)
+                    {
+                        clip.SetCurve(
+                            blendShape.skinnedMeshRenderer.name,
+                            typeof(SkinnedMeshRenderer),
+                            $"blendShape.{blendShape.name}",
+                            AnimationCurve.Constant(0, 1f / ApparentFrameRate, blendShape.value)
+                        );
+                    }
+                    foreach (var gameObject in animationSet.gameObjects)
+                    {
+                        clip.SetCurve(
+                            gameObject.gameObject.GetRelativePath(),
+                            typeof(GameObject),
+                            "m_IsActive",
+                            AnimationCurve.Constant(0, 1f / ApparentFrameRate, gameObject.active ? 1f : 0f)
+                        );
+                    }
+                    var targetState = stateMachine.states.SingleOrDefault(
+                        s => s.state.name == animationSet.AnimatorStateName).state;
+                    if (targetState != null)
+                    {
+                        //if we're not manageStateMachine, this could happen, which is perfectly fine
+                        //could also not create it, but screw it why not!
+                        targetState.motion = clip;
+                    }
+                    AssetDatabase.CreateAsset(
+                        clip,
+                        $"{basePath}/{animatorLayer.layerName}/{animatorLayer.layerName}_{animationSet.name}.anim");
+                }
+            }
+        }
 
         private RuntimeAnimatorController GetWorkingFXLayerController()
         {
