@@ -5,6 +5,7 @@ namespace TimiUtils.EZFXLayer
     using UnityEditor;
     using UnityEngine;
     using VRC.SDK3.Avatars.Components;
+    using VRC.SDK3.Avatars.ScriptableObjects;
 
     //note to self: considered doing it scriptableobject-based, but there are times when things being animated will only
     //be within the scene. could maybe also adding that approach in addition, but meh it's fine.
@@ -27,6 +28,8 @@ namespace TimiUtils.EZFXLayer
     public class RootConfiguration : MonoBehaviour
     {
         public RuntimeAnimatorController FXLayerController;
+        public VRCExpressionParameters VRCExpressionParameters;
+        public VRCExpressionsMenu VRCRootExpressionsMenu;
         public bool generateOnUpload = true;
 
         private void Reset()
@@ -59,15 +62,19 @@ namespace TimiUtils.EZFXLayer
 
             var ezFXLayerObject = GameObject.Find("EZFXLayer") ?? new GameObject("EZFXLayer");
             var ezFXLayerComponent = ezFXLayerObject.AddComponent<RootConfiguration>();
+            ezFXLayerComponent.PopulateReferencesFromFirstAvatarInScene();
 
-            var firstAvatar = FindObjectOfType<VRCAvatarDescriptor>();
-            if (firstAvatar == null || !HasFXLayer(firstAvatar, out _))
+            if (ezFXLayerComponent.FXLayerController == null)
             {
                 ezFXLayerComponent.CreateBasicFXLayerController();
             }
-            else
+            if (ezFXLayerComponent.VRCExpressionParameters == null)
             {
-                ezFXLayerComponent.PopulateFXLayerControllerFromFirstAvatarInScene();
+                ezFXLayerComponent.CreateBasicVRCExpressionParameters();
+            }
+            if (ezFXLayerComponent.VRCRootExpressionsMenu == null)
+            {
+                ezFXLayerComponent.CreateBasicVRCRootExpressionsMenu();
             }
         }
 
@@ -92,7 +99,24 @@ namespace TimiUtils.EZFXLayer
             FXLayerController = controller;
         }
 
-        public void PopulateFXLayerControllerFromFirstAvatarInScene()
+        private void CreateBasicVRCRootExpressionsMenu()
+        {
+            var scene = gameObject.scene;
+            VRCRootExpressionsMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+            AssetDatabase.CreateAsset(
+                VRCRootExpressionsMenu, $"{Path.GetDirectoryName(scene.path)}/ExpressionsMenu_{scene.name}.asset");
+        }
+
+        private void CreateBasicVRCExpressionParameters()
+        {
+            var scene = gameObject.scene;
+            VRCExpressionParameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
+            AssetDatabase.CreateAsset(
+                VRCExpressionParameters,
+                $"{Path.GetDirectoryName(scene.path)}/ExpressionParameters_{scene.name}.asset");
+        }
+
+        public void PopulateReferencesFromFirstAvatarInScene()
         {
             var firstAvatar = FindObjectOfType<VRCAvatarDescriptor>();
             if (firstAvatar == null)
@@ -101,14 +125,23 @@ namespace TimiUtils.EZFXLayer
                 return;
             }
 
-            if (HasFXLayer(firstAvatar, out var fxLayerController))
+            FXLayerController = firstAvatar.baseAnimationLayers[4].animatorController;
+            if (FXLayerController == null)
             {
-                FXLayerController = fxLayerController;
-                return;
+                Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
             }
 
-            Logger.DisplayError($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
+            VRCExpressionParameters = firstAvatar.expressionParameters;
+            if (VRCExpressionParameters == null)
+            {
+                Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expression parameters.");
+            }
 
+            VRCRootExpressionsMenu = firstAvatar.expressionsMenu;
+            if (VRCRootExpressionsMenu == null)
+            {
+                Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expressions menu.");
+            }
         }
 
         [CustomEditor(typeof(RootConfiguration))]
@@ -118,23 +151,40 @@ namespace TimiUtils.EZFXLayer
             {
                 var target = (RootConfiguration)base.target;
                 EditorGUILayout.LabelField(
-                    "This animation controller will serve as the base animation controller" +
-                    "when generating the FX layer for all avatars in the scene.", EditorStyles.wordWrappedLabel);
+                    "These will serve as the reference assets when generating the FX layer animator controller, " +
+                    "VRC expression parameters, and VRC expression menus for all avatars in the scene.",
+                    EditorStyles.wordWrappedLabel);
                 target.FXLayerController = (RuntimeAnimatorController)EditorGUILayout.ObjectField(
-                    target.FXLayerController, typeof(RuntimeAnimatorController), allowSceneObjects: true);
+                    target.FXLayerController, typeof(RuntimeAnimatorController), allowSceneObjects: false);
+                target.VRCExpressionParameters = (VRCExpressionParameters)EditorGUILayout.ObjectField(
+                    target.VRCExpressionParameters, typeof(VRCExpressionParameters), allowSceneObjects: false);
+                target.VRCRootExpressionsMenu = (VRCExpressionsMenu)EditorGUILayout.ObjectField(
+                    target.VRCRootExpressionsMenu, typeof(VRCExpressionsMenu), allowSceneObjects: false);
 
                 if (GUILayout.Button("Populate from first avatar"))
                 {
-                    target.PopulateFXLayerControllerFromFirstAvatarInScene();
+                    target.PopulateReferencesFromFirstAvatarInScene();
                 }
 
-                if (GUILayout.Button("Create basic FX layer animator controller"))
+                var wordWrappedButtonStyle = new GUIStyle(GUI.skin.button) { wordWrap = true };
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Create basic FX layer animator controller", wordWrappedButtonStyle))
                 {
                     target.CreateBasicFXLayerController();
                 }
+                if (GUILayout.Button("Create basic expression parameters", wordWrappedButtonStyle))
+                {
+                    target.CreateBasicVRCExpressionParameters();
+                }
+                if (GUILayout.Button("Create basic root expressions menu", wordWrappedButtonStyle))
+                {
+                    target.CreateBasicVRCRootExpressionsMenu();
+                }
+                EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Separator();
 
+                EditorGUILayout.HelpBox("Auto-generation not yet working", MessageType.Info);
                 target.generateOnUpload = EditorGUILayout.Toggle("Generate on upload", target.generateOnUpload);
 
                 if (GUILayout.Button("Generate"))
@@ -147,9 +197,6 @@ namespace TimiUtils.EZFXLayer
 
         private static bool HasFXLayer(VRCAvatarDescriptor avatar, out RuntimeAnimatorController fxLayerController)
         {
-            //not sure why, but `is RuntimeAnimatorController fxLayerController` lets nulls through??
-            //if (avatar.baseAnimationLayers[4].animatorController is RuntimeAnimatorController fxLayerController)
-
             fxLayerController = avatar.baseAnimationLayers[4].animatorController;
 
             return fxLayerController != null;

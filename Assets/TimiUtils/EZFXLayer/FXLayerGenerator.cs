@@ -6,6 +6,8 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDK3.Avatars.Components;
+using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace TimiUtils.EZFXLayer
 {
@@ -13,12 +15,17 @@ namespace TimiUtils.EZFXLayer
     {
         //🤷
         private static readonly float ApparentFrameRate = new AnimationClip().frameRate;
+
         private readonly RootConfiguration rootConfiguration;
         private readonly IReadOnlyList<AnimatorLayer> animatorLayers;
+
+
+        private readonly IEnumerable<VRCAvatarDescriptor> avatars;
         private readonly string baseFXLayerPath;
         private readonly string fxLayerFolder;
-        private readonly string basePath;
-        private readonly string workingFXLayerControllerPath;
+        private readonly string ezFXLayerRoot;
+        private readonly string generationRoot;
+        private readonly string workingRoot;
 
         public FXLayerGenerator(Scene scene)
         {
@@ -47,6 +54,8 @@ namespace TimiUtils.EZFXLayer
                     $"There are multiple animator layers with the same name. GameObjects: {gameObjectsWithDuplicates} ");
             }
 
+            avatars = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<VRCAvatarDescriptor>());
+
             //TODO: want to do a lot of the same validations in both the generator and in the scene
             //so rather than splitting them up, just wont add any yet! 😅
 
@@ -54,17 +63,28 @@ namespace TimiUtils.EZFXLayer
             //also remove the side-effect from the ctor and dedupe a bit in Generate
             baseFXLayerPath = AssetDatabase.GetAssetPath(rootConfiguration.FXLayerController);
             fxLayerFolder = Path.GetDirectoryName(baseFXLayerPath);
-            basePath = EnsureFolderCreated(fxLayerFolder, "EZFXLayer/generate");
-            workingFXLayerControllerPath =
-                Path.Combine(basePath, $"EZFXLayer_{Path.GetFileName(baseFXLayerPath)}");
+            ezFXLayerRoot = EnsureFolderCreated(fxLayerFolder, "EZFXLayer");
+            generationRoot = EnsureFolderCreated(ezFXLayerRoot, "generate");
+            workingRoot = EnsureFolderCreated(ezFXLayerRoot, "working");
         }
 
         public void Generate()
         {
-            AssetDatabase.DeleteAsset(basePath);
+            AssetDatabase.DeleteAsset(generationRoot);
             EnsureFolderCreated(fxLayerFolder, "EZFXLayer/generate");
 
-            var controller = GetWorkingFXLayerController();
+            var controller = TryGetAssetCopy<RuntimeAnimatorController>(baseFXLayerPath, out var c)
+                ? c
+                : throw new Exception(
+                    $"Error copying the base FX layer controller at '{baseFXLayerPath}' to '{generationRoot}'.");
+            var parameters = TryGetAssetCopy(rootConfiguration.VRCExpressionParameters, out var p, out var originalPath)
+                ? p
+                : throw new Exception(
+                    $"Error copying the base expression parameters at '{originalPath}' to '{generationRoot}'.");
+            var menu = TryGetAssetCopy(rootConfiguration.VRCRootExpressionsMenu, out var m, out originalPath)
+                ? m
+                : throw new Exception(
+                    $"Error copying the base expression parameters at '{originalPath}' to '{generationRoot}'.");
 
             //ordering of both the AnimatorLayer components and the layers of the base animator controller matter
             //if there's an AnimatorLayer that doesn't have a corresponding layer in the base animator controller,
@@ -77,16 +97,35 @@ namespace TimiUtils.EZFXLayer
 
             //TODO: progress bars wooooo
 
+            var menuBuilder = new VRCExpressionsMenuBuilder();
             AnimatorControllerLayer lastProcessedLayer = null;
             foreach (var animatorLayer in animatorLayers)
             {
                 lastProcessedLayer = ProcessAnimatorLayer(
-                    (AnimatorController)controller, animatorLayer, lastProcessedLayer);
+                    (AnimatorController)controller,
+                    parameters,
+                    menuBuilder,
+                    animatorLayer,
+                    lastProcessedLayer);
+            }
+
+            menuBuilder.Generate(menu);
+
+            AssetDatabase.DeleteAsset(workingRoot);
+            AssetDatabase.MoveAsset(generationRoot, workingRoot);
+
+            foreach (var avatar in avatars)
+            {
+                avatar.expressionsMenu = menu;
+                avatar.expressionParameters = parameters;
+                EditorUtility.SetDirty(avatar.gameObject);
             }
         }
 
         private AnimatorControllerLayer ProcessAnimatorLayer(
             AnimatorController controller,
+            VRCExpressionParameters vrcParameters,
+            VRCExpressionsMenuBuilder menuBuilder,
             AnimatorLayer animatorLayer,
             AnimatorControllerLayer lastProcessedLayer)
         {
@@ -97,9 +136,15 @@ namespace TimiUtils.EZFXLayer
             {
                 AddAndRemoveStates();
                 ReconfigureStateTransitions();
+                //technically has nothing to do with animator state machine, but there's no point in vrc parameters
+                //if we not updating state machine parameters
+                GenerateVRCExpressionParameters();
+                //likewise, no point in doing menus if not doing parameters
+                GenerateVRCExpressionsMenu();
             }
 
             GenerateAnimations();
+
 
             //note for resuming:
             //need to think about parameters more
@@ -323,7 +368,7 @@ namespace TimiUtils.EZFXLayer
             {
                 //TODO: see if we can actually use .name in a component cos it would be less error-prone
                 //TODO: need path-safe naming for all the stuff we generating
-                EnsureFolderCreated(basePath, animatorLayer.layerName);
+                EnsureFolderCreated(generationRoot, animatorLayer.layerName);
                 foreach (var animationSet in animatorLayer.animationSets.Append(animatorLayer.defaultAnimationSet))
                 {
 
@@ -357,21 +402,89 @@ namespace TimiUtils.EZFXLayer
                     }
                     AssetDatabase.CreateAsset(
                         clip,
-                        $"{basePath}/{animatorLayer.layerName}/{animatorLayer.layerName}_{animationSet.name}.anim");
+                        $"{generationRoot}/{animatorLayer.layerName}/{animatorLayer.layerName}_{animationSet.name}.anim");
+                }
+            }
+
+            void GenerateVRCExpressionParameters()
+            {
+                var newParameters = new List<VRCExpressionParameters.Parameter>(
+                    vrcParameters.parameters);
+                if (newParameters.Count == 0)
+                {
+                    //no idea why the array is empty for fresh ones, so we'll just add in manually
+                    newParameters.Add(new VRCExpressionParameters.Parameter()
+                    {
+                        defaultValue = 0,
+                        name = "VRCEmote",
+                        saved = true,
+                        valueType = VRCExpressionParameters.ValueType.Int
+                    });
+                    newParameters.Add(new VRCExpressionParameters.Parameter()
+                    {
+                        defaultValue = 0,
+                        name = "VRCFaceBlendH",
+                        saved = true,
+                        valueType = VRCExpressionParameters.ValueType.Float
+                    });
+                    newParameters.Add(new VRCExpressionParameters.Parameter()
+                    {
+                        defaultValue = 0,
+                        name = "VRCFaceBlendH",
+                        saved = true,
+                        valueType = VRCExpressionParameters.ValueType.Float
+                    });
+                }
+
+                var targetParameter = newParameters.SingleOrDefault(p => p.name == animatorLayer.layerName);
+                if (targetParameter == null)
+                {
+                    newParameters.Add(targetParameter = new VRCExpressionParameters.Parameter()
+                    {
+                        name = animatorLayer.layerName,
+                        defaultValue = 0,
+                        saved = true
+                    });
+                }
+                targetParameter.valueType = animatorLayer.animationSets.Count > 1
+                    ? VRCExpressionParameters.ValueType.Int
+                    : VRCExpressionParameters.ValueType.Bool;
+                vrcParameters.parameters = newParameters.ToArray();
+            }
+
+            void GenerateVRCExpressionsMenu()
+            {
+                var parameter = vrcParameters.FindParameter(animatorLayer.layerName);
+                int counter = 1; //0 is default, which doesnt need a menu
+                foreach (var animationSet in animatorLayer.animationSets)
+                {
+                    menuBuilder.AddEntry(
+                        animationSet.menuPath ?? animatorLayer.menuPath,
+                        animationSet.name,
+                        parameter,
+                        value: counter++
+                    );
                 }
             }
         }
 
-        private RuntimeAnimatorController GetWorkingFXLayerController()
+        //we only out originalPath for logging/exception reasons
+        private bool TryGetAssetCopy<T>(T original, out T asset, out string originalPath) where T : UnityEngine.Object
         {
-            if (!AssetDatabase.CopyAsset(baseFXLayerPath, workingFXLayerControllerPath))
+            originalPath = AssetDatabase.GetAssetPath(original);
+            return TryGetAssetCopy(originalPath, out asset);
+        }
+        private bool TryGetAssetCopy<T>(string path, out T asset) where T : UnityEngine.Object
+        {
+            var newPath = $"{generationRoot}/EZFXLayer_{Path.GetFileName(path)}";
+            if (!AssetDatabase.CopyAsset(path, newPath))
             {
-                throw new Exception(
-                    $"Error copying the base FX layer controller at '{baseFXLayerPath}' to '{workingFXLayerControllerPath}'.");
+                asset = null;
+                return false;
             }
 
-            var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(workingFXLayerControllerPath);
-            return controller;
+            asset = AssetDatabase.LoadAssetAtPath<T>(newPath);
+            return true;
         }
 
         private static string EnsureFolderCreated(string baseFolder, string path)
