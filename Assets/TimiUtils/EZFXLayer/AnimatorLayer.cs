@@ -17,7 +17,6 @@ namespace TimiUtils.EZFXLayer
         //parameter name to be layerName
         public bool manageStateMachine = true;
         public string menuPath = null;
-        public bool generateSubmenuForMultipleAnimationSets = true;
 
         public void Reset()
         {
@@ -69,8 +68,6 @@ namespace TimiUtils.EZFXLayer
 
                 target.layerName = EditorGUILayout.DelayedTextField("Name", target.layerName);
                 target.menuPath = EditorGUILayout.DelayedTextField("Menu path", target.menuPath);
-                target.generateSubmenuForMultipleAnimationSets = EditorGUILayout.ToggleLeft(
-                    "Generate submenu if multiple animations", target.generateSubmenuForMultipleAnimationSets);
                 target.manageStateMachine = EditorGUILayout.ToggleLeft(
                     "Manage states, conditions, and parameters", target.manageStateMachine);
                 EditorGUILayout.Separator();
@@ -107,6 +104,7 @@ namespace TimiUtils.EZFXLayer
                         {
                             //EditorGUI.indentLevel++;
                             RenderAnimationSetEditor(target, animationSet, isDefaultAnimationSet: false);
+                            animationSet.menuPath = EditorGUILayout.DelayedTextField("Menu path", animationSet.menuPath);
                             //EditorGUI.indentLevel--;
                         },
                         foldoutControls: () =>
