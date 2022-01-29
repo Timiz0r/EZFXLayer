@@ -17,6 +17,8 @@ namespace TimiUtils.EZFXLayer
         //parameter name to be layerName
         public bool manageStateMachine = true;
         public string menuPath = null;
+        //useful for viewing, in some cases
+        public bool hideUnchangedItemsInAnimationSets = false;
 
         public void Reset()
         {
@@ -78,7 +80,7 @@ namespace TimiUtils.EZFXLayer
                     //TODO: button indenting
                     //indenting off for now because the toggle for gameobjects ends up behind the button for some reason
                     //EditorGUI.indentLevel++;
-                    RenderAnimationSetEditor(target, target.defaultAnimationSet, isDefaultAnimationSet: true);
+                    RenderAnimationSetEditor(target, target.defaultAnimationSet, defaultAnimationSet: null);
 
                     foreach (var animationSet in target.animationSets)
                     {
@@ -88,6 +90,9 @@ namespace TimiUtils.EZFXLayer
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
                 EditorGUILayout.Separator();
+
+                target.hideUnchangedItemsInAnimationSets = EditorGUILayout.ToggleLeft(
+                    "Hide unchanged items", target.hideUnchangedItemsInAnimationSets);
 
                 if (GUILayout.Button("Add new animation set"))
                 {
@@ -103,8 +108,12 @@ namespace TimiUtils.EZFXLayer
                         foldoutContents: () =>
                         {
                             //EditorGUI.indentLevel++;
-                            RenderAnimationSetEditor(target, animationSet, isDefaultAnimationSet: false);
-                            animationSet.menuPath = EditorGUILayout.DelayedTextField("Menu path", animationSet.menuPath);
+                            RenderAnimationSetEditor(
+                                target, animationSet, defaultAnimationSet: target.defaultAnimationSet);
+                            animationSet.menuPath = EditorGUILayout.DelayedTextField(
+                                "Menu path", animationSet.menuPath);
+                            animationSet.animatorStateNameOverride = EditorGUILayout.DelayedTextField(
+                                "State name override", animationSet.animatorStateNameOverride);
                             //EditorGUI.indentLevel--;
                         },
                         foldoutControls: () =>
@@ -129,8 +138,9 @@ namespace TimiUtils.EZFXLayer
             //  but not transitions, unless we wanna generate parameters too. not generating parameters reduces the
             //impact of stale states from a rename. do we wanna force transition generation toggle on if off?
             private void RenderAnimationSetEditor(
-                AnimatorLayer animatorLayer, AnimationSet animationSet, bool isDefaultAnimationSet)
+                AnimatorLayer animatorLayer, AnimationSet animationSet, AnimationSet defaultAnimationSet)
             {
+                bool isDefaultAnimationSet = defaultAnimationSet == null;
                 EditorGUILayout.LabelField("Blend shapes", EditorStyles.boldLabel);
 
                 AnimationSet.AnimatableBlendShape blendShapeToDelete = null;
@@ -141,8 +151,16 @@ namespace TimiUtils.EZFXLayer
                     EditorGUI.EndDisabledGroup();
 
                     var meshBlendShapes = smrGroup.Key.sharedMesh.GetBlendShapeNames().ToList();
+                    var blendShapeAdded = false;
                     foreach (var blendShape in smrGroup.OrderBy(bs => meshBlendShapes.FindIndex(bsn => bs.name == bsn)))
                     {
+                        if (!isDefaultAnimationSet && animatorLayer.hideUnchangedItemsInAnimationSets
+                            && defaultAnimationSet.HasIdenticalBlendShape(blendShape))
+                        {
+                            continue;
+                        }
+
+                        blendShapeAdded = true;
                         EditorGUILayout.BeginHorizontal();
                         blendShape.value = EditorGUILayout.Slider(blendShape.name, blendShape.value, 0, 100);
 
@@ -151,6 +169,10 @@ namespace TimiUtils.EZFXLayer
                             blendShapeToDelete = blendShape;
                         }
                         EditorGUILayout.EndHorizontal();
+                    }
+                    if (!blendShapeAdded)
+                    {
+                        EditorGUILayout.LabelField("None");
                     }
                 }
                 if (blendShapeToDelete != null)
@@ -171,8 +193,16 @@ namespace TimiUtils.EZFXLayer
 
                 EditorGUILayout.LabelField("GameObjects", EditorStyles.boldLabel);
                 AnimationSet.AnimatableGameObject gameObjectToDelete = null;
+                var gameObjectAdded = false;
                 foreach (var gameObject in animationSet.gameObjects)
                 {
+                    if (!isDefaultAnimationSet && animatorLayer.hideUnchangedItemsInAnimationSets
+                        && defaultAnimationSet.HasIdenticalGameObject(gameObject))
+                    {
+                        continue;
+                    }
+
+                    gameObjectAdded = true;
                     EditorGUILayout.BeginHorizontal();
                     EditorGUI.BeginDisabledGroup(true);
                     EditorGUILayout.ObjectField(gameObject.gameObject, typeof(GameObject), allowSceneObjects: true);
@@ -185,6 +215,10 @@ namespace TimiUtils.EZFXLayer
                         gameObjectToDelete = gameObject;
                     }
                     EditorGUILayout.EndHorizontal();
+                }
+                if (!isDefaultAnimationSet && !gameObjectAdded)
+                {
+                    EditorGUILayout.LabelField("None");
                 }
                 if (gameObjectToDelete != null)
                 {
@@ -205,6 +239,7 @@ namespace TimiUtils.EZFXLayer
                         newGameObject = null;
                     }
                 }
+                EditorGUILayout.Separator();
             }
 
             private static bool Button(string text, out Rect rect)
