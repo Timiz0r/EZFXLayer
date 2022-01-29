@@ -46,6 +46,17 @@ namespace TimiUtils.EZFXLayer
             ? name
             : animatorStateNameOverride;
 
+        public bool HasIdenticalBlendShape(AnimatableBlendShape blendShape)
+            => blendShapes.Any(bs =>
+                bs.skinnedMeshRenderer == blendShape.skinnedMeshRenderer
+                && bs.name == blendShape.name
+                && bs.value == blendShape.value);
+
+        public bool HasIdenticalGameObject(AnimatableGameObject gameObject)
+            => gameObjects.Any(go =>
+                go.gameObject == gameObject.gameObject
+                && go.active == gameObject.active);
+
         [Serializable]
         public class AnimatableBlendShape
         {
