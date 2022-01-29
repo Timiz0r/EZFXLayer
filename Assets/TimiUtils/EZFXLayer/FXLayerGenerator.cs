@@ -118,6 +118,7 @@ namespace TimiUtils.EZFXLayer
             {
                 avatar.expressionsMenu = menu;
                 avatar.expressionParameters = parameters;
+                avatar.baseAnimationLayers[4].animatorController = controller;
                 EditorUtility.SetDirty(avatar.gameObject);
             }
         }
@@ -458,8 +459,15 @@ namespace TimiUtils.EZFXLayer
                 int counter = 1; //0 is default, which doesnt need a menu
                 foreach (var animationSet in animatorLayer.animationSets)
                 {
+                    var path = animationSet.menuPath;
+                    if (string.IsNullOrEmpty(path))
+                    {
+                        path = animatorLayer.menuPath;
+                    }
+                    if (string.IsNullOrEmpty(path)) continue;
+
                     menuBuilder.AddEntry(
-                        animationSet.menuPath ?? animatorLayer.menuPath,
+                        path,
                         animationSet.name,
                         parameter,
                         value: counter++
@@ -467,6 +475,9 @@ namespace TimiUtils.EZFXLayer
                 }
             }
         }
+        //TODO: blank animatorlayers still generate a default animation, tho seems unused
+        //TODO: keep limited backups
+        //TODO: create scene-based folders, since we do scene-based generation
 
         //we only out originalPath for logging/exception reasons
         private bool TryGetAssetCopy<T>(T original, out T asset, out string originalPath) where T : UnityEngine.Object
