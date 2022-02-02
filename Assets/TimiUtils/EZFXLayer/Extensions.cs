@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 namespace TimiUtils.EZFXLayer
 {
     using System.Collections.Generic;
@@ -24,3 +25,4 @@ namespace TimiUtils.EZFXLayer
         }
     }
 }
+#endif

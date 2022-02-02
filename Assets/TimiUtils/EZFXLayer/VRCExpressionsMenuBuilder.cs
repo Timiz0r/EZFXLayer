@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 namespace TimiUtils.EZFXLayer
 {
     using System;
@@ -43,6 +44,7 @@ namespace TimiUtils.EZFXLayer
                     type = VRCExpressionsMenu.Control.ControlType.Toggle,
                     value = entry.Value
                 });
+                EditorUtility.SetDirty(targetMenu);
             }
         }
 
@@ -51,6 +53,7 @@ namespace TimiUtils.EZFXLayer
             var match = Regex.Match(
                 path,
                 @"
+(?>/?) #it fine to start a path with a /. an atomic group is used because, for the '/' case, backtracking will put it in the capture group
 (.+?)
 (?:
   (?<!\\)/ #can escape a forward slash with a backslash
@@ -84,6 +87,7 @@ namespace TimiUtils.EZFXLayer
                     type = VRCExpressionsMenu.Control.ControlType.SubMenu,
                     subMenu = nextMenu
                 });
+                EditorUtility.SetDirty(menu);
             }
             return FindOrCreateTargetMenu(nextMenu, rest, assetBasePath);
         }
@@ -113,3 +117,4 @@ namespace TimiUtils.EZFXLayer
         }
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿namespace TimiUtils.EZFXLayer
+﻿#if UNITY_EDITOR
+namespace TimiUtils.EZFXLayer
 {
     using System.Collections.Generic;
     using System.IO;
@@ -20,3 +21,4 @@
         public void End() => EditorGUILayout.EndFoldoutHeaderGroup();
     }
 }
+#endif

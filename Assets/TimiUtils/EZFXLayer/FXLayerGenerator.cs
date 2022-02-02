@@ -1,9 +1,11 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRC.SDK3.Avatars.Components;
@@ -108,6 +110,7 @@ namespace TimiUtils.EZFXLayer
                     animatorLayer,
                     lastProcessedLayer);
             }
+            EditorUtility.SetDirty(controller);
 
             menuBuilder.Generate(menu);
 
@@ -116,11 +119,21 @@ namespace TimiUtils.EZFXLayer
 
             foreach (var avatar in avatars)
             {
+                avatar.customExpressions = true;
                 avatar.expressionsMenu = menu;
                 avatar.expressionParameters = parameters;
-                avatar.baseAnimationLayers[4].animatorController = controller;
-                EditorUtility.SetDirty(avatar.gameObject);
+
+                avatar.customizeAnimationLayers = true;
+                avatar.baseAnimationLayers[4] = new VRCAvatarDescriptor.CustomAnimLayer()
+                {
+                    isDefault = false,
+                    type = VRCAvatarDescriptor.AnimLayerType.FX,
+                    animatorController = controller
+                };
+
+                PrefabUtility.RecordPrefabInstancePropertyModifications(avatar);
             }
+            EditorSceneManager.MarkSceneDirty(avatars.First().gameObject.scene);
         }
 
         private AnimatorControllerLayer ProcessAnimatorLayer(
@@ -145,7 +158,6 @@ namespace TimiUtils.EZFXLayer
             }
 
             GenerateAnimations();
-
 
             //note for resuming:
             //need to think about parameters more
@@ -378,7 +390,7 @@ namespace TimiUtils.EZFXLayer
                     foreach (var blendShape in animationSet.blendShapes)
                     {
                         clip.SetCurve(
-                            blendShape.skinnedMeshRenderer.name,
+                            blendShape.skinnedMeshRenderer.gameObject.GetRelativePath(),
                             typeof(SkinnedMeshRenderer),
                             $"blendShape.{blendShape.name}",
                             AnimationCurve.Constant(0, 1f / ApparentFrameRate, blendShape.value)
@@ -451,6 +463,7 @@ namespace TimiUtils.EZFXLayer
                     ? VRCExpressionParameters.ValueType.Int
                     : VRCExpressionParameters.ValueType.Bool;
                 vrcParameters.parameters = newParameters.ToArray();
+                EditorUtility.SetDirty(vrcParameters);
             }
 
             void GenerateVRCExpressionsMenu()
@@ -478,8 +491,12 @@ namespace TimiUtils.EZFXLayer
         //TODO: blank animatorlayers still generate a default animation, tho seems unused
         //TODO: keep limited backups
         //TODO: create scene-based folders, since we do scene-based generation
+        //TODO: an approach involving assets in some way is useful for moving between quest and pc projects, for instance
+        //TODO: when a smr asset is removed and added, it's ofc a new asset. in the ui, we get nres
+        //  aka should try to auto-fix it, perhaps by storing the path to the smr. for now, should at least render without nre tho.
 
         //we only out originalPath for logging/exception reasons
+        //TODO: ofc can just throw here based on current usage
         private bool TryGetAssetCopy<T>(T original, out T asset, out string originalPath) where T : UnityEngine.Object
         {
             originalPath = AssetDatabase.GetAssetPath(original);
@@ -515,3 +532,4 @@ namespace TimiUtils.EZFXLayer
         }
     }
 }
+#endif

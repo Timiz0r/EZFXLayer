@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 namespace TimiUtils.EZFXLayer
 {
     using System.IO;
@@ -203,3 +204,4 @@ namespace TimiUtils.EZFXLayer
         }
     }
 }
+#endif
