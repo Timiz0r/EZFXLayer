@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
-namespace TimiUtils.EZFXLayer
+namespace TimiUtils.EZFXLayerOld
 {
     using System;
     using System.Collections.Generic;

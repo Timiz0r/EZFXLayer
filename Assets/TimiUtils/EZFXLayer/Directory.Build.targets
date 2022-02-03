@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Import Project="$(ProjectRoot)\.build\CLSCompliantAttributeGeneration.targets" />
+  <Import Project="$(ProjectRoot)\.build\RequireXmlDeclarationInProject.targets" />
+  <!--
+    we check for BuildingInsideVisualStudio here because of omnisharp for instance. it has problems because:
+    * it may not exist (and won't get built by omnisharp of course)
+    * can't find dependent .net assemblies
+
+    for VS, this should also be fine. VS should keep track of the warnings just fine. so does omnisharp, for that
+    matter; however, command-line builds are still needed, unlike VS.
+  -->
+  <Import
+    Condition="'$(DisableIncrementalBuildIfWarnings)' == 'true' and '$(IsBuildTasksProject)' == 'false' and '$(BuildingInsideVisualStudio)' != 'true'"
+    Project="$(ProjectRoot)\.build\DisableIncrementalBuildIfWarnings.targets" />
+</Project>

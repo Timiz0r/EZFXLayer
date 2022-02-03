@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.Build.Traversal">
+  <ItemGroup>
+    <!-- this pattern is to allow buiding from both the root and src directories -->
+    <ProjectReference Include="$(SrcRoot)\dirs.proj" />
+  </ItemGroup>
+</Project>

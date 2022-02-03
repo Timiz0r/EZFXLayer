@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Target
+    Name="GenerateCLSCompliantAttribute"
+    Condition="'$(CLSCompliant)' == 'true' or '$(CLSCompliant)' == 'false'"
+    BeforeTargets="CoreCompile">
+
+    <PropertyGroup>
+      <_CLSCompliantValue>$(CLSCompliant.ToLower())</_CLSCompliantValue>
+      <_CLSCompliantFile>$(IntermediateOutputPath)\CLSCompliantAttribute.Generated.cs</_CLSCompliantFile>
+    </PropertyGroup>
+
+    <ReadLinesFromFile File="$(_CLSCompliantFile)" >
+      <Output TaskParameter="Lines" ItemName="_CLSCompliantFileContentItem"/>
+    </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <_CLSCompliantFileContents>@(_CLSCompliantFileContentItem)</_CLSCompliantFileContents>
+      <_CLSCompliantFileUpToDate>$(_CLSCompliantFileContents.Contains($(_CLSCompliantValue)))</_CLSCompliantFileUpToDate>
+    </PropertyGroup>
+
+    <WriteLinesToFile
+      Condition="'$(_CLSCompliantFileUpToDate)' == 'false'"
+      Overwrite="true"
+      Lines="[assembly: System.CLSCompliant($(_CLSCompliantValue))]"
+      File="$(_CLSCompliantFile)" />
+    <ItemGroup>
+      <Compile Include="$(_CLSCompliantFile)" />
+    </ItemGroup>
+  </Target>
+</Project>

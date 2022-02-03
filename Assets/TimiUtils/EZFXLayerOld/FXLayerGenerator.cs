@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 
-namespace TimiUtils.EZFXLayer
+namespace TimiUtils.EZFXLayerOld
 {
     public class FXLayerGenerator
     {

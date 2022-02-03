@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.Build.NoTargets">
+  <ItemGroup>
+    <Inputs Include="$(ProjectRoot)\.build\Tasks\*.cs" />
+    <Outputs Include="$(OutputPath)\EnsureBuildTasksAreBuilt.txt" />
+  </ItemGroup>
+  <Target
+    Name="EnsureBuildTasksAreBuilt"
+    BeforeTargets="AfterBuild"
+    Inputs="@(Inputs)"
+    Outputs="@(Outputs)">
+
+    <MSBuild
+      Projects="$(ProjectRoot)\.build\Tasks\BuildTasks.csproj"
+      Targets="Restore" />
+    <MSBuild
+      Projects="$(ProjectRoot)\.build\Tasks\BuildTasks.csproj"
+      Targets="Build" />
+    <WriteLinesToFile
+      Overwrite="true"
+      Lines="did it"
+      File="%(Outputs.FullPath)" />
+  </Target>
+</Project>

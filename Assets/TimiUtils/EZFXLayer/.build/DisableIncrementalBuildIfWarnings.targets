@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!--
+    why and how?
+    because warnings dont cause csc to fail, the build succeeds. when the build succeeds, if nothing changes, incremental
+    build will keep the project from being built again. sure, this generally won't be a problem; the warning code
+    won't be left like that for long, and PR build will fail.
+
+    if we want to fix it, the only good way of doing it is to not do an incremental build. this is ordinarily accomplished
+    with `no-incremental`. with a bit more effort, we can choose to automate this.
+
+    csc has an errorlog parameter we can take advantage of via the ErrorLog property. this file contains the warnings,
+    even if they're suppressed. this is the only way I can find to detect that warnings have happened, and it
+    unfortunately has a limitation to csc and not the rest of msbuild. since these will overall generate the vast
+    majority of warnings, this isn't terrible.
+
+    originally, we attempted to use an inline task with newtonsoft.json. the roslyn code factory thingy seems to have
+    trouble loading external assemblies, so it didn't work in the end. here we are with a separate project.
+    it's as easy as parsing the json file to detect if we have warnings.
+
+    if we detect warnings, we simply write a file with a comment in it. we also always add a Compile item for it if it
+    exists. incremental build will detect updates to the file and rebuild if it has been touched. if there were warnings
+    but have since been dealt with, incremental build will not rebuild because the file does not get touched.
+
+    one other hypothetical option would have been msbuild file loggers, filtering to warnings. if we had a way to do
+    that entirely through msbuild and not env vars or command-line, that would be a fine option.
+  -->
+  <PropertyGroup>
+    <!-- might consider not setting this here and instead erroring if it not set in repo manually -->
+    <ErrorLog Condition="'$(ErrorLog)' == ''">$(IntermediateOutputPath)\ErrorLog.json</ErrorLog>
+    <_DisableIncrementalBuildIfWarningsFile>$(IntermediateOutputPath)\DisableIncrementalBuildIfWarnings.Generated.cs</_DisableIncrementalBuildIfWarningsFile>
+  </PropertyGroup>
+
+  <UsingTask
+    TaskName="BuildTasks.CheckForWarnings"
+    AssemblyFile="$(CommonOutputPath)\BuildTasks\BuildTasks.dll" />
+
+  <ItemGroup>
+    <Compile
+      Condition="Exists('$(_DisableIncrementalBuildIfWarningsFile)')"
+      Include="$(_DisableIncrementalBuildIfWarningsFile)" />
+  </ItemGroup>
+
+  <Target
+    Name="DisableIncrementalBuildIfWarnings"
+    AfterTargets="CoreCompile">
+
+    <CheckForWarnings
+      CscErrorLog="$(ErrorLog)">
+      <Output TaskParameter="HasWarnings" PropertyName="_HasWarnings" />
+    </CheckForWarnings>
+
+    <WriteLinesToFile
+      Condition="'$(_HasWarnings)' == 'true'"
+      Overwrite="true"
+      Lines="// Warnings detected"
+      File="$(_DisableIncrementalBuildIfWarningsFile)" />
+    <Warning
+      Condition="'$(_HasWarnings)' == 'true'"
+      Text="Warnings detected from csc, so disabling incremental build." />
+  </Target>
+</Project>

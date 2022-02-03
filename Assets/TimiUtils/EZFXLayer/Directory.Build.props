@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- proprietary concepts -->
+  <PropertyGroup>
+    <!-- drop the trailing slash -->
+    <ProjectRoot>$(MSBuildThisFileDirectory.TrimEnd('\').TrimEnd('/'))</ProjectRoot>
+    <SrcRoot>$(ProjectRoot)\src</SrcRoot>
+    <OutRoot>$(ProjectRoot)\.out</OutRoot>
+    <PublishRoot>$(ProjectRoot)\.out</PublishRoot>
+    <AssetRoot>$(ProjectRoot)\..\..</AssetRoot>
+    <RepoRoot>$(ProjectRoot)\..\..\..</RepoRoot>
+
+    <!--
+      meant to be overriden via command-line, such as in azure pipelines.
+      PullRequest and Official are two others
+    -->
+    <BuildKind>Local</BuildKind>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsUnityProject>false</IsUnityProject>
+    <IsUnityProject Condition="Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).asmdef')">true</IsUnityProject>
+  </PropertyGroup>
+  <Import Condition="'$(IsUnityProject)' == 'true'" Project="$(RepoRoot)\$(MSBuildProjectName).References.props" />
+
+  <!-- build-related stuff -->
+  <PropertyGroup>
+    <!-- these can certainly be overriden at command-line, particularly for multi-targeting of these -->
+    <Configuration>Debug</Configuration>
+    <Configuration Condition="'$(BuildKind)' != 'Local'">Release</Configuration>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <CLSCompliant>true</CLSCompliant>
+    <!-- <Nullable>enable</Nullable> -->
+    <BaseIntermediateOutputPath>.obj\</BaseIntermediateOutputPath>
+
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors Condition="'$(BuildKind)' == 'Local'">false</CodeAnalysisTreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(BuildKind)' == 'Local'">false</TreatWarningsAsErrors>
+    <DisableIncrementalBuildIfWarnings>true</DisableIncrementalBuildIfWarnings>
+
+    <!--
+      would have preferred to use AssemblyName instead of MSBuildProject name. these didn't work:
+      * $(AssemblyName), because it gets set in Microsoft.Common.CurrentVersion.targets
+      * Doing this in Directory.Build.targets, because Microsoft.Common.CurrentVersion.targets is loaded before
+        Directory.Build.targets
+      * Using OutDir, because stuff doesn't get copied right
+
+      since it, at the time of writing, literally does this, there should be no problem:
+      <AssemblyName Condition=" '$(AssemblyName)'=='' ">$(MSBuildProjectName)</AssemblyName>
+    -->
+    <CommonOutputPath>$(OutRoot)\$(Configuration)\$(RuntimeIdentifier)\$(TargetFramework)</CommonOutputPath>
+    <OutputPath>$(CommonOutputPath)\$(MSBuildProjectName)</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <RequireXmlDeclarationInProject>true</RequireXmlDeclarationInProject>
+
+    <IsBuildTasksProject>false</IsBuildTasksProject>
+    <IsBuildTasksProject Condition="'$(MSBuildProjectFullPath)' == '$(ProjectRoot)\.build\Tasks\BuildTasks.csproj'">true</IsBuildTasksProject>
+    <IsBuildTasksProject Condition="'$(MSBuildProjectFullPath)' == '$(ProjectRoot)\.build\EnsureBuildTasksAreBuilt.proj'">true</IsBuildTasksProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--
+      note that this breaks incremental build when enabled and new commits are done.
+      for large local builds, this may be a problem.
+    -->
+    <UseGitVersioning>false</UseGitVersioning>
+    <UseGitVersioning Condition="'$(MSBuildProjectExtension)' == '.csproj'">true</UseGitVersioning>
+    <!--
+      Microsoft.Common.CurrentVersion.targets(4455,5): warning MSB3026: Could not copy "obj\Debug\BuildTasks.dll"
+      dotnet build will leave behind some processes behind for the next build.
+      these processes will have loaded this dll.
+      never thought of it before, but gitversioning technically breaks incremental build. in this case, it causes
+      this dll to need to get rebuilt, and we can't because the above processes lock it.
+
+      this is technically a bandaid, since legitimate modifications can still hit this issue. ideally, nuget.
+    -->
+    <UseGitVersioning Condition="'$(MSBuildProjectFullPath)' == '$(ProjectRoot)\.build\Tasks\BuildTasks.csproj'">false</UseGitVersioning>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference
+      Condition="'$(UseGitVersioning)' == 'true'"
+      Include="Nerdbank.GitVersioning" Version="3.3.37"
+      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      yes, a nuget package is actually best overall, but dont feel like maintaining.
+
+      the difficulty is if the framework version of projects are less than netcoreapp3.0, since we use System.Text.Json.
+      this is why there's a hard-coded version for the actual BuildTasks project.
+
+      furthermore, since we use a project reference, we can't build the BuildTasks project if the other projects
+      target incompatible frameworks. we simply place an msbuild call in between the generally incremental build
+      and the build call for BuildTasks.
+    -->
+    <ProjectReference
+      Include="$(ProjectRoot)\.build\EnsureBuildTasksAreBuilt.proj"
+      Condition="'$(IsBuildTasksProject)' == 'false'"
+      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

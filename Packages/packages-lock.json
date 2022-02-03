@@ -33,11 +33,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.vscode": {
-      "version": "1.2.4",
+      "version": "https://github.com/Timiz0r/com.unity.ide.vscode.git?path=/Packages/com.unity.ide.vscode#aca83a6ba054d4a97d3848f1937c28846fe6d018",
       "depth": 0,
-      "source": "registry",
+      "source": "git",
       "dependencies": {},
-      "url": "https://packages.unity.com"
+      "hash": "aca83a6ba054d4a97d3848f1937c28846fe6d018"
     },
     "com.unity.test-framework": {
       "version": "1.1.29",

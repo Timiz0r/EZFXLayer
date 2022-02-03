@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace TimiUtils.EZFXLayer
+namespace TimiUtils.EZFXLayerOld
 {
     public static class Logger
     {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Target
+    Name="RequireXmlDeclarationInProject"
+    Condition="'$(RequireXmlDeclarationInProject)' == 'true'"
+    BeforeTargets="BeforeBuild">
+
+    <ReadLinesFromFile File="$(MSBuildProjectFullPath)">
+      <Output TaskParameter="Lines" ItemName="_ProjectLine" />
+    </ReadLinesFromFile>
+    <ItemGroup>
+      <_XmlDeclaration
+        Include="@(_ProjectLine)"
+        Condition="$([System.Text.RegularExpressions.Regex]::Match(%(Identity), '^&lt;\? ?xml ').Success)" />
+    </ItemGroup>
+
+  </Target>
+</Project>
