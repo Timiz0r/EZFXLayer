@@ -11,8 +11,11 @@
     <ItemGroup>
       <_XmlDeclaration
         Include="@(_ProjectLine)"
-        Condition="$([System.Text.RegularExpressions.Regex]::Match(%(Identity), '^&lt;\? ?xml ').Success)" />
+        Condition="$([System.Text.RegularExpressions.Regex]::Match('%(Identity)', '^&lt;\? ?xml ').Success)" />
     </ItemGroup>
 
+    <Error
+      Condition="'@(_XmlDeclaration)' == ''"
+      Text="XML declaration not found." />
   </Target>
 </Project>

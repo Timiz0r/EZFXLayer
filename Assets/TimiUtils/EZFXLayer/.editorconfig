@@ -25,6 +25,12 @@ indent_size = 2
 
 #no localization
 dotnet_diagnostic.CA1303.severity = none
+#CA1805: Do not initialize unnecessarily.
+dotnet_diagnostic.CA1805.severity = none
+#Do not declare visible instance fields
+dotnet_diagnostic.CA1051.severity = none
+#Change 'blah' in 'blah' to use 'Collection<T>', 'ReadOnlyCollection<T>' or 'KeyedCollection<K,V>'
+dotnet_diagnostic.CA1002.severity = none
 
 
 #### .NET Coding Conventions ####

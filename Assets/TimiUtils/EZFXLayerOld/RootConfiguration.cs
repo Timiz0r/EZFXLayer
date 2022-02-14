@@ -10,6 +10,7 @@ namespace TimiUtils.EZFXLayerOld
 
     //note to self: considered doing it scriptableobject-based, but there are times when things being animated will only
     //be within the scene. could maybe also adding that approach in addition, but meh it's fine.
+    //but actually could hypothetically add avatars as child objects and save a prefab
 
     //not sure if it's possible anyway, but would be interesting to generate it fully in-memory
     //instead of generating the asset itself.
