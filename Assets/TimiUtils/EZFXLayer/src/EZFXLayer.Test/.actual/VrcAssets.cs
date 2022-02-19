@@ -6,13 +6,13 @@ namespace EZFXLayer.Test
 
     public class VrcAssets
     {
-        private TestFXController startingFXController = TestFXController.FromEmpty();
-        private TestVrcMenu startMenu = TestVrcMenu.FromEmpty();
-        private TestVrcParameter startingParameters = TestVrcParameter.FromEmpty();
+        private AnimatorController startingFXController = new AnimatorController();
+        private VRCExpressionsMenu startMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+        private VRCExpressionParameters startingParameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
 
-        public TestFXController FXController { get; } = TestFXController.FromEmpty();
-        public TestVrcMenu Menu { get; } = TestVrcMenu.FromEmpty();
-        public TestVrcParameter Parameters { get; } = TestVrcParameter.FromEmpty();
+        public AnimatorController FXController { get; } = new AnimatorController();
+        public VRCExpressionsMenu Menu { get; } = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+        public VRCExpressionParameters Parameters { get; } = ScriptableObject.CreateInstance<VRCExpressionParameters>();
 
 
     }
