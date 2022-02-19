@@ -5,6 +5,6 @@ namespace EZFXLayer.Test
     public static class FXController
     {
         //will prob buff it out to make it look like the default one eventually; who knows
-        public static AnimatorController Create() => new();
+        public static AnimatorController Create() => new AnimatorController();
     }
 }

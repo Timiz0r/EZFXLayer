@@ -5,6 +5,6 @@ namespace EZFXLayer.Test
 
     public static class Avatar
     {
-        public static GameObject Create(string name) => new(name, typeof(VRCAvatarDescriptor));
+        public static GameObject Create(string name) => new GameObject(name, typeof(VRCAvatarDescriptor));
     }
 }

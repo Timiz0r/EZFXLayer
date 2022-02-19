@@ -2,12 +2,10 @@ namespace EZFXLayer.Test
 {
     using System.Linq;
     using NUnit.Framework;
-    using UnityEditor.Animations;
     using UnityEngine;
     using VRC.SDK3.Avatars.Components;
-    using VRC.SDK3.Avatars.ScriptableObjects;
 
-    public class Tests
+    public class GeneratorTests
     {
         [Test]
         public void Generate_Throws_WhenAvatarHasNoDescriptor()
@@ -17,7 +15,7 @@ namespace EZFXLayer.Test
             Object.DestroyImmediate(avatar.GetComponent<VRCAvatarDescriptor>());
 
 
-            EZFXLayerGenerator generator = new();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator();
 
             Assert.That(() => generator.Generate(
                 Enumerable.Repeat(avatar, 1),

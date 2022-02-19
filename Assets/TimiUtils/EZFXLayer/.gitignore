@@ -1,3 +1,5 @@
+!*.csproj
+
 out/
 publish/
 
