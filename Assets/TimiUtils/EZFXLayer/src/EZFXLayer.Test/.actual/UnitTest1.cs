@@ -1,26 +1,26 @@
 namespace EZFXLayer.Test
 {
-    using System.Linq;
+    using System;
     using NUnit.Framework;
-    using UnityEditor.Animations;
-    using UnityEngine;
-    using VRC.SDK3.Avatars.Components;
-    using VRC.SDK3.Avatars.ScriptableObjects;
 
     public class Tests
     {
         [Test]
-        public void Generate_Throws_WhenAvatarHasNoDescriptor()
+        public void Generate_PerformsNoModifications_WhenConfigurationEmpty()
         {
-            VrcAssets vrcAssets = new VrcAssets();
-            GameObject avatar = Avatar.Create("one");
-            Object.DestroyImmediate(avatar.GetComponent<VRCAvatarDescriptor>());
+            VrcAssets vrcAssets = new();
+            TestVrcAvatar avatar = new();
 
+            EZFXLayerConfiguration config = new(
+                new ReferenceConfiguration(),
+                Array.Empty<AnimatorLayerConfiguration>()
+            );
 
             EZFXLayerGenerator generator = new();
 
             Assert.That(() => generator.Generate(
-                Enumerable.Repeat(avatar, 1),
+                config,
+                avatar.ToEnumerable(),
                 vrcAssets.FXController,
                 vrcAssets.Menu,
                 vrcAssets.Parameters), Throws.InvalidOperationException);
