@@ -1,5 +1,6 @@
 namespace EZFXLayer.Test
 {
+    using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
     using UnityEngine;
@@ -8,20 +9,30 @@ namespace EZFXLayer.Test
     public class GeneratorTests
     {
         [Test]
-        public void Generate_Throws_WhenAvatarHasNoDescriptor()
+        public void Throws_WhenAvatarHasNoDescriptor()
         {
-            VrcAssets vrcAssets = new VrcAssets();
-            GameObject avatar = Avatar.Create("one");
-            Object.DestroyImmediate(avatar.GetComponent<VRCAvatarDescriptor>());
+            TestSetup testSetup = new TestSetup();
+            Object.DestroyImmediate(testSetup.Avatar.GetComponent<VRCAvatarDescriptor>());
+            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+
+            Assert.That(() => generator.Generate(testSetup.Avatars), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void CreatesAssets_WithNoAnimatorLayersAndNoPreexistingGenerations()
+        {
+            TestSetup testSetup = new TestSetup();
+            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+
+            generator.Generate(testSetup.Avatars);
 
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator();
+        }
 
-            Assert.That(() => generator.Generate(
-                Enumerable.Repeat(avatar, 1),
-                vrcAssets.FXController,
-                vrcAssets.Menu,
-                vrcAssets.Parameters), Throws.InvalidOperationException);
+        [Test]
+        public void CreatesGitIgnoreFile()
+        {
+
         }
     }
 }

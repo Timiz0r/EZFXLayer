@@ -9,11 +9,15 @@
 
     public class EZFXLayerGenerator
     {
+        private readonly EZFXLayerConfiguration configuration;
+
+        public EZFXLayerGenerator(EZFXLayerConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
         public void Generate(
-            IEnumerable<GameObject> avatars,
-            AnimatorController fxController,
-            VRCExpressionsMenu menu,
-            VRCExpressionParameters parameters)
+            IEnumerable<GameObject> avatars)
         {
             PreValidate(avatars);
         }
