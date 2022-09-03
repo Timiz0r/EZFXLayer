@@ -1,9 +1,8 @@
 namespace EZFXLayer.Test
 {
-    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
-    using VRC.SDK3.Avatars.Components;
 
     public class TestSetup
     {
@@ -14,9 +13,8 @@ namespace EZFXLayer.Test
 
         public TestSetup()
         {
-            Avatar = new GameObject("avatar");
-            _ = Avatar.AddComponent<VRCAvatarDescriptor>();
-            Avatars = new[] { Avatar };
+            Avatars = VrcAvatar.Create("foo");
+            Avatar = Avatars.Single();
         }
 
         public EZFXLayerGenerator CreateGenerator()

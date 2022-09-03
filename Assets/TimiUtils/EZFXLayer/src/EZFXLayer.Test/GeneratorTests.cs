@@ -32,14 +32,22 @@ namespace EZFXLayer.Test
         }
 
         [Test]
-        public void NoNewAnimatorControllerLayers_WhenNoLayerConfigs()
+        public void NoChanges_WhenNoLayerConfigs()
         {
             TestSetup testSetup = new TestSetup();
             EZFXLayerGenerator generator = testSetup.CreateGenerator();
 
             generator.Generate(testSetup.Avatars);
 
-            //Assert.That(testSetup.Assets.FXController.layers, Has.Count.EqualTo(testSetup.Assets.OriginalFXController.layers.length).)
+            Assert.That(
+                testSetup.Assets.FXController.layers,
+                Has.Length.EqualTo(testSetup.Assets.OriginalFXController.layers.Length));
+            Assert.That(
+                testSetup.Assets.Menu.controls,
+                Has.Count.EqualTo(testSetup.Assets.OriginalMenu.controls.Count));
+            Assert.That(
+                testSetup.Assets.OriginalParameters.parameters,
+                Has.Length.EqualTo(testSetup.Assets.OriginalParameters.parameters.Length));
         }
     }
 }

@@ -17,6 +17,13 @@ namespace EZFXLayer.Test
         public VRCExpressionsMenu Menu { get; private set; } = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
         public VRCExpressionParameters Parameters { get; private set; } = ScriptableObject.CreateInstance<VRCExpressionParameters>();
 
+        public VrcAssets()
+        {
+            //actually kinda surprised they are null by default 🤷‍♂️
+            Parameters.parameters = Array.Empty<VRCExpressionParameters.Parameter>();
+            OriginalParameters.parameters = Array.Empty<VRCExpressionParameters.Parameter>();
+        }
+
         public void ResetOriginalMark()
         {
             //would ironically be easier if we used assets, since we could just copy it to deep clone it.
