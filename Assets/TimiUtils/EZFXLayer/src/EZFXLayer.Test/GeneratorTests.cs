@@ -3,6 +3,7 @@ namespace EZFXLayer.Test
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
+    using NUnit.Framework.Constraints;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using VRC.SDK3.Avatars.Components;
@@ -28,7 +29,7 @@ namespace EZFXLayer.Test
             Object.DestroyImmediate(testSetup.Avatar.GetComponent<VRCAvatarDescriptor>());
             EZFXLayerGenerator generator = testSetup.CreateGenerator();
 
-            // Assert.That(() => generator.Generate(testSetup.Avatars), Throws.InvalidOperationException);
+            Assert.That(() => generator.Generate(testSetup.Avatars), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -41,13 +42,19 @@ namespace EZFXLayer.Test
 
             Assert.That(
                 testSetup.Assets.FXController.layers,
-                Has.Length.EqualTo(testSetup.Assets.OriginalFXController.layers.Length));
+                HasCountConstraint.Create(testSetup.Assets.OriginalFXController.layers));
             Assert.That(
                 testSetup.Assets.Menu.controls,
-                Has.Count.EqualTo(testSetup.Assets.OriginalMenu.controls.Count));
+                HasCountConstraint.Create(testSetup.Assets.OriginalMenu.controls));
             Assert.That(
                 testSetup.Assets.OriginalParameters.parameters,
-                Has.Length.EqualTo(testSetup.Assets.OriginalParameters.parameters.Length));
+                HasCountConstraint.Create(testSetup.Assets.OriginalParameters.parameters));
+        }
+
+        [Test]
+        public void AddsEmptyLayer_WithEmptyLayerConfig()
+        {
+
         }
     }
 }

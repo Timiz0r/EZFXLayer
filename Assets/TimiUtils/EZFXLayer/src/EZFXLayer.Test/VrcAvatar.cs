@@ -8,11 +8,12 @@ namespace EZFXLayer.Test
 
     public static class VrcAvatar
     {
-        public static IEnumerable<GameObject> Create(string name) => Create(1, name);
-        public static IEnumerable<GameObject> Create(int count, string name)
+        public static IReadOnlyList<GameObject> Create(string name) => Create(1, name);
+        public static IReadOnlyList<GameObject> Create(int count, string name)
             => Enumerable.Range(0, count)
                 .Select(i => new GameObject(
-                    $"{name}_{(i == 0 ? "" : i.ToString(CultureInfo.InvariantCulture))}",
-                    typeof(VRCAvatarDescriptor)));
+                    $"{name}{(i == 0 ? "" : i.ToString(CultureInfo.InvariantCulture))}",
+                    typeof(VRCAvatarDescriptor)))
+                .ToArray();
     }
 }

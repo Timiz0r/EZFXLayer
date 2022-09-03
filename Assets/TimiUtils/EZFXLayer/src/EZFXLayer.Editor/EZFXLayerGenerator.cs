@@ -16,8 +16,7 @@
             this.configuration = configuration;
         }
 
-        public void Generate(
-            IEnumerable<GameObject> avatars)
+        public void Generate(IEnumerable<GameObject> avatars)
         {
             PreValidate(avatars);
         }

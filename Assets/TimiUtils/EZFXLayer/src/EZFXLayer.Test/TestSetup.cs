@@ -8,14 +8,8 @@ namespace EZFXLayer.Test
     {
         public VrcAssets Assets { get; } = new VrcAssets();
         public ConfigurationBuilder ConfigurationBuilder { get; } = new ConfigurationBuilder();
-        public GameObject Avatar { get; }
-        public IEnumerable<GameObject> Avatars { get; }
-
-        public TestSetup()
-        {
-            Avatars = VrcAvatar.Create("foo");
-            Avatar = Avatars.Single();
-        }
+        public GameObject Avatar => Avatars.Single();
+        public IEnumerable<GameObject> Avatars { get; } = VrcAvatar.Create("foo");
 
         public EZFXLayerGenerator CreateGenerator()
         {
