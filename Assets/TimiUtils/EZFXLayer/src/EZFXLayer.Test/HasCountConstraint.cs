@@ -4,6 +4,8 @@ namespace EZFXLayer.Test
     using System.Linq;
     using NUnit.Framework.Constraints;
 
+    //created because no Has.Exactly(n).Items at time of writing
+    //tho it later occurred to me that Has.Exactly(n).Matches<object>(o => true) is probably equivalent
     public class HasCountConstraint : CollectionConstraint
     {
         private readonly int targetCount;

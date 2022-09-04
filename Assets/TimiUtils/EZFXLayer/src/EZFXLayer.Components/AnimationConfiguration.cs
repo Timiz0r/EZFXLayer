@@ -10,5 +10,8 @@ namespace EZFXLayer
 
         public List<AnimatableGameObject> gameObjects = new List<AnimatableGameObject>();
         public bool isFoldedOut = true;
+
+        public string EffectiveStateName
+            => string.IsNullOrEmpty(animatorStateNameOverride) ? name : animatorStateNameOverride;
     }
 }

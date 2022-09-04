@@ -7,30 +7,30 @@ namespace EZFXLayer.Test
     using VRC.SDK3.Avatars.ScriptableObjects;
 
     //TODO: this could hypothetically go into the editor assembly, allowing those to author these configs as code isntead of components
-    //which decent redesign to interact with a scene, anyway. wonder if tests will try to do that :thinking:
+    //with decent redesign to interact with a scene, anyway. wonder if tests will try to do that :thinking:
     public class ConfigurationBuilder
     {
         private readonly List<AnimatorLayerConfiguration> layers = new List<AnimatorLayerConfiguration>();
-        private ReferenceConfiguration referenceConfiguration;
         //not allowed to instantiate a MonoBehavior like ReferenceConfiguration
-        private readonly GameObject rootGameObject = new GameObject("configurationbuilder");
+        private readonly GameObject gameObject;
 
-        public void WithReferenceConfiguration(
-            AnimatorController fxController,
-            VRCExpressionsMenu menu,
-            VRCExpressionParameters parameters)
+        public ConfigurationBuilder(GameObject gameObject)
         {
-            //this needs some rethinking into how we want to deal with gameobjects here
-            //but for now we get desired behavior and a good test
-            if (referenceConfiguration != null) throw new ArgumentOutOfRangeException(
-                nameof(referenceConfiguration), "A reference configuration was already added.");
-
-            referenceConfiguration = rootGameObject.AddComponent<ReferenceConfiguration>();
-            referenceConfiguration.fxLayerController = fxController;
-            referenceConfiguration.vrcRootExpressionsMenu = menu;
-            referenceConfiguration.vrcExpressionParameters = parameters;
+            this.gameObject = gameObject;
         }
 
-        public EZFXLayerConfiguration Generate() => new EZFXLayerConfiguration(referenceConfiguration, layers);
+        public EZFXLayerConfiguration Generate() => new EZFXLayerConfiguration(layers);
+
+        public ConfigurationBuilder AddLayer(string name) => AddLayer(name, l => { });
+
+        public ConfigurationBuilder AddLayer(string name, Action<LayerConfigurationBuilder> builder)
+        {
+            //or could handle it, but we have another overload anyway
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            LayerConfigurationBuilder b = new LayerConfigurationBuilder(gameObject, name, layers);
+            builder(b);
+
+            return this;
+        }
     }
 }
