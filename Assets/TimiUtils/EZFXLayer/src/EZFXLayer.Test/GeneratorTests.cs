@@ -1,13 +1,11 @@
 namespace EZFXLayer.Test
 {
-    using System.Collections.Generic;
+    using System;
     using System.Linq;
     using NUnit.Framework;
-    using NUnit.Framework.Constraints;
     using UnityEditor;
     using UnityEditor.Animations;
     using UnityEngine;
-    using UnityEngine.SceneManagement;
     using VRC.SDK3.Avatars.Components;
 
     public class GeneratorTests
@@ -19,8 +17,8 @@ namespace EZFXLayer.Test
         public void Throws_WhenAvatarHasNoDescriptor()
         {
             TestSetup testSetup = new TestSetup();
-            Object.DestroyImmediate(testSetup.Avatar.GetComponent<VRCAvatarDescriptor>());
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            UnityEngine.Object.DestroyImmediate(testSetup.Avatar.GetComponent<VRCAvatarDescriptor>());
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
 
             Assert.That(
                 () => _ = generator.Generate(testSetup.Avatars, testSetup.Assets),
@@ -31,7 +29,7 @@ namespace EZFXLayer.Test
         public void NoChanges_WhenNoLayerConfigs()
         {
             TestSetup testSetup = new TestSetup();
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
 
             _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
 
@@ -53,7 +51,7 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
             _ = testSetup.ConfigurationBuilder.AddLayer("bar");
 
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
             _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             AnimatorController controller = testSetup.Assets.FXController;
@@ -69,7 +67,7 @@ namespace EZFXLayer.Test
             testSetup.Assets.FXController.AddLayer("foo");
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
 
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
             _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             Assert.That(
@@ -86,7 +84,7 @@ namespace EZFXLayer.Test
             AnimatorState unusedState = controller.layers[0].stateMachine.AddState("unused");
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
 
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
             _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             //not a critical assert, but want to verify that RemoveObjectFromAsset doesnt need the state to be a subasset
@@ -96,7 +94,7 @@ namespace EZFXLayer.Test
 
             Assert.That(
                 controller.layers[0].stateMachine.states,
-                Has.None.Matches<ChildAnimatorState>(s => s.state.name == "unused"));
+                HasCountConstraint.Create(1).And.None.Matches<ChildAnimatorState>(s => s.state.name == "unused"));
         }
 
         [Test]
@@ -109,36 +107,12 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer("1");
             _ = testSetup.ConfigurationBuilder.AddLayer("2");
 
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
             _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             Assert.That(
                 testSetup.Assets.FXController.layers.Select(l => l.name).ToArray(),
                 Is.EqualTo(new[] { "1", "2", "3" }));
-        }
-
-        //unlikely to be done on purpose, since it's pointless, but better than failing weirdly
-        //or we can decide to throw a useful exception
-        [Test]
-        public void GeneratesEmptyAnimation_WhenNoAnimatablesConfigured()
-        {
-            TestSetup testSetup = new TestSetup();
-            _ = testSetup.ConfigurationBuilder.AddLayer(
-                "1",
-                l => l
-                    .ConfigureDefaultAnimation(a => { })
-                    .AddAnimation("animation", a => { }));
-
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
-            GenerationResult result = generator.Generate(testSetup.Avatars, testSetup.Assets);
-
-            //could have combined these two and just looked at states to get clips, but this should be more readable
-            Assert.That(
-                testSetup.Assets.FXController.layers[0].stateMachine.anyStateTransitions,
-                HasCountConstraint.Create(2));
-            Assert.That(
-                result.GeneratedClips,
-                HasCountConstraint.Create(2).And.All.Matches<GeneratedClip>(gc => gc.Clip.empty));
         }
 
         [Test]
@@ -157,13 +131,149 @@ namespace EZFXLayer.Test
                     .AddAnimation("1", a => { })
                     .AddAnimation("2", a => { }));
 
-            EZFXLayerGenerator generator = testSetup.CreateGenerator();
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
             _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             AnimatorControllerParameter[] parameters = testSetup.Assets.FXController.parameters;
             Assert.That(
                 testSetup.Assets.FXController.parameters.Select(p => p.type),
                 Is.EqualTo(new[] { AnimatorControllerParameterType.Bool, AnimatorControllerParameterType.Int }));
+        }
+
+        [Test]
+        public void DefaultAnimationIsDefaultState()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "layer",
+                l => l
+                    .ConfigureDefaultAnimation("foo", a => { }));
+
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
+            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+
+            Assert.That(testSetup.Assets.FXController.layers[0].stateMachine.defaultState.name, Is.EqualTo("foo"));
+        }
+
+        [Test]
+        public void DoesNotTouchTransitionFields_WhenTransitionAlreadyExists()
+        {
+            //but will touch conditions
+            //also not exhaustively testing all fields because why
+
+            TestSetup testSetup = new TestSetup();
+
+            AnimatorController controller = testSetup.Assets.FXController;
+            controller.AddLayer("layer");
+            AnimatorControllerLayer layer = controller.layers[0];
+            AnimatorState state = layer.stateMachine.AddState("state");
+            AnimatorStateTransition transition = layer.stateMachine.AddAnyStateTransition(state);
+            transition.exitTime = 100f;
+
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "layer",
+                l => l
+                    .AddAnimation("state", a => { }));
+
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
+            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+
+            Assert.That(layer.stateMachine.anyStateTransitions[0].exitTime, Is.EqualTo(100f));
+        }
+
+        //unlikely to be done on purpose, since it's pointless, but better than failing weirdly
+        //or we can decide to throw a useful exception
+        [Test]
+        public void GeneratesEmptyAnimation_WhenNoAnimatablesConfigured()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "1",
+                l => l
+                    .ConfigureDefaultAnimation(a => { })
+                    .AddAnimation("animation", a => { }));
+
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
+            GenerationResult result = generator.Generate(testSetup.Avatars, testSetup.Assets);
+
+            //could have combined these two and just looked at states to get clips, but this should be more readable
+            Assert.That(
+                testSetup.Assets.FXController.layers[0].stateMachine.anyStateTransitions,
+                HasCountConstraint.Create(2));
+            Assert.That(
+                result.GeneratedClips,
+                HasCountConstraint.Create(2).And.All.Matches<GeneratedClip>(gc => gc.Clip.empty));
+        }
+
+        [Test]
+        public void GeneratedAnimationsAreCorrect_ForGameObjectAnimations()
+        {
+            TestSetup testSetup = new TestSetup();
+            GameObject avatarPart = new GameObject("Part");
+            avatarPart.transform.SetParent(testSetup.Avatar.transform);
+
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "Part",
+                l => l
+                    .ConfigureDefaultAnimation("Off", a => a.AddGameObject(avatarPart, isActive: false))
+                    .AddAnimation("On", a => a.SetGameObject(avatarPart, isActive: true))
+            );
+
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
+            GenerationResult generationResult = generator.Generate(testSetup.Avatars, testSetup.Assets);
+
+            AnimationClip offClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "Off").Clip;
+            AnimationClip onClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "On").Clip;
+
+            Assert.That(generationResult.GeneratedClips, HasCountConstraint.Create(2));
+            Assert.That(GetCurveValue(offClip), Is.False);
+            Assert.That(GetCurveValue(onClip), Is.True);
+
+            bool GetCurveValue(AnimationClip clip)
+            {
+                EditorCurveBinding binding = AnimationUtility.GetCurveBindings(clip).Single();
+                AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, binding);
+                float value = curve.keys[0].value;
+                if (value == 0) return false;
+#pragma warning disable IDE0046
+                if (value == 1) return true;
+#pragma warning restore IDE0046
+                throw new ArgumentOutOfRangeException(nameof(clip), $"Clip has unexpected curve value of '{value}'.");
+            }
+        }
+
+        [Test]
+        public void GeneratedAnimationsAreCorrect_ForBlendShapeAnimations()
+        {
+            TestSetup testSetup = new TestSetup();
+            GameObject avatarPart = new GameObject("Part");
+            avatarPart.transform.SetParent(testSetup.Avatar.transform);
+            SkinnedMeshRenderer smr = avatarPart.AddComponent<SkinnedMeshRenderer>();
+
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "Part",
+                l => l
+                    .ConfigureDefaultAnimation("Off", a => a.AddBlendShape(smr, "blendshape", 0f))
+                    .AddAnimation("On", a => a.SetBlendShape(smr, "blendshape", 1f))
+            );
+
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
+            GenerationResult generationResult = generator.Generate(testSetup.Avatars, testSetup.Assets);
+
+            AnimationClip offClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "Off").Clip;
+            AnimationClip onClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "On").Clip;
+
+            Assert.That(generationResult.GeneratedClips, HasCountConstraint.Create(2));
+            Assert.That(GetCurveValue(offClip), Is.EqualTo(0f));
+            Assert.That(GetCurveValue(onClip), Is.EqualTo(1f));
+
+            float GetCurveValue(AnimationClip clip)
+            {
+                EditorCurveBinding binding = AnimationUtility.GetCurveBindings(clip).Single();
+                AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, binding);
+                float value = curve.keys[0].value;
+                return value;
+            }
         }
     }
 }

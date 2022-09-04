@@ -14,7 +14,7 @@ namespace EZFXLayer
 
             if (!EditorUtility.DisplayDialog("EZFXLayer", message, "OK", "Undo"))
             {
-                undoCallback();
+                undoCallback?.Invoke();
             }
         }
     }

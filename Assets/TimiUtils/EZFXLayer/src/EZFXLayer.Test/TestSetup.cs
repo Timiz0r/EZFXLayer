@@ -13,12 +13,6 @@ namespace EZFXLayer.Test
         public GameObject Avatar => Avatars.Single();
         public IEnumerable<GameObject> Avatars { get; } = VrcAvatar.Create("foo");
 
-        public EZFXLayerGenerator CreateGenerator()
-        {
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(ConfigurationBuilder.Generate());
-            return generator;
-        }
-
         public static void StandardTestSetUp()
         {
             //otherwise the ReferenceConfiguration components add up, and there can only be one
