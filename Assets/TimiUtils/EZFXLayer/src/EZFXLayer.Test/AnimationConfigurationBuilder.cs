@@ -22,10 +22,10 @@ namespace EZFXLayer.Test
         {
             if (gameObject == null) throw new ArgumentNullException(nameof(gameObject));
 
-            if (!layer.defaultAnimation.gameObjects.Any(go => go.gameObject == gameObject))
+            if (!layer.referenceAnimation.gameObjects.Any(go => go.gameObject == gameObject))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(gameObject), $"GameObject '{gameObject}' is not in the default animation.");
+                    nameof(gameObject), $"GameObject '{gameObject}' is not in the reference animation.");
             }
 
             animation.gameObjects.Add(new AnimatableGameObject() { gameObject = gameObject, active = isActive });
@@ -39,12 +39,12 @@ namespace EZFXLayer.Test
             if (skinnedMeshRenderer == null) throw new ArgumentNullException(nameof(skinnedMeshRenderer));
             if (string.IsNullOrEmpty(blendShapeName)) throw new ArgumentNullException(nameof(blendShapeName));
 
-            if (!layer.defaultAnimation.blendShapes.Any(bs =>
+            if (!layer.referenceAnimation.blendShapes.Any(bs =>
                 bs.skinnedMeshRenderer == skinnedMeshRenderer
                 && bs.name.Equals(blendShapeName, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(blendShapeName), $"Blend shape '{blendShapeName}' is not in the default animation.");
+                    nameof(blendShapeName), $"Blend shape '{blendShapeName}' is not in the reference animation.");
             }
 
             animation.blendShapes.Add(new AnimatableBlendShape()
@@ -53,6 +53,18 @@ namespace EZFXLayer.Test
                 name = blendShapeName,
                 value = value
             });
+
+            return this;
+        }
+
+        public AnimationConfigurationBuilder MakeDefaultAnimation()
+        {
+            layer.referenceAnimation.isDefaultAnimation = false;
+            foreach (AnimationConfiguration animation in layer.animations)
+            {
+                animation.isDefaultAnimation = false;
+            }
+            this.animation.isDefaultAnimation = true;
 
             return this;
         }

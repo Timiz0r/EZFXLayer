@@ -6,6 +6,7 @@ namespace EZFXLayer
     {
         public string name;
         public string animatorStateNameOverride;
+        public bool isDefaultAnimation;
         public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
 
         public List<AnimatableGameObject> gameObjects = new List<AnimatableGameObject>();

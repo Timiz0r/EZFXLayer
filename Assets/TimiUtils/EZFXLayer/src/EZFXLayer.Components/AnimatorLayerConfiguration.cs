@@ -12,9 +12,10 @@ namespace EZFXLayer
         //want to try it here because it's confusing having an unusable name field
         public new string name;
         //TODO: allow it to have a custom name after all
-        public AnimationConfiguration defaultAnimation = new AnimationConfiguration()
+        public AnimationConfiguration referenceAnimation = new AnimationConfiguration()
         {
-            name = "Default"
+            name = "Default",
+            isDefaultAnimation = true
         };
         public List<AnimationConfiguration> animations = new List<AnimationConfiguration>();
 

@@ -42,6 +42,30 @@
         //
         //  for finding an asset, it should be okay to go folder=layer and file=layer+animation based.
         //  however, because it sounds fun, let's make GenerationResult a ScriptableObject and save it.
+        //
+        //TODO: thoughts on allowing the user to move the folder? it would be easiest to have it as a setting, but would
+        //be interesting to somehow track the asset id of the folder.
+        //
+        //TODO: we want to allow parameters to be on by default, to keep menus consistent (FooOn, BarOff menu items).
+        //we still want a reference set of animatables for consistency. we still want that to be an animation for ease
+        //of use. however, we'll an an startingAnimation field -- true for the default animation. this can be turned off
+        //on the default animation and on for some other animation (or perhaps better to think about it opposite).
+        //but where to go from here. the easiest is to have the expression and controller param be this starting animation.
+        //this will perhaps cause the default animation to get played first before the starting animation, though.
+        //we'll still try this first, since it's more convenient. if it turns out bad, then perhaps we'll make the
+        //default animation in the layer the starting animation. actually yeh let's try that. i suspect it'll be fine,
+        //since expression parameters' saved thingy doesnt seem to result in wonky behavior, but who knows.
+        //edit: this, but what's currently default animation will be reference animation, and what was to be known as
+        //starting animation will be default animation. will indeed start off with having a different default param val.
+        //
+        //TODO: for single-animation layers, don't add animation name (so Clothes, instead of ClothesOn). could add a
+        //setting to always add the animation name, but we already kinda do via the menuNameOverride setting.
+        //
+        //TODO: add a setting for controlling the naming format of menu items (Foo_{anim}). would be useful for cases
+        //where the user wants all menu items to just be {anim}
+        //TODO: actually, consider just naming things off of animation name. so, we'd for instance use ClothesOff and
+        //ClothesOn instead of Off and On. perhaps simplifies everything. be sure to update tests to represent this
+        //new expected usage.
         public GenerationResult Generate(
             IEnumerable<GameObject> avatars,
             AnimatorController fxLayerAnimatorController,
@@ -143,7 +167,7 @@
             //the main reason for generating this array is for convenience of logging and removing the subassets
             //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
             AnimatorState[] statesToRemove = states
-                .Where(s => !Matches(s, layer.defaultAnimation) && !layer.animations.Any(a => Matches(s, a)))
+                .Where(s => !Matches(s, layer.referenceAnimation) && !layer.animations.Any(a => Matches(s, a)))
                 .ToArray();
             foreach (AnimatorState state in statesToRemove)
             {
@@ -164,12 +188,11 @@
                 states.Add(GenerateAnimatorState(animation.EffectiveStateName));
             }
 
-            AnimatorState defaultState = states.SingleOrDefault(s => Matches(s, layer.defaultAnimation));
-            if (defaultState == null)
+            AnimatorState referenceAnimationState = states.SingleOrDefault(s => Matches(s, layer.referenceAnimation));
+            if (referenceAnimationState == null)
             {
-                states.Add(defaultState = GenerateAnimatorState(layer.defaultAnimation.EffectiveStateName));
+                states.Add(referenceAnimationState = GenerateAnimatorState(layer.referenceAnimation.EffectiveStateName));
             }
-            stateMachine.defaultState = defaultState;
 
             stateMachine.states = states
                 .Select(s => new ChildAnimatorState()
@@ -178,11 +201,16 @@
                     position = new Vector3(250, GetYPosition(s), 0)
                 })
                 .ToArray();
-            //we could do a trick where we assume the -1 only happens for defaultAnimationSet and not need
+            //has to happen after we set back stateMachine.states
+            //speculation: if referenceAnimationState is a new state, then perhaps stateMachine.defaultState does some
+            //validation or otherwise has no understanding of this state.
+            stateMachine.defaultState = referenceAnimationState;
+
+            //we could do a trick where we assume the -1 only happens for reference animation and not need
             //a ternary expression, but that'll surely backfire at some point
             //TODO: tune positioning to look better
             float GetYPosition(AnimatorState state)
-                => Matches(state, layer.defaultAnimation)
+                => Matches(state, layer.referenceAnimation)
                     ? 0
                     : (layer.animations.FindIndex(a => Matches(state, a)) + 1) * 100;
 
@@ -200,6 +228,9 @@
                 => state.name.Equals(animation.EffectiveStateName, StringComparison.OrdinalIgnoreCase);
         }
 
+        //TODO: this needs a refactor/redesign
+        //TODO: prob also want to remove transition assets from object somewhere
+        //prob when removing states, actually
         private static void ReconfigureStateTransitions(AnimatorLayerConfiguration layer, AnimatorController controller)
         {
             AnimatorStateMachine stateMachine = GetCorrespondingAnimatorControllerLayer(layer, controller).stateMachine;
@@ -210,18 +241,23 @@
             AnimatorControllerParameterType parameterType = layer.animations.Count > 1
                     ? AnimatorControllerParameterType.Int
                     : AnimatorControllerParameterType.Bool;
-            AnimatorControllerParameter existingParameter =
-                controller.parameters.FirstOrDefault(p => p.name == layer.name);
-            if (existingParameter == null)
+            List<AnimatorControllerParameter> parameters = new List<AnimatorControllerParameter>(controller.parameters);
+            AnimatorControllerParameter parameter =
+                parameters.FirstOrDefault(p => p.name.Equals(layer.name, StringComparison.OrdinalIgnoreCase));
+            if (parameter == null)
             {
-                //no undos, so we're okay using this method
-                controller.AddParameter(layer.name, parameterType);
+                parameter = new AnimatorControllerParameter()
+                {
+                    name = layer.name,
+                    //is redundant, since it set it later, but didnt check to see if AddParameter needs this
+                    type = parameterType
+                };
+                parameters.Add(parameter);
             }
-            else
-            {
-                //in case of type updates, we still need to ensure it's correct, even if already existing
-                existingParameter.type = parameterType;
-            }
+            parameter.type = parameterType;
+            //will potentially change this later based on isDefaultAnimation
+            parameter.defaultBool = false;
+            parameter.defaultInt = 0;
 
             List<AnimatorStateTransition> transitions =
                 new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
@@ -247,6 +283,8 @@
                     TryAddObjectToAsset(targetTransition, controller);
                 }
 
+                int correspondingAnimationIndex =
+                    layer.animations.FindIndex(anim => state.name.Equals(anim.name, StringComparison.OrdinalIgnoreCase));
                 targetTransition.conditions = new[]
                 {
                     parameterType == AnimatorControllerParameterType.Int
@@ -256,8 +294,7 @@
                             parameter = layer.name,
                             threshold = isDefaultState
                                 ? 0
-                                : layer.animations.FindIndex(
-                                    anim => state.name == anim.name) + 1
+                                : correspondingAnimationIndex + 1
                         }
                         : new AnimatorCondition()
                         {
@@ -267,7 +304,23 @@
                             parameter = layer.name
                         }
                 };
+
+                AnimationConfiguration correspondingAnimation = isDefaultState
+                    ? layer.referenceAnimation
+                    : layer.animations[correspondingAnimationIndex];
+                if (correspondingAnimation.isDefaultAnimation)
+                {
+                    if (parameterType == AnimatorControllerParameterType.Bool)
+                    {
+                        parameter.defaultBool = !isDefaultState;
+                    }
+                    else
+                    {
+                        parameter.defaultInt = (int)targetTransition.conditions[0].threshold;
+                    }
+                }
             }
+            controller.parameters = parameters.ToArray();
             stateMachine.anyStateTransitions = transitions.ToArray();
         }
 
@@ -294,7 +347,7 @@
         private static ClipManifest GenerateAnimations(AnimatorLayerConfiguration layer)
         {
             ClipManifest clipManifest = new ClipManifest(layer);
-            foreach (AnimationConfiguration animation in layer.animations.Append(layer.defaultAnimation))
+            foreach (AnimationConfiguration animation in layer.animations.Append(layer.referenceAnimation))
             {
                 AnimationClip clip = new AnimationClip();
                 float frameRate = clip.frameRate;

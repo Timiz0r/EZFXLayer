@@ -51,8 +51,7 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
             _ = testSetup.ConfigurationBuilder.AddLayer("bar");
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             AnimatorController controller = testSetup.Assets.FXController;
             Assert.That(
@@ -67,8 +66,7 @@ namespace EZFXLayer.Test
             testSetup.Assets.FXController.AddLayer("foo");
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             Assert.That(
                 testSetup.Assets.FXController.layers,
@@ -84,8 +82,7 @@ namespace EZFXLayer.Test
             AnimatorState unusedState = controller.layers[0].stateMachine.AddState("unused");
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             //not a critical assert, but want to verify that RemoveObjectFromAsset doesnt need the state to be a subasset
             //also am not 100% sure that subassets can be determined like this, but that's okay
@@ -107,8 +104,7 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer("1");
             _ = testSetup.ConfigurationBuilder.AddLayer("2");
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             Assert.That(
                 testSetup.Assets.FXController.layers.Select(l => l.name).ToArray(),
@@ -122,37 +118,73 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "1",
                 l => l
-                    .ConfigureDefaultAnimation(a => { })
+                    .ConfigureReferenceAnimation(a => { })
                     .AddAnimation("1", a => { }));
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "2",
                 l => l
-                    .ConfigureDefaultAnimation(a => { })
+                    .ConfigureReferenceAnimation(a => { })
                     .AddAnimation("1", a => { })
                     .AddAnimation("2", a => { }));
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             AnimatorControllerParameter[] parameters = testSetup.Assets.FXController.parameters;
             Assert.That(
-                testSetup.Assets.FXController.parameters.Select(p => p.type),
+                testSetup.Assets.FXController.parameters.Select(p => p.type).ToArray(),
                 Is.EqualTo(new[] { AnimatorControllerParameterType.Bool, AnimatorControllerParameterType.Int }));
         }
 
         [Test]
-        public void DefaultAnimationIsDefaultState()
+        public void ReferenceAnimationIsDefaultState()
         {
             TestSetup testSetup = new TestSetup();
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "layer",
                 l => l
-                    .ConfigureDefaultAnimation("foo", a => { }));
+                    .ConfigureReferenceAnimation("foo", a => { }));
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.FXController.layers[0].stateMachine.defaultState.name, Is.EqualTo("foo"));
+        }
+
+        [Test]
+        public void Wat()
+        {
+            AnimatorController controller = new AnimatorController();
+            controller.AddLayer("foo");
+            var state = controller.layers[0].stateMachine.AddState("wat");
+            controller.layers[0].stateMachine.defaultState= state;
+            Assert.That(controller.layers[0].stateMachine.defaultState.name, Is.EqualTo("wat"));
+        }
+
+        [Test]
+        public void AltersDefaultStateToReferenceAnimation_IfTheOriginalDefaultStateIsDifferent()
+        {
+            //but will touch conditions
+            //also not exhaustively testing all fields because why
+
+            TestSetup testSetup = new TestSetup();
+
+            AnimatorController controller = testSetup.Assets.FXController;
+            controller.AddLayer("layer");
+            AnimatorControllerLayer layer = controller.layers[0];
+            AnimatorState state = layer.stateMachine.AddState("state");
+            //is already default, but be explicit
+            layer.stateMachine.defaultState = state;
+            AnimatorStateTransition transition = layer.stateMachine.AddAnyStateTransition(state);
+            transition.exitTime = 100f;
+
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "layer",
+                l => l
+                    .ConfigureReferenceAnimation("default", a => { })
+                    .AddAnimation("state", a => { }));
+
+            _ = testSetup.StandardGenerate();
+
+            Assert.That(layer.stateMachine.defaultState.name, Is.EqualTo("default"));
         }
 
         [Test]
@@ -175,8 +207,7 @@ namespace EZFXLayer.Test
                 l => l
                     .AddAnimation("state", a => { }));
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            _ = testSetup.StandardGenerate();
 
             Assert.That(layer.stateMachine.anyStateTransitions[0].exitTime, Is.EqualTo(100f));
         }
@@ -190,11 +221,10 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "1",
                 l => l
-                    .ConfigureDefaultAnimation(a => { })
+                    .ConfigureReferenceAnimation(a => { })
                     .AddAnimation("animation", a => { }));
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            GenerationResult result = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            GenerationResult result = testSetup.StandardGenerate();
 
             //could have combined these two and just looked at states to get clips, but this should be more readable
             Assert.That(
@@ -215,12 +245,11 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "Part",
                 l => l
-                    .ConfigureDefaultAnimation("Off", a => a.AddGameObject(avatarPart, isActive: false))
+                    .ConfigureReferenceAnimation("Off", a => a.AddGameObject(avatarPart, isActive: false))
                     .AddAnimation("On", a => a.SetGameObject(avatarPart, isActive: true))
             );
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            GenerationResult generationResult = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            GenerationResult generationResult = testSetup.StandardGenerate();
 
             AnimationClip offClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "Off").Clip;
             AnimationClip onClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "On").Clip;
@@ -253,12 +282,11 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "Part",
                 l => l
-                    .ConfigureDefaultAnimation("Off", a => a.AddBlendShape(smr, "blendshape", 0f))
+                    .ConfigureReferenceAnimation("Off", a => a.AddBlendShape(smr, "blendshape", 0f))
                     .AddAnimation("On", a => a.SetBlendShape(smr, "blendshape", 1f))
             );
 
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-            GenerationResult generationResult = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            GenerationResult generationResult = testSetup.StandardGenerate();
 
             AnimationClip offClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "Off").Clip;
             AnimationClip onClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "On").Clip;
@@ -274,6 +302,61 @@ namespace EZFXLayer.Test
                 float value = curve.keys[0].value;
                 return value;
             }
+        }
+
+        [Test]
+        public void ChangesParameterType_IfNotRightTypeVersusAnimationCount()
+        {
+            TestSetup testSetup = new TestSetup();
+
+            testSetup.Assets.FXController.AddParameter("1", AnimatorControllerParameterType.Int);
+            testSetup.Assets.FXController.AddParameter("2", AnimatorControllerParameterType.Bool);
+
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .AddAnimation("foo", a => { }))
+                .AddLayer(
+                    "2",
+                    l => l
+                        .AddAnimation("foo", a => { })
+                        .AddAnimation("bar", a => { }));
+
+            _ = testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.FXController.parameters[0].type, Is.EqualTo(AnimatorControllerParameterType.Bool));
+            Assert.That(testSetup.Assets.FXController.parameters[1].type, Is.EqualTo(AnimatorControllerParameterType.Int));
+        }
+
+        [Test]
+        public void ParameterDefaultValue_IsBasedOnIsDefaultAnimation()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .ConfigureReferenceAnimation(a => { })
+                        .AddAnimation("foo", a => a.MakeDefaultAnimation()))
+                .AddLayer(
+                    "2",
+                    l => l
+                        .ConfigureReferenceAnimation(a => a.MakeDefaultAnimation())
+                        .AddAnimation("foo", a => { }))
+                .AddLayer(
+                    "3",
+                    l => l
+                        .ConfigureReferenceAnimation(a => { })
+                        .AddAnimation("foo", a => { })
+                        .AddAnimation("bar", a => a.MakeDefaultAnimation())
+                        .AddAnimation("baz", a => { }));
+
+            _ = testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.FXController.parameters[0].defaultBool, Is.True);
+            Assert.That(testSetup.Assets.FXController.parameters[1].defaultBool, Is.False);
+            Assert.That(testSetup.Assets.FXController.parameters[2].defaultInt, Is.EqualTo(2));
         }
     }
 }

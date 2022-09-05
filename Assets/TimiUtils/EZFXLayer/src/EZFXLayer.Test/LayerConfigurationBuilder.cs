@@ -19,14 +19,14 @@ namespace EZFXLayer.Test
             layers.Add(layer);
         }
 
-        public LayerConfigurationBuilder ConfigureDefaultAnimation(Action<DefaultAnimationConfigurationBuilder> builder)
-            => ConfigureDefaultAnimation(null, builder);
+        public LayerConfigurationBuilder ConfigureReferenceAnimation(Action<ReferenceAnimationConfigurationBuilder> builder)
+            => ConfigureReferenceAnimation(null, builder);
 
-        public LayerConfigurationBuilder ConfigureDefaultAnimation(
-            string name, Action<DefaultAnimationConfigurationBuilder> builder)
+        public LayerConfigurationBuilder ConfigureReferenceAnimation(
+            string name, Action<ReferenceAnimationConfigurationBuilder> builder)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
-            DefaultAnimationConfigurationBuilder b = new DefaultAnimationConfigurationBuilder(name, layer);
+            ReferenceAnimationConfigurationBuilder b = new ReferenceAnimationConfigurationBuilder(name, layer);
             builder(b);
 
             return this;
