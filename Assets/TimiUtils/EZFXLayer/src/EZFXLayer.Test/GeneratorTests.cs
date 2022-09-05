@@ -350,5 +350,44 @@ namespace EZFXLayer.Test
             Assert.That(testSetup.Assets.FXController.parameters[1].defaultBool, Is.False);
             Assert.That(testSetup.Assets.FXController.parameters[2].defaultInt, Is.EqualTo(2));
         }
+
+        [Test]
+        public void TransitionConditionsUseRightThresholds_BasedOnOrderingOfAnimation()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .ConfigureReferenceAnimation("default", a => { })
+                        .AddAnimation("foo", a => { }))
+                .AddLayer(
+                    "2",
+                    l => l
+                        .ConfigureReferenceAnimation("default", a => { })
+                        .AddAnimation("foo", a => { })
+                        .AddAnimation("bar", a => { })
+                        .AddAnimation("baz", a => { }));
+
+            _ = testSetup.StandardGenerate();
+
+
+            Assert.That(GetConditionInformation("1", "default").mode, Is.EqualTo(AnimatorConditionMode.IfNot));
+            Assert.That(GetConditionInformation("1", "foo").mode, Is.EqualTo(AnimatorConditionMode.If));
+
+            Assert.That(GetConditionInformation("2", "default"), Is.EqualTo((AnimatorConditionMode.Equals, 0f)));
+            Assert.That(GetConditionInformation("2", "foo"), Is.EqualTo((AnimatorConditionMode.Equals, 1f)));
+            Assert.That(GetConditionInformation("2", "bar"), Is.EqualTo((AnimatorConditionMode.Equals, 2f)));
+            Assert.That(GetConditionInformation("2", "baz"), Is.EqualTo((AnimatorConditionMode.Equals, 3f)));
+
+            (AnimatorConditionMode mode, float threshold) GetConditionInformation(string layer, string animation)
+            {
+                AnimatorCondition condition =
+                    testSetup.Assets.FXController.layers.Single(l => l.name == layer)
+                        .stateMachine.anyStateTransitions.Single(t => t.destinationState.name == animation)
+                            .conditions[0];
+                return (condition.mode, condition.threshold);
+            }
+        }
     }
 }

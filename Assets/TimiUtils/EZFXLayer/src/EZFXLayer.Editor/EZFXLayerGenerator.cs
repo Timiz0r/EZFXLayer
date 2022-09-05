@@ -338,13 +338,13 @@
 
             public AnimatorState CorrespondingState => correspondingState ?? throw new InvalidOperationException(
                 "Somehow AddState didn't produce a CorrespondingState, or AddState wasn't called beforehand.");
-            public int CorrespondingParameterValue { get; }
+            public int Index { get; }
             public bool IsToBeDefaultState { get; }
 
-            public ProcessedAnimation(string stateName, int correspondingParameterValue, bool isToBeDefaultState)
+            public ProcessedAnimation(string stateName, int index, bool isToBeDefaultState)
             {
                 this.stateName = stateName;
-                CorrespondingParameterValue = correspondingParameterValue;
+                Index = index;
                 IsToBeDefaultState = isToBeDefaultState;
             }
 
@@ -410,9 +410,9 @@
                 {
                     new AnimatorCondition()
                     {
-                        mode = animation.CorrespondingParameterValue != 0
-                            ? AnimatorConditionMode.IfNot
-                            : AnimatorConditionMode.If,
+                        mode = animation.Index != 0
+                            ? AnimatorConditionMode.If //if animator param true
+                            : AnimatorConditionMode.IfNot,
                         parameter = name
                     }
                 };
@@ -454,7 +454,7 @@
                     {
                         mode = AnimatorConditionMode.Equals,
                         parameter = name,
-                        threshold = animation.CorrespondingParameterValue
+                        threshold = animation.Index
                     }
                 };
             }
