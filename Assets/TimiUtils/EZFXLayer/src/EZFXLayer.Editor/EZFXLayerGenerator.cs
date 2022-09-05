@@ -79,26 +79,21 @@
 
             List<GeneratedClip> generatedClips = new List<GeneratedClip>();
 
-            //doing a single foreach here reduces indentation, which is handy
-            //layers also don't interact with each other, which allows this to be viable across all steps
             AnimatorLayerConfiguration previousLayer = null;
             foreach (AnimatorLayerConfiguration layer in configuration.Layers)
             {
-                //even if !manageAnimatorControllerStates, we'll create the layer
-                //while provides no additional behavior, we don't need logic around what happens if a layer isn't found
-                //(for animation populaion)
-                EnsureLayerExistsInController(
-                    previousLayer: previousLayer,
-                    currentLayer: layer,
-                    controller: fxLayerAnimatorController);
+                ProcessedLayer processedLayer = ProcessLayer(layer, previousLayerName: previousLayer?.name);
 
+                processedLayer.EnsureLayerExistsInController(fxLayerAnimatorController);
                 if (layer.manageAnimatorControllerStates)
                 {
-                    AddAndRemoveStates(layer, fxLayerAnimatorController);
-                    //not combining with above because the state may be pre-existing
-                    ReconfigureStateTransitions(layer, fxLayerAnimatorController);
+                    processedLayer.PerformStateManagement(fxLayerAnimatorController);
                 }
+                previousLayer = layer;
+            }
 
+            foreach (AnimatorLayerConfiguration layer in configuration.Layers)
+            {
                 //even if not messing with layers, states and transitions,
                 //we'll still put animations in if we get a match
                 //
@@ -115,218 +110,36 @@
             return result;
         }
 
-        private static void EnsureLayerExistsInController(
-            AnimatorLayerConfiguration currentLayer,
-            AnimatorLayerConfiguration previousLayer,
-            AnimatorController controller)
+        private static ProcessedLayer ProcessLayer(AnimatorLayerConfiguration layer, string previousLayerName)
         {
-            if (controller.layers.Any(l => l.name.Equals(currentLayer.name, StringComparison.OrdinalIgnoreCase))) return;
-
-            AnimatorControllerLayer animatorLayer = new AnimatorControllerLayer()
-            {
-                blendingMode = AnimatorLayerBlendingMode.Override,
-                name = currentLayer.name,
-                stateMachine = new AnimatorStateMachine()
-                {
-                    name = currentLayer.name,
-                    hideFlags = HideFlags.HideInHierarchy
-                },
-                defaultWeight = 1
-            };
-
-            int lastProcessedLayerIndex = Array.FindIndex(
-                controller.layers, l => l.name.Equals(previousLayer?.name, StringComparison.OrdinalIgnoreCase));
-            if (lastProcessedLayerIndex == -1)
-            {
-                controller.AddLayer(animatorLayer);
-            }
-            else
-            {
-                //the configuration assumes the order of the components matter,
-                //since layers can obviously blend together
-                //we dont do a sort later based on AnimatorLayers because not every AnimatorControllerLayer has a
-                //corresponding animatorlayer
-                List<AnimatorControllerLayer> newLayerSet = new List<AnimatorControllerLayer>(controller.layers);
-                newLayerSet.Insert(lastProcessedLayerIndex + 1, animatorLayer);
-                controller.layers = newLayerSet.ToArray();
-            }
-
-            //unity code does an undo record, but we dont since we're generating in a temp folder
-            TryAddObjectToAsset(animatorLayer.stateMachine, controller);
-        }
-
-        private static void AddAndRemoveStates(AnimatorLayerConfiguration layer, AnimatorController controller)
-        {
-            AnimatorStateMachine stateMachine = GetCorrespondingAnimatorControllerLayer(layer, controller).stateMachine;
-            //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
-            //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
-            //where we shouldnt.
-            //therefore, we can ditch them!
-            List<AnimatorState> states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
-
-            //the main reason for generating this array is for convenience of logging and removing the subassets
-            //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
-            AnimatorState[] statesToRemove = states
-                .Where(s => !Matches(s, layer.referenceAnimation) && !layer.animations.Any(a => Matches(s, a)))
-                .ToArray();
-            foreach (AnimatorState state in statesToRemove)
-            {
-                _ = states.Remove(state);
-                //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
-                AssetDatabase.RemoveObjectFromAsset(state);
-                Debug.LogWarning(
-                    $"The animator state '{state.name}' of controller layer '{layer.name}' exists in the " +
-                    $"base animator controller '{controller.name}' but has no corresponding animation set. " +
-                    "Consider removing the state from the controller. It has been removed from the generated " +
-                    "controller automatically, but not the base one. This has been done because we replace all " +
-                    "of the transitions' conditions and have no way to know how to create them for unknown states.");
-            }
-
+            List<ProcessedAnimation> processedAnimations = new List<ProcessedAnimation>(layer.animations.Count);
+            int defaultValue = 0; //reference animation/default state, incidentally
+            int parameterValue = 0;
+            processedAnimations.Add(
+                new ProcessedAnimation(layer.referenceAnimation.EffectiveStateName, parameterValue++, isToBeDefaultState: true));
             foreach (AnimationConfiguration animation in layer.animations)
             {
-                if (states.Any(s => Matches(s, animation))) continue;
-                states.Add(GenerateAnimatorState(animation.EffectiveStateName));
-            }
-
-            AnimatorState referenceAnimationState = states.SingleOrDefault(s => Matches(s, layer.referenceAnimation));
-            if (referenceAnimationState == null)
-            {
-                states.Add(referenceAnimationState = GenerateAnimatorState(layer.referenceAnimation.EffectiveStateName));
-            }
-
-            stateMachine.states = states
-                .Select(s => new ChildAnimatorState()
+                processedAnimations.Add(
+                    new ProcessedAnimation(animation.EffectiveStateName, parameterValue, isToBeDefaultState: false));
+                if (animation.isDefaultAnimation)
                 {
-                    state = s,
-                    position = new Vector3(250, GetYPosition(s), 0)
-                })
-                .ToArray();
-            //has to happen after we set back stateMachine.states
-            //speculation: if referenceAnimationState is a new state, then perhaps stateMachine.defaultState does some
-            //validation or otherwise has no understanding of this state.
-            stateMachine.defaultState = referenceAnimationState;
-
-            //we could do a trick where we assume the -1 only happens for reference animation and not need
-            //a ternary expression, but that'll surely backfire at some point
-            //TODO: tune positioning to look better
-            float GetYPosition(AnimatorState state)
-                => Matches(state, layer.referenceAnimation)
-                    ? 0
-                    : (layer.animations.FindIndex(a => Matches(state, a)) + 1) * 100;
-
-            AnimatorState GenerateAnimatorState(string name)
-            {
-                AnimatorState state = new AnimatorState()
-                {
-                    hideFlags = HideFlags.HideInHierarchy,
-                    name = name
-                };
-                TryAddObjectToAsset(state, controller);
-                return state;
+                    defaultValue = parameterValue;
+                }
+                parameterValue++;
             }
-            bool Matches(AnimatorState state, AnimationConfiguration animation)
-                => state.name.Equals(animation.EffectiveStateName, StringComparison.OrdinalIgnoreCase);
+
+            IProcessedParameter parameter = layer.animations.Count > 1
+                ? (IProcessedParameter)new IntProcessedParameter(layer.name, defaultValue)
+                : new BooleanProcessedParameter(layer.name, defaultValue != 0);
+
+            ProcessedLayer processedLayer = new ProcessedLayer(
+                name: layer.name,
+                previousLayerName: previousLayerName,
+                animations: processedAnimations,
+                parameter: parameter);
+            return processedLayer;
         }
 
-        //TODO: this needs a refactor/redesign
-        //TODO: prob also want to remove transition assets from object somewhere
-        //prob when removing states, actually
-        private static void ReconfigureStateTransitions(AnimatorLayerConfiguration layer, AnimatorController controller)
-        {
-            AnimatorStateMachine stateMachine = GetCorrespondingAnimatorControllerLayer(layer, controller).stateMachine;
-
-            //parameters are consumed by transitions, so makes sense to do it here
-            //TODO: add a mode that does multiple bools and parameter drivers instead of int, which would save space
-            //  not the highest priority, since most usages will likely be single animation (plus default) anyway
-            AnimatorControllerParameterType parameterType = layer.animations.Count > 1
-                    ? AnimatorControllerParameterType.Int
-                    : AnimatorControllerParameterType.Bool;
-            List<AnimatorControllerParameter> parameters = new List<AnimatorControllerParameter>(controller.parameters);
-            AnimatorControllerParameter parameter =
-                parameters.FirstOrDefault(p => p.name.Equals(layer.name, StringComparison.OrdinalIgnoreCase));
-            if (parameter == null)
-            {
-                parameter = new AnimatorControllerParameter()
-                {
-                    name = layer.name,
-                    //is redundant, since it set it later, but didnt check to see if AddParameter needs this
-                    type = parameterType
-                };
-                parameters.Add(parameter);
-            }
-            parameter.type = parameterType;
-            //will potentially change this later based on isDefaultAnimation
-            parameter.defaultBool = false;
-            parameter.defaultInt = 0;
-
-            List<AnimatorStateTransition> transitions =
-                new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
-
-            foreach (AnimatorState state in stateMachine.states.Select(cs => cs.state))
-            {
-                bool isDefaultState = state == stateMachine.defaultState;
-                AnimatorStateTransition targetTransition = transitions.FirstOrDefault(t => t.destinationState == state);
-                if (targetTransition == null)
-                {
-                    targetTransition = new AnimatorStateTransition()
-                    {
-                        hasExitTime = false,
-                        hasFixedDuration = true,
-                        duration = 0,
-                        exitTime = 0,
-                        hideFlags = HideFlags.HideInHierarchy,
-                        destinationState = state,
-                        name = state.name //not sure if name is necessary anyway
-                    };
-                    transitions.Add(targetTransition);
-                    //while we're not creating new assets here, this is okay
-                    TryAddObjectToAsset(targetTransition, controller);
-                }
-
-                int correspondingAnimationIndex =
-                    layer.animations.FindIndex(anim => state.name.Equals(anim.name, StringComparison.OrdinalIgnoreCase));
-                targetTransition.conditions = new[]
-                {
-                    parameterType == AnimatorControllerParameterType.Int
-                        ? new AnimatorCondition()
-                        {
-                            mode = AnimatorConditionMode.Equals,
-                            parameter = layer.name,
-                            threshold = isDefaultState
-                                ? 0
-                                : correspondingAnimationIndex + 1
-                        }
-                        : new AnimatorCondition()
-                        {
-                            mode = isDefaultState
-                                ? AnimatorConditionMode.IfNot
-                                : AnimatorConditionMode.If,
-                            parameter = layer.name
-                        }
-                };
-
-                AnimationConfiguration correspondingAnimation = isDefaultState
-                    ? layer.referenceAnimation
-                    : layer.animations[correspondingAnimationIndex];
-                if (correspondingAnimation.isDefaultAnimation)
-                {
-                    if (parameterType == AnimatorControllerParameterType.Bool)
-                    {
-                        parameter.defaultBool = !isDefaultState;
-                    }
-                    else
-                    {
-                        parameter.defaultInt = (int)targetTransition.conditions[0].threshold;
-                    }
-                }
-            }
-            controller.parameters = parameters.ToArray();
-            stateMachine.anyStateTransitions = transitions.ToArray();
-        }
-
-        private static AnimatorControllerLayer GetCorrespondingAnimatorControllerLayer(
-            AnimatorLayerConfiguration layer, AnimatorController controller)
-            => controller.layers.Single(l => l.name.Equals(layer.name, StringComparison.OrdinalIgnoreCase));
 
         private static void UpdateStatesWithClips(
             AnimatorController fxLayerAnimatorController, AnimatorLayerConfiguration layer, ClipManifest clipManifest)
@@ -397,6 +210,302 @@
         {
             if (string.IsNullOrEmpty(AssetDatabase.GetAssetPath(potentialAsset))) return;
             AssetDatabase.AddObjectToAsset(objectToAdd, potentialAsset);
+        }
+
+        private class ProcessedLayer
+        {
+            private readonly string previousLayerName;
+            private readonly string name;
+            private readonly IEnumerable<ProcessedAnimation> animations;
+            private readonly IProcessedParameter parameter;
+
+            public ProcessedLayer(
+                string name,
+                string previousLayerName,
+                IEnumerable<ProcessedAnimation> animations,
+                IProcessedParameter parameter)
+            {
+                this.name = name;
+                this.previousLayerName = previousLayerName;
+                this.animations = animations;
+                this.parameter = parameter;
+            }
+
+            public void PerformStateManagement(AnimatorController controller)
+            {
+                AnimatorStateMachine stateMachine = controller.layers.Single(
+                    l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase)).stateMachine;
+                //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
+                //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
+                //where we shouldnt.
+                //therefore, we can ditch them!
+                List<AnimatorState> states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
+
+                //the main reason for generating this array is for convenience of logging and removing the subassets
+                //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
+                AnimatorState[] statesToRemove = states
+                    .Where(s => !animations.Any(a => a.MatchesState(s)))
+                    .ToArray();
+                foreach (AnimatorState state in statesToRemove)
+                {
+                    _ = states.Remove(state);
+                    //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
+                    AssetDatabase.RemoveObjectFromAsset(state);
+                    Debug.LogWarning(
+                        $"The animator state '{state.name}' of controller layer '{name}' exists in the " +
+                        $"base animator controller '{controller.name}' but has no corresponding animation set. " +
+                        "Consider removing the state from the controller. It has been removed from the generated " +
+                        "controller automatically, but not the base one. This has been done because we replace all " +
+                        "of the transitions' conditions and have no way to know how to create them for unknown states.");
+                    //not sure if we should remove transitions from asset, but it's not the end of the world to not to
+                    //even if they get left behind
+                }
+
+                AnimatorState defaultState = null;
+                foreach (ProcessedAnimation animation in animations)
+                {
+                    animation.AddState(controller, states, ref defaultState);
+                }
+
+                stateMachine.states = states
+                    .Select((s, i) => new ChildAnimatorState()
+                    {
+                        state = s,
+                        position = new Vector3(250, i * 100, 0)
+                    })
+                    .ToArray();
+                //has to happen after we set back stateMachine.states
+                //speculation: if referenceAnimationState is a new state, then perhaps stateMachine.defaultState does some
+                //validation or otherwise has no understanding of this state.
+                stateMachine.defaultState = defaultState;
+
+                //likewise, let's just assume this should come after setting stateMachine.states
+                List<AnimatorStateTransition> transitions =
+                    new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
+                foreach (ProcessedAnimation animation in animations)
+                {
+                    parameter.ApplyTransition(controller, transitions, animation);
+                }
+                stateMachine.anyStateTransitions = transitions.ToArray();
+
+                parameter.ApplyToControllerParameters(controller);
+            }
+
+            public void EnsureLayerExistsInController(AnimatorController controller)
+            {
+                List<AnimatorControllerLayer> layers = new List<AnimatorControllerLayer>(controller.layers);
+                if (layers.Any(l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase))) return;
+
+                AnimatorControllerLayer animatorLayer = new AnimatorControllerLayer()
+                {
+                    blendingMode = AnimatorLayerBlendingMode.Override,
+                    name = name,
+                    stateMachine = new AnimatorStateMachine()
+                    {
+                        name = name,
+                        hideFlags = HideFlags.HideInHierarchy
+                    },
+                    defaultWeight = 1
+                };
+
+                int lastProcessedLayerIndex = layers.FindIndex(
+                    0,
+                    l => l.name.Equals(previousLayerName, StringComparison.OrdinalIgnoreCase));
+                if (lastProcessedLayerIndex == -1)
+                {
+                    layers.Add(animatorLayer);
+                }
+                else
+                {
+                    //the configuration assumes the order of the components matter,
+                    //since layers can obviously blend together
+                    //we dont do a sort later based on AnimatorLayers because not every AnimatorControllerLayer has a
+                    //corresponding animatorlayer
+                    layers.Insert(lastProcessedLayerIndex + 1, animatorLayer);
+                }
+                controller.layers = layers.ToArray();
+
+                //unity code does an undo record, but we dont since we're generating in a temp folder
+                TryAddObjectToAsset(animatorLayer.stateMachine, controller);
+            }
+        }
+
+        private class ProcessedAnimation
+        {
+            private readonly string stateName;
+            //not a huge fan of such mutations, but it's convenient and the logic flows naturally
+            private AnimatorState correspondingState = null;
+
+            public AnimatorState CorrespondingState => correspondingState ?? throw new InvalidOperationException(
+                "Somehow AddState didn't produce a CorrespondingState, or AddState wasn't called beforehand.");
+            public int CorrespondingParameterValue { get; }
+            public bool IsToBeDefaultState { get; }
+
+            public ProcessedAnimation(string stateName, int correspondingParameterValue, bool isToBeDefaultState)
+            {
+                this.stateName = stateName;
+                CorrespondingParameterValue = correspondingParameterValue;
+                IsToBeDefaultState = isToBeDefaultState;
+            }
+
+            public bool MatchesState(AnimatorState state)
+                => state.name.Equals(stateName, StringComparison.OrdinalIgnoreCase);
+
+            public void AddState(AnimatorController controller, List<AnimatorState> states, ref AnimatorState defaultState)
+            {
+                correspondingState = states.SingleOrDefault(
+                    s => s.name.Equals(stateName, StringComparison.OrdinalIgnoreCase));
+                if (correspondingState != null) return;
+                correspondingState = new AnimatorState()
+                {
+                    hideFlags = HideFlags.HideInHierarchy,
+                    name = stateName
+                };
+                TryAddObjectToAsset(correspondingState, controller);
+                states.Add(correspondingState);
+
+                defaultState = IsToBeDefaultState ? correspondingState : defaultState;
+            }
+        }
+
+        private interface IProcessedParameter
+        {
+            void ApplyToExpressionsParameters();
+            void ApplyToControllerParameters(AnimatorController controller);
+            void ApplyTransition(
+                AnimatorController controller, List<AnimatorStateTransition> transitions, ProcessedAnimation animation);
+        }
+
+        private class BooleanProcessedParameter : IProcessedParameter
+        {
+            private readonly string name;
+            private readonly bool defaultValue;
+
+            public BooleanProcessedParameter(string name, bool defaultValue)
+            {
+                this.name = name;
+                this.defaultValue = defaultValue;
+            }
+
+            public void ApplyToControllerParameters(AnimatorController controller)
+            {
+                List<AnimatorControllerParameter> parameters =
+                    new List<AnimatorControllerParameter>(controller.parameters);
+                AnimatorControllerParameter parameter = GetOrAddParameter(
+                    parameters, name, AnimatorControllerParameterType.Bool);
+                parameter.defaultBool = defaultValue;
+                controller.parameters = parameters.ToArray();
+            }
+
+            public void ApplyToExpressionsParameters() => throw new NotImplementedException();
+            //TODO: screw the lists, swap out this and others
+            public void ApplyTransition(
+                AnimatorController controller,
+                List<AnimatorStateTransition> transitions,
+                ProcessedAnimation animation)
+            {
+                AnimatorStateTransition targetTransition = GetOrAddTransition(
+                    controller, transitions, animation);
+                targetTransition.conditions = new[]
+                {
+                    new AnimatorCondition()
+                    {
+                        mode = animation.CorrespondingParameterValue != 0
+                            ? AnimatorConditionMode.IfNot
+                            : AnimatorConditionMode.If,
+                        parameter = name
+                    }
+                };
+            }
+        }
+
+        private class IntProcessedParameter : IProcessedParameter
+        {
+            private readonly string name;
+            private readonly int defaultValue;
+
+            public IntProcessedParameter(string name, int defaultValue)
+            {
+                this.name = name;
+                this.defaultValue = defaultValue;
+            }
+
+            public void ApplyToControllerParameters(AnimatorController controller)
+            {
+                List<AnimatorControllerParameter> parameters =
+                    new List<AnimatorControllerParameter>(controller.parameters);
+                AnimatorControllerParameter parameter = GetOrAddParameter(
+                    parameters, name, AnimatorControllerParameterType.Int);
+                parameter.defaultInt = defaultValue;
+                controller.parameters = parameters.ToArray();
+            }
+
+            public void ApplyToExpressionsParameters() => throw new NotImplementedException();
+            public void ApplyTransition(
+                AnimatorController controller,
+                List<AnimatorStateTransition> transitions,
+                ProcessedAnimation animation)
+            {
+                AnimatorStateTransition targetTransition = GetOrAddTransition(
+                    controller, transitions, animation);
+                targetTransition.conditions = new[]
+                {
+                    new AnimatorCondition()
+                    {
+                        mode = AnimatorConditionMode.Equals,
+                        parameter = name,
+                        threshold = animation.CorrespondingParameterValue
+                    }
+                };
+            }
+        }
+
+        private static AnimatorStateTransition GetOrAddTransition(
+            AnimatorController controller,
+            List<AnimatorStateTransition> transitions,
+            ProcessedAnimation animation)
+        {
+            AnimatorState state = animation.CorrespondingState;
+            AnimatorStateTransition transition =
+                transitions.FirstOrDefault(t => t.destinationState == state);
+            if (transition == null)
+            {
+                transition = new AnimatorStateTransition()
+                {
+                    hasExitTime = false,
+                    hasFixedDuration = true,
+                    duration = 0,
+                    exitTime = 0,
+                    hideFlags = HideFlags.HideInHierarchy,
+                    destinationState = state,
+                    name = state.name //not sure if name is necessary anyway
+                };
+                transitions.Add(transition);
+                //while we're not creating new assets here, this is okay
+                TryAddObjectToAsset(transition, controller);
+            }
+            return transition;
+        }
+
+        private static AnimatorControllerParameter GetOrAddParameter(
+            List<AnimatorControllerParameter> parameters,
+            string name,
+            AnimatorControllerParameterType type)
+        {
+            AnimatorControllerParameter parameter =
+                                parameters.FirstOrDefault(p => p.name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (parameter == null)
+            {
+                parameter = new AnimatorControllerParameter()
+                {
+                    name = name,
+                    //is redundant, since it set it later, but didnt check to see if AddParameter needs this
+                    type = type
+                };
+                parameters.Add(parameter);
+            }
+            parameter.type = type;
+            return parameter;
         }
     }
 }

@@ -111,6 +111,8 @@ namespace EZFXLayer.Test
                 Is.EqualTo(new[] { "1", "2", "3" }));
         }
 
+        //TODO: effectivestatename tests
+
         [Test]
         public void ChoosesAppropriateParameterType_BasedOnAnimationCount()
         {
@@ -147,16 +149,6 @@ namespace EZFXLayer.Test
             _ = testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.FXController.layers[0].stateMachine.defaultState.name, Is.EqualTo("foo"));
-        }
-
-        [Test]
-        public void Wat()
-        {
-            AnimatorController controller = new AnimatorController();
-            controller.AddLayer("foo");
-            var state = controller.layers[0].stateMachine.AddState("wat");
-            controller.layers[0].stateMachine.defaultState= state;
-            Assert.That(controller.layers[0].stateMachine.defaultState.name, Is.EqualTo("wat"));
         }
 
         [Test]
