@@ -280,13 +280,10 @@
                 stateMachine.defaultState = defaultState;
 
                 //likewise, let's just assume this should come after setting stateMachine.states
-                List<AnimatorStateTransition> transitions =
-                    new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
                 foreach (ProcessedAnimation animation in animations)
                 {
-                    parameter.ApplyTransition(controller, transitions, animation);
+                    parameter.ApplyTransition(controller, stateMachine, animation);
                 }
-                stateMachine.anyStateTransitions = transitions.ToArray();
 
                 parameter.ApplyToControllerParameters(controller);
             }
@@ -373,7 +370,7 @@
             void ApplyToExpressionsParameters();
             void ApplyToControllerParameters(AnimatorController controller);
             void ApplyTransition(
-                AnimatorController controller, List<AnimatorStateTransition> transitions, ProcessedAnimation animation);
+                AnimatorController controller, AnimatorStateMachine stateMachine, ProcessedAnimation animation);
         }
 
         private class BooleanProcessedParameter : IProcessedParameter
@@ -398,25 +395,22 @@
             }
 
             public void ApplyToExpressionsParameters() => throw new NotImplementedException();
-            //TODO: screw the lists, swap out this and others
+
             public void ApplyTransition(
                 AnimatorController controller,
-                List<AnimatorStateTransition> transitions,
+                AnimatorStateMachine stateMachine,
                 ProcessedAnimation animation)
-            {
-                AnimatorStateTransition targetTransition = GetOrAddTransition(
-                    controller, transitions, animation);
-                targetTransition.conditions = new[]
-                {
+                => EZFXLayerGenerator.ApplyTransition(
+                    controller,
+                    stateMachine,
+                    animation,
                     new AnimatorCondition()
                     {
                         mode = animation.Index != 0
                             ? AnimatorConditionMode.If //if animator param true
                             : AnimatorConditionMode.IfNot,
                         parameter = name
-                    }
-                };
-            }
+                    });
         }
 
         private class IntProcessedParameter : IProcessedParameter
@@ -443,28 +437,27 @@
             public void ApplyToExpressionsParameters() => throw new NotImplementedException();
             public void ApplyTransition(
                 AnimatorController controller,
-                List<AnimatorStateTransition> transitions,
+                AnimatorStateMachine stateMachine,
                 ProcessedAnimation animation)
-            {
-                AnimatorStateTransition targetTransition = GetOrAddTransition(
-                    controller, transitions, animation);
-                targetTransition.conditions = new[]
-                {
+                => EZFXLayerGenerator.ApplyTransition(
+                    controller,
+                    stateMachine,
+                    animation,
                     new AnimatorCondition()
                     {
                         mode = AnimatorConditionMode.Equals,
                         parameter = name,
                         threshold = animation.Index
-                    }
-                };
-            }
+                    });
         }
 
-        private static AnimatorStateTransition GetOrAddTransition(
+        private static void ApplyTransition(
             AnimatorController controller,
-            List<AnimatorStateTransition> transitions,
-            ProcessedAnimation animation)
+            AnimatorStateMachine stateMachine,
+            ProcessedAnimation animation,
+            AnimatorCondition condition)
         {
+            List<AnimatorStateTransition> transitions = new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
             AnimatorState state = animation.CorrespondingState;
             AnimatorStateTransition transition =
                 transitions.FirstOrDefault(t => t.destinationState == state);
@@ -484,7 +477,8 @@
                 //while we're not creating new assets here, this is okay
                 TryAddObjectToAsset(transition, controller);
             }
-            return transition;
+            transition.conditions = new[] { condition };
+            stateMachine.anyStateTransitions = transitions.ToArray();
         }
 
         private static AnimatorControllerParameter GetOrAddParameter(
@@ -493,7 +487,7 @@
             AnimatorControllerParameterType type)
         {
             AnimatorControllerParameter parameter =
-                                parameters.FirstOrDefault(p => p.name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                parameters.FirstOrDefault(p => p.name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (parameter == null)
             {
                 parameter = new AnimatorControllerParameter()
