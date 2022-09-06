@@ -7,7 +7,7 @@ namespace EZFXLayer
     using UnityEditor.Animations;
     using UnityEngine;
 
-    public class ProcessedLayer
+    internal class ProcessedLayer
     {
         private readonly string previousLayerName;
         private readonly string name;

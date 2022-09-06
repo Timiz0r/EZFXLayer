@@ -6,7 +6,7 @@ namespace EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.Components;
 
-    public static class Utilities
+    internal static class Utilities
     {
         public static string GetRelativePath(this GameObject gameObject)
         {

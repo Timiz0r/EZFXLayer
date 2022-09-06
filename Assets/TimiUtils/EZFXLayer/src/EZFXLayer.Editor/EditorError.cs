@@ -4,7 +4,7 @@ namespace EZFXLayer
     using UnityEditor;
     using UnityEngine;
 
-    public static class EditorError
+    internal static class EditorError
     {
         public static void Display(string message) => Display(message, () => { });
 

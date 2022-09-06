@@ -5,7 +5,7 @@ namespace EZFXLayer
     using UnityEditor.Animations;
     using UnityEngine;
 
-    public class BooleanProcessedParameter : IProcessedParameter
+    internal class BooleanProcessedParameter : IProcessedParameter
     {
         private readonly string name;
         private readonly bool defaultValue;

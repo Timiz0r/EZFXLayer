@@ -5,7 +5,7 @@ namespace EZFXLayer
     using UnityEditor.Animations;
     using UnityEngine;
 
-    public class IntProcessedParameter : IProcessedParameter
+    internal class IntProcessedParameter : IProcessedParameter
     {
         private readonly string name;
         private readonly int defaultValue;

@@ -6,7 +6,7 @@ namespace EZFXLayer
     using UnityEditor.Animations;
     using UnityEngine;
 
-    public class ProcessedAnimation
+    internal class ProcessedAnimation
     {
         private readonly string stateName;
         //not a huge fan of such mutations, but it's convenient and the logic flows naturally

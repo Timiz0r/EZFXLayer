@@ -6,7 +6,7 @@ namespace EZFXLayer
     using UnityEditor.Animations;
     using UnityEngine;
 
-    public interface IProcessedParameter
+    internal interface IProcessedParameter
     {
         void ApplyToExpressionsParameters();
         void ApplyToControllerParameters(AnimatorController controller);
@@ -14,7 +14,7 @@ namespace EZFXLayer
             AnimatorController controller, AnimatorStateMachine stateMachine, ProcessedAnimation animation);
     }
 
-    public static class ProcessedParameter
+    internal static class ProcessedParameter
     {
         public static void ApplyTransition(
             AnimatorController controller,
