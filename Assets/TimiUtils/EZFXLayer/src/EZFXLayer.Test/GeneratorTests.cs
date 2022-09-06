@@ -371,7 +371,6 @@ namespace EZFXLayer.Test
 
             _ = testSetup.StandardGenerate();
 
-
             Assert.That(GetConditionInformation("1", "default").mode, Is.EqualTo(AnimatorConditionMode.IfNot));
             Assert.That(GetConditionInformation("1", "foo").mode, Is.EqualTo(AnimatorConditionMode.If));
 
@@ -388,6 +387,25 @@ namespace EZFXLayer.Test
                             .conditions[0];
                 return (condition.mode, condition.threshold);
             }
+        }
+
+        [Test]
+        public void ReturnsOnlyUsedClips_IfStateManagementIsDisabledAndNotAllStatesExist()
+        {
+            TestSetup testSetup = new TestSetup();
+            AnimatorController controller = testSetup.Assets.FXController;
+            controller.AddLayer("layer");
+            _ = controller.layers[0].stateMachine.AddState("default");
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "layer",
+                    l => l
+                        .DisableStateManagement()
+                        .ConfigureReferenceAnimation("default", a => { })
+                        .AddAnimation("foo", a => { }));
+
+            GenerationResult result = testSetup.StandardGenerate();
+            Assert.That(result.GeneratedClips, HasCountConstraint.Create(1));
         }
     }
 }

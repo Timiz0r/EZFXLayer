@@ -40,5 +40,12 @@ namespace EZFXLayer.Test
 
             return this;
         }
+
+        public LayerConfigurationBuilder DisableStateManagement()
+        {
+            layer.manageAnimatorControllerStates = false;
+
+            return this;
+        }
     }
 }

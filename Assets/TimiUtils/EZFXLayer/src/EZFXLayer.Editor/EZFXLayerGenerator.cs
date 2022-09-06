@@ -89,19 +89,13 @@
                 {
                     processedLayer.PerformStateManagement(fxLayerAnimatorController);
                 }
-                previousLayer = layer;
-            }
 
-            foreach (AnimatorLayerConfiguration layer in configuration.Layers)
-            {
                 //even if not messing with layers, states and transitions,
                 //we'll still put animations in if we get a match
                 //
                 //for animations, we'll simply generate them. we'll leave it to the driver adapter to create the assets
-                ClipManifest clipManifest = GenerateAnimations(layer);
-                generatedClips.AddRange(clipManifest.Clips);
-
-                UpdateStatesWithClips(fxLayerAnimatorController, layer, clipManifest);
+                generatedClips.AddRange(
+                    processedLayer.UpdateStatesWithClips(fxLayerAnimatorController));
 
                 previousLayer = layer;
             }
@@ -132,34 +126,22 @@
                 ? (IProcessedParameter)new IntProcessedParameter(layer.name, defaultValue)
                 : new BooleanProcessedParameter(layer.name, defaultValue != 0);
 
+            IReadOnlyDictionary<string, AnimationClip> clips = GenerateAnimationClips(layer);
+
             ProcessedLayer processedLayer = new ProcessedLayer(
                 name: layer.name,
                 previousLayerName: previousLayerName,
                 animations: processedAnimations,
-                parameter: parameter);
+                parameter: parameter,
+                animationClips: clips);
             return processedLayer;
         }
 
-
-        private static void UpdateStatesWithClips(
-            AnimatorController fxLayerAnimatorController, AnimatorLayerConfiguration layer, ClipManifest clipManifest)
+        private static IReadOnlyDictionary<string, AnimationClip> GenerateAnimationClips(
+            AnimatorLayerConfiguration layer)
         {
-            AnimatorControllerLayer animatorLayer =
-                fxLayerAnimatorController.layers.Single(
-                    l => l.name.Equals(layer.name, StringComparison.OrdinalIgnoreCase));
-
-            foreach (AnimatorState state in animatorLayer.stateMachine.states.Select(s => s.state))
-            {
-                if (clipManifest.TryFind(state.name, out AnimationClip clip))
-                {
-                    state.motion = clip;
-                }
-            }
-        }
-
-        private static ClipManifest GenerateAnimations(AnimatorLayerConfiguration layer)
-        {
-            ClipManifest clipManifest = new ClipManifest(layer);
+            Dictionary<string, AnimationClip> clips =
+                new Dictionary<string, AnimationClip>(StringComparer.OrdinalIgnoreCase);
             foreach (AnimationConfiguration animation in layer.animations.Append(layer.referenceAnimation))
             {
                 AnimationClip clip = new AnimationClip();
@@ -184,9 +166,11 @@
                     );
                 }
 
-                clipManifest.Add(animation.name, clip);
+                if (clips.ContainsKey(animation.name)) throw new InvalidOperationException(
+                    $"An animation named '{animation.name}' has already been generated for layer '{layer.name}'.");
+                clips[animation.name] = clip;
             }
-            return clipManifest;
+            return clips;
         }
 
         private void PreValidate(IEnumerable<GameObject> avatars)
@@ -218,74 +202,20 @@
             private readonly string name;
             private readonly IEnumerable<ProcessedAnimation> animations;
             private readonly IProcessedParameter parameter;
+            private readonly IReadOnlyDictionary<string, AnimationClip> animationClips;
 
             public ProcessedLayer(
                 string name,
                 string previousLayerName,
                 IEnumerable<ProcessedAnimation> animations,
-                IProcessedParameter parameter)
+                IProcessedParameter parameter,
+                IReadOnlyDictionary<string, AnimationClip> animationClips)
             {
                 this.name = name;
                 this.previousLayerName = previousLayerName;
                 this.animations = animations;
                 this.parameter = parameter;
-            }
-
-            public void PerformStateManagement(AnimatorController controller)
-            {
-                AnimatorStateMachine stateMachine = controller.layers.Single(
-                    l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase)).stateMachine;
-                //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
-                //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
-                //where we shouldnt.
-                //therefore, we can ditch them!
-                List<AnimatorState> states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
-
-                //the main reason for generating this array is for convenience of logging and removing the subassets
-                //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
-                AnimatorState[] statesToRemove = states
-                    .Where(s => !animations.Any(a => a.MatchesState(s)))
-                    .ToArray();
-                foreach (AnimatorState state in statesToRemove)
-                {
-                    _ = states.Remove(state);
-                    //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
-                    AssetDatabase.RemoveObjectFromAsset(state);
-                    Debug.LogWarning(
-                        $"The animator state '{state.name}' of controller layer '{name}' exists in the " +
-                        $"base animator controller '{controller.name}' but has no corresponding animation set. " +
-                        "Consider removing the state from the controller. It has been removed from the generated " +
-                        "controller automatically, but not the base one. This has been done because we replace all " +
-                        "of the transitions' conditions and have no way to know how to create them for unknown states.");
-                    //not sure if we should remove transitions from asset, but it's not the end of the world to not to
-                    //even if they get left behind
-                }
-
-                AnimatorState defaultState = null;
-                foreach (ProcessedAnimation animation in animations)
-                {
-                    animation.AddState(controller, states, ref defaultState);
-                }
-
-                stateMachine.states = states
-                    .Select((s, i) => new ChildAnimatorState()
-                    {
-                        state = s,
-                        position = new Vector3(250, i * 100, 0)
-                    })
-                    .ToArray();
-                //has to happen after we set back stateMachine.states
-                //speculation: if referenceAnimationState is a new state, then perhaps stateMachine.defaultState does some
-                //validation or otherwise has no understanding of this state.
-                stateMachine.defaultState = defaultState;
-
-                //likewise, let's just assume this should come after setting stateMachine.states
-                foreach (ProcessedAnimation animation in animations)
-                {
-                    parameter.ApplyTransition(controller, stateMachine, animation);
-                }
-
-                parameter.ApplyToControllerParameters(controller);
+                this.animationClips = animationClips;
             }
 
             public void EnsureLayerExistsInController(AnimatorController controller)
@@ -325,6 +255,83 @@
                 //unity code does an undo record, but we dont since we're generating in a temp folder
                 TryAddObjectToAsset(animatorLayer.stateMachine, controller);
             }
+
+            public void PerformStateManagement(AnimatorController controller)
+            {
+                AnimatorStateMachine stateMachine = GetStateMachine(controller);
+                //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
+                //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
+                //where we shouldnt.
+                //therefore, we can ditch them!
+                List<AnimatorState> states = new List<AnimatorState>(stateMachine.states.Select(cs => cs.state));
+
+                //the main reason for generating this array is for convenience of logging and removing the subassets
+                //without creating a bunch of undo operations from AnimatorStateMachine.RemoveState.
+                //otherwise we could just filter out from states what's not in animations
+                AnimatorState[] statesToRemove = states
+                    .Where(s => !animations.Any(a => a.MatchesState(s)))
+                    .ToArray();
+                foreach (AnimatorState state in statesToRemove)
+                {
+                    _ = states.Remove(state);
+                    //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
+                    AssetDatabase.RemoveObjectFromAsset(state);
+                    Debug.LogWarning(
+                        $"The animator state '{state.name}' of controller layer '{name}' exists in the " +
+                        $"base animator controller '{controller.name}' but has no corresponding animation set. " +
+                        "Consider removing the state from the controller. It has been removed from the generated " +
+                        "controller automatically, but not the base one. This has been done because we replace all " +
+                        "of the transitions' conditions and have no way to know how to create them for unknown states.");
+                    //not sure if we should remove transitions from asset, but it's not the end of the world to not
+                    //even if they get left behind
+                }
+
+                AnimatorState defaultState = null;
+                foreach (ProcessedAnimation animation in animations)
+                {
+                    animation.AddState(controller, states, ref defaultState);
+                }
+
+                stateMachine.states = states
+                    .Select((s, i) => new ChildAnimatorState()
+                    {
+                        state = s,
+                        position = new Vector3(250, i * 100, 0)
+                    })
+                    .ToArray();
+                //has to happen after we set back stateMachine.states
+                //speculation: if referenceAnimationState is a new state, then perhaps stateMachine.defaultState does some
+                //validation or otherwise has no understanding of this state.
+                stateMachine.defaultState = defaultState;
+
+                //likewise, let's just assume this should come after setting stateMachine.states
+                foreach (ProcessedAnimation animation in animations)
+                {
+                    parameter.ApplyTransition(controller, stateMachine, animation);
+                }
+
+                parameter.ApplyToControllerParameters(controller);
+            }
+
+            public IReadOnlyList<GeneratedClip> UpdateStatesWithClips(
+                AnimatorController controller)
+            {
+                List<GeneratedClip> generatedClips = new List<GeneratedClip>();
+                AnimatorStateMachine stateMachine = GetStateMachine(controller);
+
+                foreach (AnimatorState state in stateMachine.states.Select(s => s.state))
+                {
+                    if (animationClips.TryGetValue(state.name, out AnimationClip clip))
+                    {
+                        state.motion = clip;
+                        generatedClips.Add(new GeneratedClip(name, state.name, clip));
+                    }
+                }
+                return generatedClips;
+            }
+
+            private AnimatorStateMachine GetStateMachine(AnimatorController controller)
+                => controller.layers.Single(l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase)).stateMachine;
         }
 
         private class ProcessedAnimation
