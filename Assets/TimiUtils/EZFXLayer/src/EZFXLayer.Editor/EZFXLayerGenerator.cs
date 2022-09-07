@@ -65,7 +65,7 @@
             if (vrcRootExpressionsMenu == null) throw new ArgumentNullException(nameof(vrcRootExpressionsMenu));
 
             List<GeneratedClip> generatedClips = new List<GeneratedClip>();
-            List<VRCExpressionsMenu> createdSubMenus = new List<VRCExpressionsMenu>();
+            List<GeneratedMenu> generatedMenus = new List<GeneratedMenu>();
 
             AnimatorLayerConfiguration previousLayer = null;
             foreach (AnimatorLayerConfiguration layer in configuration.Layers)
@@ -87,7 +87,7 @@
 
                 if (layer.manageExpressionMenuAndParameters)
                 {
-                    createdSubMenus.AddRange(
+                    generatedMenus.AddRange(
                         processedLayer.PerformExpressionsManagement(vrcRootExpressionsMenu, vrcExpressionParameters)
                     );
                 }
@@ -95,7 +95,7 @@
                 previousLayer = layer;
             }
 
-            GenerationResult result = new GenerationResult(generatedClips, createdSubMenus);
+            GenerationResult result = new GenerationResult(generatedClips, generatedMenus);
             return result;
         }
 

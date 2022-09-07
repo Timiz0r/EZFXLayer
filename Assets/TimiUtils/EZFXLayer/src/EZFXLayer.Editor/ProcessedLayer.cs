@@ -143,16 +143,16 @@ namespace EZFXLayer
             return generatedClips;
         }
 
-        public IReadOnlyList<VRCExpressionsMenu> PerformExpressionsManagement(
+        public IReadOnlyList<GeneratedMenu> PerformExpressionsManagement(
             VRCExpressionsMenu vrcRootExpressionsMenu,
             VRCExpressionParameters vrcExpressionParameters)
         {
             VRCExpressionParameters.Parameter expressionParameter =
                 parameter.ApplyToExpressionParameters(vrcExpressionParameters);
 
-            List<VRCExpressionsMenu> createdMenus = new List<VRCExpressionsMenu>();
+            List<GeneratedMenu> generatedMenus = new List<GeneratedMenu>();
             VRCExpressionsMenu targetMenu = Utilities.FindOrCreateTargetMenu(
-                vrcRootExpressionsMenu, menuPath, createdMenus);
+                vrcRootExpressionsMenu, menuPath, generatedMenus);
 
             foreach (ProcessedAnimation animation in animations)
             {
@@ -160,7 +160,7 @@ namespace EZFXLayer
                 targetMenu.controls.Add(animation.GetMenuToggle(expressionParameter));
             }
 
-            return createdMenus;
+            return generatedMenus;
         }
 
         private AnimatorStateMachine GetStateMachine(AnimatorController controller)

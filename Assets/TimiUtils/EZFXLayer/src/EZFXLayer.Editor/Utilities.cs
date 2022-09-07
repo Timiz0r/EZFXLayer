@@ -35,7 +35,7 @@ namespace EZFXLayer
         public static VRCExpressionsMenu FindOrCreateTargetMenu(
             VRCExpressionsMenu rootMenu,
             string path,
-            List<VRCExpressionsMenu> createdMenus)
+            List<GeneratedMenu> generatedMenus)
         {
             //splits on forwards slashes not preceeded by an odd number of backslashes
             // \\/foo -> if even, then the forward slash is a valid path separator
@@ -50,6 +50,8 @@ namespace EZFXLayer
                 //so leading, trailing, and redundant slashes we'll ignore
                 //for instance, /////foo/////// is treated as foo
                 if (string.IsNullOrEmpty(pathPart)) continue;
+                //should be placed outside of creation ofc, and should be early enough that GeneratedMenu has right val
+                accumulatedMenuPaths.Add(pathPart);
 
                 VRCExpressionsMenu nextMenu = currentMenu.controls.SingleOrDefault(
                     c => c.type == VRCExpressionsMenu.Control.ControlType.SubMenu && c.name == pathPart)?.subMenu;
@@ -67,60 +69,12 @@ namespace EZFXLayer
                         type = VRCExpressionsMenu.Control.ControlType.SubMenu,
                         subMenu = nextMenu
                     });
-                    createdMenus.Add(nextMenu);
+                    generatedMenus.Add(new GeneratedMenu(accumulatedMenuPaths.ToArray(), nextMenu));
                 }
                 currentMenu = nextMenu;
-                accumulatedMenuPaths.Add(pathPart);
             }
 
             return currentMenu;
-        }
-
-        public static VRCExpressionsMenu FindOrCreateTargetMenu2(
-            VRCExpressionsMenu menu,
-            string path,
-            List<VRCExpressionsMenu> createdMenus)
-        {
-            Match match = Regex.Match(
-                path ?? string.Empty,
-                @"
-(?>/?) #it fine to start a path with a /. an atomic group is used because, for the '/' case, backtracking will put it in the capture group
-(.+?)
-(?:
-  (?<!\\)/ #can escape a forward slash with a backslash
-  (.*) #allowing this to match 0 helps if there's a trailing slash. with +, the above won't match
-)?$ #this non-capturing group is optional in case we're on the last element",
-                RegexOptions.IgnorePatternWhitespace);
-
-            if (!match.Success)
-            {
-                return menu.controls.Count > 8
-                    ? throw new InvalidOperationException("Cannot add menu items because there are already 8.")
-                    : menu;
-            }
-
-            string nextLevel = match.Groups[1].Value;
-            string rest = match.Groups[2].Value;
-
-            //or should perhaps go with c.subMenu.name? 🤷
-            VRCExpressionsMenu nextMenu = menu.controls.SingleOrDefault(
-                c => c.type == VRCExpressionsMenu.Control.ControlType.SubMenu && c.name == nextLevel)?.subMenu;
-            if (nextMenu == null)
-            {
-                //TODO: eventually want a better exception to indicate what path to look at
-                if (menu.controls.Count > 8) throw new InvalidOperationException(
-                    "Cannot add a new sub menu because there are already 8 items in its parent.");
-
-                nextMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
-                createdMenus.Add(nextMenu);
-                menu.controls.Add(new VRCExpressionsMenu.Control()
-                {
-                    name = nextLevel,
-                    type = VRCExpressionsMenu.Control.ControlType.SubMenu,
-                    subMenu = nextMenu
-                });
-            }
-            return FindOrCreateTargetMenu(nextMenu, rest, createdMenus);
         }
     }
 }

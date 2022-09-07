@@ -7,13 +7,13 @@ namespace EZFXLayer
     {
         public GenerationResult(
             IReadOnlyList<GeneratedClip> generatedClips,
-            IReadOnlyList<VRCExpressionsMenu> createdSubMenus)
+            IReadOnlyList<GeneratedMenu> generatedMenus)
         {
             GeneratedClips = generatedClips;
-            CreatedSubMenus = createdSubMenus;
+            GeneratedMenus = generatedMenus;
         }
 
         public IReadOnlyList<GeneratedClip> GeneratedClips { get; }
-        public IReadOnlyList<VRCExpressionsMenu> CreatedSubMenus { get; }
+        public IReadOnlyList<GeneratedMenu> GeneratedMenus { get; }
     }
 }

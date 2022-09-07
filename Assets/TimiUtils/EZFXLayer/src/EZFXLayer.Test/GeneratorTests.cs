@@ -515,7 +515,7 @@ namespace EZFXLayer.Test
 
             GenerationResult result = testSetup.StandardGenerate();
 
-            Assert.That(result.CreatedSubMenus, HasCountConstraint.Create(0));
+            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(0));
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("foo"));
             Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("bar"));
             Assert.That(testSetup.Assets.Menu.controls[2].name, Is.EqualTo("baz"));
@@ -534,7 +534,7 @@ namespace EZFXLayer.Test
 
             GenerationResult result = testSetup.StandardGenerate();
 
-            Assert.That(result.CreatedSubMenus, HasCountConstraint.Create(2));
+            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(2));
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("1"));
             Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo("foo"));
         }
@@ -682,7 +682,7 @@ namespace EZFXLayer.Test
 
             GenerationResult result = testSetup.StandardGenerate();
 
-            Assert.That(result.CreatedSubMenus, HasCountConstraint.Create(1));
+            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(1));
             Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo("bar"));
         }
 
@@ -705,7 +705,63 @@ namespace EZFXLayer.Test
 
             Assert.That(testSetup.Assets.Menu.controls, HasCountConstraint.Create(0));
         }
-        //need a better result for created submenus that includes path
-        //or i mean think about if we can do it via traversal, but prob best to not
+
+        [Test]
+        public void GenerationResult_IncludesCorrectMenusAndPaths_WhenGenerated()
+        {
+            //which is virtually useless, at least at the time of wrinting, having an always-on animation
+            //as such, we dont expose a way to change a toggle on the reference animation via configuration builder
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "layer",
+                    l => l
+                        .WithMenuPath(@"foo/\/bar/\\baz")
+                        .AddAnimation("anim", a => { }));
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(3));
+
+            //note that the foo control is in root menu, which already has a test
+            Assert.That(result.GeneratedMenus[0].Menu.controls[0].name, Is.EqualTo(@"/bar"));
+            Assert.That(result.GeneratedMenus[0].PathComponents, Is.EqualTo(new[] { @"foo" }));
+
+            Assert.That(result.GeneratedMenus[1].Menu.controls[0].name, Is.EqualTo(@"\baz"));
+            Assert.That(result.GeneratedMenus[1].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar" }));
+
+            Assert.That(result.GeneratedMenus[2].Menu.controls[0].name, Is.EqualTo(@"anim"));
+            Assert.That(result.GeneratedMenus[2].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar", @"\baz" }));
+        }
+
+        //instead of accumulating fat lists for the result of the generation, which is for the purpose of asset management
+        //consider having a driven port/interface deal with it
+        //"leaking" that there are a specific few kinds of assets to save is likely inevitable, unless we can actually think of a
+        //generic way to do it. it's arguably a bit better than putting more asset saving implementation details in the
+        //generator and just abstracting away the specific parts of saving them.
+        //
+        //animations and submenus are easy, since they sit in their own files.
+        //for assets within assets, options:
+        //  let the generator know that state machine stuff should be saved in the controller, which we already do
+        //  just have SaveTransition, SaveState, and SaveStateMachine just pass their respective artifacts and not the controller
+        //    since the adapter can just be given the controller thru other means like DI.
+        //
+
+        //consider polishing up the generated layers and animations stuff and having that be the generator config.
+        //then, the logic to turn components into them moves out of generator and into components themselves, like the
+        //reference configuration-containing button or whatever.
+        //  previousLayerName prob becomes a parameter
+        //  requires a bit more thought, but animation index can probably come out in some way, since the layer has a list and therefore index
+        //  IsToBeDefaultState is a weird name, simplify it
+        //  IsToBeDefaultState is consumed by the layer to decide if to generate a toggle. instead, just have the anim return a null toggle
+        //  processed animation cant have a clip field anymore, since components wont generate the clips; generator will
+        //    generator uses the animation component just for blend shapes and game objects. likely, those two things
+        //    themselves are not components, so we dont need to duplicate them. processed animation can be given them,
+        //    and then it can generate its own clip.
+        //  matches state isn't ideal, but it seems slightly better than exposing a single property known as statename. after these changes, it won't expose any state and just methods, which is cool
+        //  a little bit up for debate, but we'll make the classes public and its members internal, to keep it ports-and-adaptersy
+        //  probably the most obnoxious thing will be changing the generator. or maybe we dont have to, at least not yet.
+        //    it's almost certainly better to do so, but, for now, we'll convert components to processed* like we currently do.
+        //  and ofc pick better names, since they're no longer internal implementation details pertaining to processing the main config, but are now the main config itself
     }
 }
