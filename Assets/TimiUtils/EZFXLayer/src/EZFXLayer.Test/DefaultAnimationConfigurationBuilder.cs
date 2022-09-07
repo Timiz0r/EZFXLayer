@@ -54,5 +54,12 @@ namespace EZFXLayer.Test
 
             return this;
         }
+
+        public ReferenceAnimationConfigurationBuilder WithStateName(string stateName)
+        {
+            layer.referenceAnimation.animatorStateNameOverride = stateName;
+
+            return this;
+        }
     }
 }

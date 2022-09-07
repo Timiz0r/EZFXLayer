@@ -4,6 +4,7 @@ namespace EZFXLayer
     using System.Collections.Generic;
     using UnityEditor.Animations;
     using UnityEngine;
+    using VRC.SDK3.Avatars.ScriptableObjects;
 
     internal class BooleanProcessedParameter : IProcessedParameter
     {
@@ -26,22 +27,23 @@ namespace EZFXLayer
             controller.parameters = parameters.ToArray();
         }
 
-        public void ApplyToExpressionsParameters() => throw new NotImplementedException();
-
-        public void ApplyTransition(
-            AnimatorController controller,
-            AnimatorStateMachine stateMachine,
-            ProcessedAnimation animation)
-            => ProcessedParameter.ApplyTransition(
-                controller,
-                stateMachine,
-                animation,
-                new AnimatorCondition()
+        public VRCExpressionParameters.Parameter ApplyToExpressionParameters(VRCExpressionParameters vrcExpressionParameters)
+            => ProcessedParameter.ApplyToExpressionParameters(
+                vrcExpressionParameters,
+                new VRCExpressionParameters.Parameter()
                 {
-                    mode = animation.Index != 0
-                        ? AnimatorConditionMode.If //if animator param true
-                        : AnimatorConditionMode.IfNot,
-                    parameter = name
+                    name = name,
+                    valueType = VRCExpressionParameters.ValueType.Bool,
+                    defaultValue = Convert.ToSingle(defaultValue),
+                    saved = true
                 });
+
+        public AnimatorCondition GetAnimatorCondition(ProcessedAnimation animation) => new AnimatorCondition()
+        {
+            mode = animation.Index != 0
+                ? AnimatorConditionMode.If //if animator param true
+                : AnimatorConditionMode.IfNot,
+            parameter = name
+        };
     }
 }

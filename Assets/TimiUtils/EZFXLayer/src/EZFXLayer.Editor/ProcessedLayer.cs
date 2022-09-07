@@ -6,6 +6,7 @@ namespace EZFXLayer
     using UnityEditor;
     using UnityEditor.Animations;
     using UnityEngine;
+    using VRC.SDK3.Avatars.ScriptableObjects;
 
     internal class ProcessedLayer
     {
@@ -13,20 +14,20 @@ namespace EZFXLayer
         private readonly string name;
         private readonly IEnumerable<ProcessedAnimation> animations;
         private readonly IProcessedParameter parameter;
-        private readonly IReadOnlyDictionary<string, AnimationClip> animationClips;
+        private readonly string menuPath;
 
         public ProcessedLayer(
             string name,
             string previousLayerName,
             IEnumerable<ProcessedAnimation> animations,
             IProcessedParameter parameter,
-            IReadOnlyDictionary<string, AnimationClip> animationClips)
+            string menuPath)
         {
             this.name = name;
             this.previousLayerName = previousLayerName;
             this.animations = animations;
             this.parameter = parameter;
-            this.animationClips = animationClips;
+            this.menuPath = menuPath;
         }
 
         public void EnsureLayerExistsInController(AnimatorController controller)
@@ -118,7 +119,8 @@ namespace EZFXLayer
             //likewise, let's just assume this should come after setting stateMachine.states
             foreach (ProcessedAnimation animation in animations)
             {
-                parameter.ApplyTransition(controller, stateMachine, animation);
+                AnimatorCondition condition = parameter.GetAnimatorCondition(animation);
+                animation.SetTransition(stateMachine, condition, controller);
             }
 
             parameter.ApplyToControllerParameters(controller);
@@ -130,15 +132,34 @@ namespace EZFXLayer
             List<GeneratedClip> generatedClips = new List<GeneratedClip>();
             AnimatorStateMachine stateMachine = GetStateMachine(controller);
 
-            foreach (AnimatorState state in stateMachine.states.Select(s => s.state))
+            foreach (ProcessedAnimation animation in animations)
             {
-                if (animationClips.TryGetValue(state.name, out AnimationClip clip))
+                if (animation.SetMotion(stateMachine, name, out GeneratedClip clip))
                 {
-                    state.motion = clip;
-                    generatedClips.Add(new GeneratedClip(name, state.name, clip));
+                    generatedClips.Add(clip);
                 }
             }
+
             return generatedClips;
+        }
+
+        public IReadOnlyList<VRCExpressionsMenu> PerformExpressionsManagement(
+            VRCExpressionsMenu vrcRootExpressionsMenu,
+            VRCExpressionParameters vrcExpressionParameters)
+        {
+            VRCExpressionParameters.Parameter expressionParameter =
+                parameter.ApplyToExpressionParameters(vrcExpressionParameters);
+
+            List<VRCExpressionsMenu> createdMenus = new List<VRCExpressionsMenu>();
+            VRCExpressionsMenu targetMenu = Utilities.FindOrCreateTargetMenu(
+                vrcRootExpressionsMenu, menuPath, createdMenus);
+
+            foreach (ProcessedAnimation animation in animations)
+            {
+                targetMenu.controls.Add(animation.GetMenuItem(expressionParameter));
+            }
+
+            return createdMenus;
         }
 
         private AnimatorStateMachine GetStateMachine(AnimatorController controller)

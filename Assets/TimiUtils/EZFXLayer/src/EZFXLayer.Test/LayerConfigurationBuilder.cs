@@ -47,5 +47,12 @@ namespace EZFXLayer.Test
 
             return this;
         }
+
+        public LayerConfigurationBuilder WithMenuPath(string menuPath)
+        {
+            layer.menuPath = menuPath;
+
+            return this;
+        }
     }
 }

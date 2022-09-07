@@ -27,8 +27,7 @@ namespace EZFXLayer
         //  but really just manually create the layer. if a mix of ezfxlayer and custom clips are needed, then put own
         //  clips in a separate layer using the same parameters
         //public bool manageAnimations = true;
-        public string submenuPath = null;
-        public string menuNameOverride = null;
+        public string menuPath = null;
         //useful for viewing, in some cases
         public bool hideUnchangedItemsInAnimationConfigurations = false;
     }

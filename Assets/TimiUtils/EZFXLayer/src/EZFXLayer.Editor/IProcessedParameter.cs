@@ -5,47 +5,17 @@ namespace EZFXLayer
     using System.Linq;
     using UnityEditor.Animations;
     using UnityEngine;
+    using VRC.SDK3.Avatars.ScriptableObjects;
 
     internal interface IProcessedParameter
     {
-        void ApplyToExpressionsParameters();
+        VRCExpressionParameters.Parameter ApplyToExpressionParameters(VRCExpressionParameters vrcExpressionParameters);
         void ApplyToControllerParameters(AnimatorController controller);
-        void ApplyTransition(
-            AnimatorController controller, AnimatorStateMachine stateMachine, ProcessedAnimation animation);
+        AnimatorCondition GetAnimatorCondition(ProcessedAnimation animation);
     }
 
     internal static class ProcessedParameter
     {
-        public static void ApplyTransition(
-            AnimatorController controller,
-            AnimatorStateMachine stateMachine,
-            ProcessedAnimation animation,
-            AnimatorCondition condition)
-        {
-            List<AnimatorStateTransition> transitions = new List<AnimatorStateTransition>(stateMachine.anyStateTransitions);
-            AnimatorState state = animation.CorrespondingState;
-            AnimatorStateTransition transition =
-                transitions.FirstOrDefault(t => t.destinationState == state);
-            if (transition == null)
-            {
-                transition = new AnimatorStateTransition()
-                {
-                    hasExitTime = false,
-                    hasFixedDuration = true,
-                    duration = 0,
-                    exitTime = 0,
-                    hideFlags = HideFlags.HideInHierarchy,
-                    destinationState = state,
-                    name = state.name //not sure if name is necessary anyway
-                };
-                transitions.Add(transition);
-                //while we're not creating new assets here, this is okay
-                Utilities.TryAddObjectToAsset(transition, controller);
-            }
-            transition.conditions = new[] { condition };
-            stateMachine.anyStateTransitions = transitions.ToArray();
-        }
-
         public static AnimatorControllerParameter GetOrAddParameter(
             List<AnimatorControllerParameter> parameters,
             string name,
@@ -65,6 +35,29 @@ namespace EZFXLayer
             }
             parameter.type = type;
             return parameter;
+        }
+
+        public static VRCExpressionParameters.Parameter ApplyToExpressionParameters(
+            VRCExpressionParameters vrcExpressionParameters, VRCExpressionParameters.Parameter parameter)
+        {
+            List<VRCExpressionParameters.Parameter> parameters = new List<VRCExpressionParameters.Parameter>(
+                vrcExpressionParameters.parameters);
+
+            VRCExpressionParameters.Parameter targetParameter = parameters.SingleOrDefault(
+                p => p.name.Equals(parameter.name, StringComparison.OrdinalIgnoreCase));
+            if (targetParameter == null)
+            {
+                parameters.Add(parameter);
+                targetParameter = parameter;
+            }
+            else
+            {
+                targetParameter.valueType = parameter.valueType;
+                targetParameter.defaultValue = parameter.defaultValue;
+            }
+            vrcExpressionParameters.parameters = parameters.ToArray();
+
+            return targetParameter;
         }
     }
 }

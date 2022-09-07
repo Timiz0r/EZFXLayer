@@ -2,8 +2,10 @@ namespace EZFXLayer
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEditor.Animations;
     using UnityEngine;
+    using VRC.SDK3.Avatars.ScriptableObjects;
 
     internal class IntProcessedParameter : IProcessedParameter
     {
@@ -26,20 +28,22 @@ namespace EZFXLayer
             controller.parameters = parameters.ToArray();
         }
 
-        public void ApplyToExpressionsParameters() => throw new NotImplementedException();
-        public void ApplyTransition(
-            AnimatorController controller,
-            AnimatorStateMachine stateMachine,
-            ProcessedAnimation animation)
-            => ProcessedParameter.ApplyTransition(
-                controller,
-                stateMachine,
-                animation,
-                new AnimatorCondition()
+        public VRCExpressionParameters.Parameter ApplyToExpressionParameters(VRCExpressionParameters vrcExpressionParameters)
+            => ProcessedParameter.ApplyToExpressionParameters(
+                vrcExpressionParameters,
+                new VRCExpressionParameters.Parameter()
                 {
-                    mode = AnimatorConditionMode.Equals,
-                    parameter = name,
-                    threshold = animation.Index
+                    name = name,
+                    valueType = VRCExpressionParameters.ValueType.Int,
+                    defaultValue = defaultValue,
+                    saved = true
                 });
+
+        public AnimatorCondition GetAnimatorCondition(ProcessedAnimation animation) => new AnimatorCondition()
+        {
+            mode = AnimatorConditionMode.Equals,
+            parameter = name,
+            threshold = animation.Index
+        };
     }
 }

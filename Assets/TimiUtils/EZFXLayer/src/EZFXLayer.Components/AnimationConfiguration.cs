@@ -6,6 +6,7 @@ namespace EZFXLayer
     {
         public string name;
         public string animatorStateNameOverride;
+        public string menuNameOverride;
         public bool isDefaultAnimation;
         public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
 
@@ -14,5 +15,8 @@ namespace EZFXLayer
 
         public string EffectiveStateName
             => string.IsNullOrEmpty(animatorStateNameOverride) ? name : animatorStateNameOverride;
+
+        public string EffectiveMenuName
+            => string.IsNullOrEmpty(menuNameOverride) ? name : menuNameOverride;
     }
 }

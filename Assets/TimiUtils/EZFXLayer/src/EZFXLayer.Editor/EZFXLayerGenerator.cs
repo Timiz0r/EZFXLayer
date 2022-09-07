@@ -45,18 +45,6 @@
         //TODO: thoughts on allowing the user to move the folder? it would be easiest to have it as a setting, but would
         //be interesting to somehow track the asset id of the folder.
         //
-        //TODO: we want to allow parameters to be on by default, to keep menus consistent (FooOn, BarOff menu items).
-        //we still want a reference set of animatables for consistency. we still want that to be an animation for ease
-        //of use. however, we'll an an startingAnimation field -- true for the default animation. this can be turned off
-        //on the default animation and on for some other animation (or perhaps better to think about it opposite).
-        //but where to go from here. the easiest is to have the expression and controller param be this starting animation.
-        //this will perhaps cause the default animation to get played first before the starting animation, though.
-        //we'll still try this first, since it's more convenient. if it turns out bad, then perhaps we'll make the
-        //default animation in the layer the starting animation. actually yeh let's try that. i suspect it'll be fine,
-        //since expression parameters' saved thingy doesnt seem to result in wonky behavior, but who knows.
-        //edit: this, but what's currently default animation will be reference animation, and what was to be known as
-        //starting animation will be default animation. will indeed start off with having a different default param val.
-        //
         //TODO: for single-animation layers, don't add animation name (so Clothes, instead of ClothesOn). could add a
         //setting to always add the animation name, but we already kinda do via the menuNameOverride setting.
         //
@@ -77,6 +65,7 @@
             if (vrcRootExpressionsMenu == null) throw new ArgumentNullException(nameof(vrcRootExpressionsMenu));
 
             List<GeneratedClip> generatedClips = new List<GeneratedClip>();
+            List<VRCExpressionsMenu> createdSubMenus = new List<VRCExpressionsMenu>();
 
             AnimatorLayerConfiguration previousLayer = null;
             foreach (AnimatorLayerConfiguration layer in configuration.Layers)
@@ -96,10 +85,17 @@
                 generatedClips.AddRange(
                     processedLayer.UpdateStatesWithClips(fxLayerAnimatorController));
 
+                if (layer.manageExpressionMenuAndParameters)
+                {
+                    createdSubMenus.AddRange(
+                        processedLayer.PerformExpressionsManagement(vrcRootExpressionsMenu, vrcExpressionParameters)
+                    );
+                }
+
                 previousLayer = layer;
             }
 
-            GenerationResult result = new GenerationResult(generatedClips);
+            GenerationResult result = new GenerationResult(generatedClips, createdSubMenus);
             return result;
         }
 
@@ -107,69 +103,70 @@
         {
             List<ProcessedAnimation> processedAnimations = new List<ProcessedAnimation>(layer.animations.Count);
             int defaultValue = 0; //reference animation/default state, incidentally
-            int parameterValue = 0;
-            processedAnimations.Add(
-                new ProcessedAnimation(layer.referenceAnimation.EffectiveStateName, parameterValue++, isToBeDefaultState: true));
+            int index = 0;
+            processedAnimations.Add(new ProcessedAnimation(
+                name: layer.referenceAnimation.name,
+                menuName: layer.referenceAnimation.EffectiveMenuName,
+                stateName: layer.referenceAnimation.EffectiveStateName,
+                index: index++,
+                isToBeDefaultState: true,
+                animationClip: GenerateAnimationClip(layer.referenceAnimation)));
             foreach (AnimationConfiguration animation in layer.animations)
             {
-                processedAnimations.Add(
-                    new ProcessedAnimation(animation.EffectiveStateName, parameterValue, isToBeDefaultState: false));
+                processedAnimations.Add(new ProcessedAnimation(
+                    name: animation.name,
+                    menuName: animation.EffectiveMenuName,
+                    stateName: animation.EffectiveStateName,
+                    index: index,
+                    isToBeDefaultState: false,
+                    animationClip: GenerateAnimationClip(animation)));
                 if (animation.isDefaultAnimation)
                 {
-                    defaultValue = parameterValue;
+                    defaultValue = index;
                 }
-                parameterValue++;
+                index++;
             }
 
             IProcessedParameter parameter = layer.animations.Count > 1
                 ? (IProcessedParameter)new IntProcessedParameter(layer.name, defaultValue)
                 : new BooleanProcessedParameter(layer.name, defaultValue != 0);
 
-            IReadOnlyDictionary<string, AnimationClip> clips = GenerateAnimationClips(layer);
-
             ProcessedLayer processedLayer = new ProcessedLayer(
                 name: layer.name,
                 previousLayerName: previousLayerName,
                 animations: processedAnimations,
                 parameter: parameter,
-                animationClips: clips);
+                menuPath: layer.menuPath);
             return processedLayer;
         }
 
-        private static IReadOnlyDictionary<string, AnimationClip> GenerateAnimationClips(
-            AnimatorLayerConfiguration layer)
+        //could hypothetically move this logic into ProcessedAnimation, but Processed* classes are somewhat purposely
+        //isolated from other stuff. could be loosened though. still, shouldnt be any issues keeping this here.
+        private static AnimationClip GenerateAnimationClip(AnimationConfiguration animation)
         {
-            Dictionary<string, AnimationClip> clips =
-                new Dictionary<string, AnimationClip>(StringComparer.OrdinalIgnoreCase);
-            foreach (AnimationConfiguration animation in layer.animations.Append(layer.referenceAnimation))
+            AnimationClip clip = new AnimationClip();
+            float frameRate = clip.frameRate;
+
+            foreach (AnimatableBlendShape blendShape in animation.blendShapes)
             {
-                AnimationClip clip = new AnimationClip();
-                float frameRate = clip.frameRate;
-
-                foreach (AnimatableBlendShape blendShape in animation.blendShapes)
-                {
-                    clip.SetCurve(
-                        blendShape.skinnedMeshRenderer.gameObject.GetRelativePath(),
-                        typeof(SkinnedMeshRenderer),
-                        $"blendShape.{blendShape.name}",
-                        AnimationCurve.Constant(0, 1f / frameRate, blendShape.value)
-                    );
-                }
-                foreach (AnimatableGameObject gameObject in animation.gameObjects)
-                {
-                    clip.SetCurve(
-                        gameObject.gameObject.GetRelativePath(),
-                        typeof(GameObject),
-                        "m_IsActive",
-                        AnimationCurve.Constant(0, 1f / frameRate, gameObject.active ? 1f : 0f)
-                    );
-                }
-
-                if (clips.ContainsKey(animation.name)) throw new InvalidOperationException(
-                    $"An animation named '{animation.name}' has already been generated for layer '{layer.name}'.");
-                clips[animation.name] = clip;
+                clip.SetCurve(
+                    blendShape.skinnedMeshRenderer.gameObject.GetRelativePath(),
+                    typeof(SkinnedMeshRenderer),
+                    $"blendShape.{blendShape.name}",
+                    AnimationCurve.Constant(0, 1f / frameRate, blendShape.value)
+                );
             }
-            return clips;
+            foreach (AnimatableGameObject gameObject in animation.gameObjects)
+            {
+                clip.SetCurve(
+                    gameObject.gameObject.GetRelativePath(),
+                    typeof(GameObject),
+                    "m_IsActive",
+                    AnimationCurve.Constant(0, 1f / frameRate, gameObject.active ? 1f : 0f)
+                );
+            }
+
+            return clip;
         }
 
         private void PreValidate(IEnumerable<GameObject> avatars)
