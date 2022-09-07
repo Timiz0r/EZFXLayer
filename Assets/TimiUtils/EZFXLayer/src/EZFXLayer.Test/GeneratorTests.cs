@@ -520,7 +520,192 @@ namespace EZFXLayer.Test
             Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("bar"));
             Assert.That(testSetup.Assets.Menu.controls[2].name, Is.EqualTo("baz"));
         }
-        //new submenu
-        //menu name override
+
+        [Test]
+        public void CreatesSubmenus_IfNotPreExisting()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .WithMenuPath("1/foo")
+                        .AddAnimation("foo", a => { }));
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(result.CreatedSubMenus, HasCountConstraint.Create(2));
+            Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("1"));
+            Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo("foo"));
+        }
+
+        [Test]
+        public void DoesNotCreateSubmenus_IfSlashesAreEscaped()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .WithMenuPath(@"\/1"))
+                .AddLayer(
+                    "2",
+                    l => l
+                        .WithMenuPath(@"2\/"))
+                .AddLayer(
+                    "3",
+                    l => l
+                        .WithMenuPath(@"/\//3\//\/foo\//\//"));
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("/1"));
+            Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("2/"));
+
+            Assert.That(testSetup.Assets.Menu.controls[2].name, Is.EqualTo("/"));
+            Assert.That(testSetup.Assets.Menu.controls[2].subMenu.controls[0].name, Is.EqualTo("3/"));
+            Assert.That(
+                testSetup.Assets.Menu.controls[2]
+                .subMenu.controls[0]
+                .subMenu.controls[0].name, Is.EqualTo("/foo/"));
+            Assert.That(
+                testSetup.Assets.Menu.controls[2]
+                .subMenu.controls[0]
+                .subMenu.controls[0]
+                .subMenu.controls[0].name, Is.EqualTo("/"));
+        }
+
+        [Test]
+        public void MenusArePotentiallyCreated_BasedOnBackslashEscaping()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .WithMenuPath(@"\\/1"))
+                .AddLayer(
+                    "2",
+                    l => l
+                        .WithMenuPath(@"2/\\"))
+                .AddLayer(
+                    "3",
+                    l => l
+                        .WithMenuPath(@"3\\\\/foo"))
+                .AddLayer(
+                    "4",
+                    l => l
+                        .WithMenuPath(@"4\\\\\/foo"))
+                .AddLayer(
+                    "5",
+                    l => l
+                        .WithMenuPath(@"\foo\bar\")); //aka that backslashes not preceeding a [\\/] work fine
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo(@"\"));
+            Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo(@"1"));
+
+            Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo(@"2"));
+            Assert.That(testSetup.Assets.Menu.controls[1].subMenu.controls[0].name, Is.EqualTo(@"\"));
+
+            Assert.That(testSetup.Assets.Menu.controls[2].name, Is.EqualTo(@"3\\"));
+            Assert.That(testSetup.Assets.Menu.controls[2].subMenu.controls[0].name, Is.EqualTo(@"foo"));
+
+            Assert.That(testSetup.Assets.Menu.controls[3].name, Is.EqualTo(@"4\\/foo"));
+
+            Assert.That(testSetup.Assets.Menu.controls[4].name, Is.EqualTo(@"\foo\bar\"));
+        }
+
+        [Test]
+        public void SubmenuGenerationWorks_WhenRedundantSlashesArePresent()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .WithMenuPath("1/"))
+                .AddLayer(
+                    "2",
+                    l => l
+                        .WithMenuPath("/2"))
+                .AddLayer(
+                    "3",
+                    l => l
+                        .WithMenuPath("////////////3////////////////foo/////bar/////"));
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("1"));
+            Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("2"));
+            Assert.That(testSetup.Assets.Menu.controls[2].name, Is.EqualTo("3"));
+            Assert.That(
+                testSetup.Assets.Menu.controls[2]
+                .subMenu.controls[0].name, Is.EqualTo("foo"));
+            Assert.That(
+                testSetup.Assets.Menu.controls[2]
+                .subMenu.controls[0]
+                .subMenu.controls[0].name, Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void MenuControlNamesCanBeChanged_WhenMenuNameOverrideIsSet()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "layer",
+                    l => l
+                        .AddAnimation("foo", a => a.WithToggleName("bar")));
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void NewSubMenusNotCreated_WhenMenuAlreadyExists()
+        {
+            TestSetup testSetup = new TestSetup();
+            testSetup.Assets.Menu.controls.Add(new VRCExpressionsMenu.Control()
+            {
+                name = "foo",
+                type = VRCExpressionsMenu.Control.ControlType.SubMenu,
+                subMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>()
+            });
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "layer",
+                    l => l
+                        .WithMenuPath("foo/bar"));
+
+            GenerationResult result = testSetup.StandardGenerate();
+
+            Assert.That(result.CreatedSubMenus, HasCountConstraint.Create(1));
+            Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void NoTogglesCreated_WhenOnlyReferenceAnimation()
+        {
+            //which is virtually useless, at least at the time of wrinting, having an always-on animation
+            //as such, we dont expose a way to change a toggle on the reference animation via configuration builder
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "layer",
+                    l => l
+                        .ConfigureReferenceAnimation("foo", a => { }));
+
+            EZFXLayerConfiguration config = testSetup.ConfigurationBuilder.Generate();
+            config.Layers[0].referenceAnimation.toggleNameOverride = "shouldnotexist";
+            EZFXLayerGenerator generator = new EZFXLayerGenerator(config);
+            GenerationResult result = generator.Generate(testSetup.Avatars, testSetup.Assets);
+
+            Assert.That(testSetup.Assets.Menu.controls, HasCountConstraint.Create(0));
+        }
+        //need a better result for created submenus that includes path
+        //or i mean think about if we can do it via traversal, but prob best to not
     }
 }

@@ -106,7 +106,7 @@
             int index = 0;
             processedAnimations.Add(new ProcessedAnimation(
                 name: layer.referenceAnimation.name,
-                menuName: layer.referenceAnimation.EffectiveMenuName,
+                toggleName: layer.referenceAnimation.EffectiveToggleName,
                 stateName: layer.referenceAnimation.EffectiveStateName,
                 index: index++,
                 isToBeDefaultState: true,
@@ -115,7 +115,7 @@
             {
                 processedAnimations.Add(new ProcessedAnimation(
                     name: animation.name,
-                    menuName: animation.EffectiveMenuName,
+                    toggleName: animation.EffectiveToggleName,
                     stateName: animation.EffectiveStateName,
                     index: index,
                     isToBeDefaultState: false,

@@ -33,6 +33,50 @@ namespace EZFXLayer
         }
 
         public static VRCExpressionsMenu FindOrCreateTargetMenu(
+            VRCExpressionsMenu rootMenu,
+            string path,
+            List<VRCExpressionsMenu> createdMenus)
+        {
+            //splits on forwards slashes not preceeded by an odd number of backslashes
+            // \\/foo -> if even, then the forward slash is a valid path separator
+            // \\\/foo -> if odd, then there will be a backslash left to escape the forward slash
+            IEnumerable<string> pathParts =
+                Regex.Split(path ?? string.Empty, @"(?<!(?<!\\)\\(?:\\\\)*)/")
+                    .Select(p => Regex.Replace(p, @"\\([/\\])", "$1"));
+            VRCExpressionsMenu currentMenu = rootMenu;
+            List<string> accumulatedMenuPaths = new List<string>(); //for exceptions
+            foreach (string pathPart in pathParts)
+            {
+                //so leading, trailing, and redundant slashes we'll ignore
+                //for instance, /////foo/////// is treated as foo
+                if (string.IsNullOrEmpty(pathPart)) continue;
+
+                VRCExpressionsMenu nextMenu = currentMenu.controls.SingleOrDefault(
+                    c => c.type == VRCExpressionsMenu.Control.ControlType.SubMenu && c.name == pathPart)?.subMenu;
+                if (nextMenu == null)
+                {
+                    //TODO: eventually want a better exception to indicate what path to look at
+                    if (currentMenu.controls.Count > 8) throw new InvalidOperationException(
+                        "Cannot add a new sub menu because there are already 8 items in its parent." +
+                        $"Menu: {string.Join(" -> ", accumulatedMenuPaths)}");
+
+                    nextMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+                    currentMenu.controls.Add(new VRCExpressionsMenu.Control()
+                    {
+                        name = pathPart,
+                        type = VRCExpressionsMenu.Control.ControlType.SubMenu,
+                        subMenu = nextMenu
+                    });
+                    createdMenus.Add(nextMenu);
+                }
+                currentMenu = nextMenu;
+                accumulatedMenuPaths.Add(pathPart);
+            }
+
+            return currentMenu;
+        }
+
+        public static VRCExpressionsMenu FindOrCreateTargetMenu2(
             VRCExpressionsMenu menu,
             string path,
             List<VRCExpressionsMenu> createdMenus)
@@ -44,7 +88,7 @@ namespace EZFXLayer
 (.+?)
 (?:
   (?<!\\)/ #can escape a forward slash with a backslash
-  (.+)
+  (.*) #allowing this to match 0 helps if there's a trailing slash. with +, the above won't match
 )?$ #this non-capturing group is optional in case we're on the last element",
                 RegexOptions.IgnorePatternWhitespace);
 
@@ -63,8 +107,9 @@ namespace EZFXLayer
                 c => c.type == VRCExpressionsMenu.Control.ControlType.SubMenu && c.name == nextLevel)?.subMenu;
             if (nextMenu == null)
             {
+                //TODO: eventually want a better exception to indicate what path to look at
                 if (menu.controls.Count > 8) throw new InvalidOperationException(
-                    "Cannot add menu items because there are already 8.");
+                    "Cannot add a new sub menu because there are already 8 items in its parent.");
 
                 nextMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
                 createdMenus.Add(nextMenu);

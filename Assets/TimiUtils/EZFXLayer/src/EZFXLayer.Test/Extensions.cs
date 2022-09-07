@@ -11,7 +11,7 @@ namespace EZFXLayer.Test
             => generator.Generate(
                 avatars,
                 vrcAssets.FXController,
-                vrcAssets.OriginalMenu,
+                vrcAssets.Menu,
                 vrcAssets.Parameters);
     }
 }

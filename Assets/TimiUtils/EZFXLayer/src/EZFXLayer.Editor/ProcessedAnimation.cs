@@ -10,7 +10,7 @@ namespace EZFXLayer
     internal class ProcessedAnimation
     {
         private readonly string name;
-        private readonly string menuName;
+        private readonly string toggleName;
         private readonly string stateName;
         private readonly AnimationClip animationClip;
 
@@ -19,14 +19,14 @@ namespace EZFXLayer
 
         public ProcessedAnimation(
             string name,
-            string menuName,
+            string toggleName,
             string stateName,
             int index,
             bool isToBeDefaultState,
             AnimationClip animationClip)
         {
             this.name = name;
-            this.menuName = menuName;
+            this.toggleName = toggleName;
             this.stateName = stateName;
             Index = index;
             IsToBeDefaultState = isToBeDefaultState;
@@ -54,10 +54,10 @@ namespace EZFXLayer
             defaultState = IsToBeDefaultState ? correspondingState : defaultState;
         }
 
-        public VRCExpressionsMenu.Control GetMenuItem(VRCExpressionParameters.Parameter parameter)
+        public VRCExpressionsMenu.Control GetMenuToggle(VRCExpressionParameters.Parameter parameter)
             => new VRCExpressionsMenu.Control()
             {
-                name = menuName,
+                name = toggleName,
                 parameter = new VRCExpressionsMenu.Control.Parameter() { name = parameter.name },
                 type = VRCExpressionsMenu.Control.ControlType.Toggle,
                 value = Index

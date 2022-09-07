@@ -156,7 +156,8 @@ namespace EZFXLayer
 
             foreach (ProcessedAnimation animation in animations)
             {
-                targetMenu.controls.Add(animation.GetMenuItem(expressionParameter));
+                if (animation.IsToBeDefaultState) continue;
+                targetMenu.controls.Add(animation.GetMenuToggle(expressionParameter));
             }
 
             return createdMenus;

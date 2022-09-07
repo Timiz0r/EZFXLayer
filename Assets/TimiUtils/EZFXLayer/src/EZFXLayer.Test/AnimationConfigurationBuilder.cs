@@ -68,5 +68,12 @@ namespace EZFXLayer.Test
 
             return this;
         }
+
+        public AnimationConfigurationBuilder WithToggleName(string toggleName)
+        {
+            animation.toggleNameOverride = toggleName;
+
+            return this;
+        }
     }
 }
