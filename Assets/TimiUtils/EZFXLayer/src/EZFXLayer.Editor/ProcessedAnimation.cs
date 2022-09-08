@@ -12,25 +12,24 @@ namespace EZFXLayer
         private readonly string name;
         private readonly string toggleName;
         private readonly string stateName;
+        private readonly bool isDefaultState;
         private readonly AnimationClip animationClip;
-
-        public int Index { get; }
-        public bool IsToBeDefaultState { get; }
+        public readonly bool isDefaultAnimation;
 
         public ProcessedAnimation(
             string name,
             string toggleName,
             string stateName,
-            int index,
-            bool isToBeDefaultState,
-            AnimationClip animationClip)
+            bool isDefaultState,
+            AnimationClip animationClip,
+            bool isDefaultAnimation)
         {
             this.name = name;
             this.toggleName = toggleName;
             this.stateName = stateName;
-            Index = index;
-            IsToBeDefaultState = isToBeDefaultState;
+            this.isDefaultState = isDefaultState;
             this.animationClip = animationClip;
+            this.isDefaultAnimation = isDefaultAnimation;
         }
 
         public bool MatchesState(AnimatorState state)
@@ -49,16 +48,17 @@ namespace EZFXLayer
             assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);
 
-            defaultState = IsToBeDefaultState ? correspondingState : defaultState;
+            defaultState = isDefaultState ? correspondingState : defaultState;
         }
 
-        public VRCExpressionsMenu.Control GetMenuToggle(VRCExpressionParameters.Parameter parameter)
-            => new VRCExpressionsMenu.Control()
+        //could hypothetically add these params to ctor, but wont for now
+        public VRCExpressionsMenu.Control GetMenuToggle(string parameterName, float toggleValue)
+            => isDefaultState ? null : new VRCExpressionsMenu.Control()
             {
                 name = toggleName,
-                parameter = new VRCExpressionsMenu.Control.Parameter() { name = parameter.name },
+                parameter = new VRCExpressionsMenu.Control.Parameter() { name = parameterName },
                 type = VRCExpressionsMenu.Control.ControlType.Toggle,
-                value = Index
+                value = toggleValue
             };
 
         public bool SetMotion(AnimatorStateMachine stateMachine, string layerName, out GeneratedClip clip)

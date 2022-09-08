@@ -38,9 +38,9 @@ namespace EZFXLayer
                     saved = true
                 });
 
-        public AnimatorCondition GetAnimatorCondition(ProcessedAnimation animation) => new AnimatorCondition()
+        public AnimatorCondition GetAnimatorCondition(int animationIndex) => new AnimatorCondition()
         {
-            mode = animation.Index != 0
+            mode = animationIndex != 0
                 ? AnimatorConditionMode.If //if animator param true
                 : AnimatorConditionMode.IfNot,
             parameter = name

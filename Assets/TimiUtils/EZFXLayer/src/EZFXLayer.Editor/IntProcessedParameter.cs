@@ -39,11 +39,11 @@ namespace EZFXLayer
                     saved = true
                 });
 
-        public AnimatorCondition GetAnimatorCondition(ProcessedAnimation animation) => new AnimatorCondition()
+        public AnimatorCondition GetAnimatorCondition(int animationIndex) => new AnimatorCondition()
         {
             mode = AnimatorConditionMode.Equals,
             parameter = name,
-            threshold = animation.Index
+            threshold = animationIndex
         };
     }
 }

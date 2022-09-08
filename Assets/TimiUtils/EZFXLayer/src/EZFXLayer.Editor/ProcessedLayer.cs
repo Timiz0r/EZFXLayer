@@ -10,27 +10,31 @@ namespace EZFXLayer
 
     internal class ProcessedLayer
     {
-        private readonly string previousLayerName;
         private readonly string name;
-        private readonly IEnumerable<ProcessedAnimation> animations;
+        private readonly IReadOnlyList<ProcessedAnimation> animations;
         private readonly IProcessedParameter parameter;
         private readonly string menuPath;
 
         public ProcessedLayer(
             string name,
-            string previousLayerName,
-            IEnumerable<ProcessedAnimation> animations,
-            IProcessedParameter parameter,
+            IReadOnlyList<ProcessedAnimation> animations,
             string menuPath)
         {
             this.name = name;
-            this.previousLayerName = previousLayerName;
             this.animations = animations;
-            this.parameter = parameter;
             this.menuPath = menuPath;
+
+            int defaultValue = animations.Select((a, i) => (a.isDefaultAnimation, i)).Single(t => t.isDefaultAnimation).i;
+
+            parameter = animations.Count > 2
+                ? (IProcessedParameter)new IntProcessedParameter(name, defaultValue)
+                : new BooleanProcessedParameter(name, defaultValue != 0);
         }
 
-        public void EnsureLayerExistsInController(AnimatorController controller, IAssetRepository assetRepository)
+        public void EnsureLayerExistsInController(
+            AnimatorController controller,
+            string previousLayerName,
+            IAssetRepository assetRepository)
         {
             List<AnimatorControllerLayer> layers = new List<AnimatorControllerLayer>(controller.layers);
             if (layers.Any(l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase))) return;
@@ -117,9 +121,10 @@ namespace EZFXLayer
             stateMachine.defaultState = defaultState;
 
             //likewise, let's just assume this should come after setting stateMachine.states
-            foreach (ProcessedAnimation animation in animations)
+            for (int i = 0; i < animations.Count; i++)
             {
-                AnimatorCondition condition = parameter.GetAnimatorCondition(animation);
+                ProcessedAnimation animation = animations[i];
+                AnimatorCondition condition = parameter.GetAnimatorCondition(i);
                 animation.SetTransition(stateMachine, condition, controller);
             }
 
@@ -150,10 +155,12 @@ namespace EZFXLayer
             VRCExpressionsMenu targetMenu = Utilities.FindOrCreateTargetMenu(
                 vrcRootExpressionsMenu, menuPath, assetRepository);
 
-            foreach (ProcessedAnimation animation in animations)
+            for (int i = 0; i < animations.Count; i++)
             {
-                if (animation.IsToBeDefaultState) continue;
-                targetMenu.controls.Add(animation.GetMenuToggle(expressionParameter));
+                ProcessedAnimation animation = animations[i];
+                VRCExpressionsMenu.Control toggle = animation.GetMenuToggle(expressionParameter.name, i);
+                if (toggle == null) continue;
+                targetMenu.controls.Add(toggle);
             }
         }
 

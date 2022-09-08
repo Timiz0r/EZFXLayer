@@ -59,9 +59,10 @@
             AnimatorLayerConfiguration previousLayer = null;
             foreach (AnimatorLayerConfiguration layer in configuration.Layers)
             {
-                ProcessedLayer processedLayer = ProcessLayer(layer, previousLayerName: previousLayer?.name);
+                ProcessedLayer processedLayer = ProcessLayer(layer);
 
-                processedLayer.EnsureLayerExistsInController(fxLayerAnimatorController, configuration.AssetRepository);
+                processedLayer.EnsureLayerExistsInController(
+                    fxLayerAnimatorController, previousLayer?.name, configuration.AssetRepository);
                 if (layer.manageAnimatorControllerStates)
                 {
                     processedLayer.PerformStateManagement(fxLayerAnimatorController, configuration.AssetRepository);
@@ -83,11 +84,9 @@
             }
         }
 
-        private static ProcessedLayer ProcessLayer(AnimatorLayerConfiguration layer, string previousLayerName)
+        private static ProcessedLayer ProcessLayer(AnimatorLayerConfiguration layer)
         {
             List<ProcessedAnimation> processedAnimations = new List<ProcessedAnimation>(layer.animations.Count);
-            int defaultValue = 0; //reference animation/default state, incidentally
-            int index = 0;
 
             //one could argue isToBeDefaultState should be isDefaultAnimation instead of the reference animation.
             //it's not clear if it's needed or not, and luckily we can easily change the behavior whenever
@@ -95,34 +94,25 @@
                 name: layer.referenceAnimation.name,
                 toggleName: layer.referenceAnimation.EffectiveToggleName,
                 stateName: layer.referenceAnimation.EffectiveStateName,
-                index: index++,
-                isToBeDefaultState: true,
+                isDefaultState: true,
+                isDefaultAnimation: layer.referenceAnimation.isDefaultAnimation,
                 animationClip: GenerateAnimationClip(layer.referenceAnimation)));
+
             foreach (AnimationConfiguration animation in layer.animations)
             {
                 processedAnimations.Add(new ProcessedAnimation(
                     name: animation.name,
                     toggleName: animation.EffectiveToggleName,
                     stateName: animation.EffectiveStateName,
-                    index: index,
-                    isToBeDefaultState: false,
+                    isDefaultState: false,
+                    isDefaultAnimation: animation.isDefaultAnimation,
                     animationClip: GenerateAnimationClip(animation)));
-                if (animation.isDefaultAnimation)
-                {
-                    defaultValue = index;
-                }
-                index++;
             }
 
-            IProcessedParameter parameter = layer.animations.Count > 1
-                ? (IProcessedParameter)new IntProcessedParameter(layer.name, defaultValue)
-                : new BooleanProcessedParameter(layer.name, defaultValue != 0);
 
             ProcessedLayer processedLayer = new ProcessedLayer(
                 name: layer.name,
-                previousLayerName: previousLayerName,
                 animations: processedAnimations,
-                parameter: parameter,
                 menuPath: layer.menuPath);
             return processedLayer;
         }

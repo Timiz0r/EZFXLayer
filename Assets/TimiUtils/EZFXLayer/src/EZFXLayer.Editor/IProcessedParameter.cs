@@ -11,7 +11,7 @@ namespace EZFXLayer
     {
         VRCExpressionParameters.Parameter ApplyToExpressionParameters(VRCExpressionParameters vrcExpressionParameters);
         void ApplyToControllerParameters(AnimatorController controller);
-        AnimatorCondition GetAnimatorCondition(ProcessedAnimation animation);
+        AnimatorCondition GetAnimatorCondition(int animationIndex);
     }
 
     internal static class ProcessedParameter
