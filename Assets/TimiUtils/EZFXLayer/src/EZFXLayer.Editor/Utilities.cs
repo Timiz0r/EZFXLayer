@@ -35,7 +35,7 @@ namespace EZFXLayer
         public static VRCExpressionsMenu FindOrCreateTargetMenu(
             VRCExpressionsMenu rootMenu,
             string path,
-            List<GeneratedMenu> generatedMenus)
+            IAssetRepository assetRepository)
         {
             //splits on forwards slashes not preceeded by an odd number of backslashes
             // \\/foo -> if even, then the forward slash is a valid path separator
@@ -69,7 +69,7 @@ namespace EZFXLayer
                         type = VRCExpressionsMenu.Control.ControlType.SubMenu,
                         subMenu = nextMenu
                     });
-                    generatedMenus.Add(new GeneratedMenu(accumulatedMenuPaths.ToArray(), nextMenu));
+                    assetRepository.VRCSubMenuAdded(new GeneratedMenu(accumulatedMenuPaths.ToArray(), nextMenu));
                 }
                 currentMenu = nextMenu;
             }

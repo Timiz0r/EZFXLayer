@@ -23,7 +23,7 @@ namespace EZFXLayer.Test
             EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
 
             Assert.That(
-                () => _ = generator.Generate(testSetup.Avatars, testSetup.Assets),
+                () => generator.Generate(testSetup.Avatars, testSetup.Assets),
                 Throws.InvalidOperationException);
         }
 
@@ -33,18 +33,22 @@ namespace EZFXLayer.Test
             TestSetup testSetup = new TestSetup();
             EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
 
-            _ = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             Assert.That(
                 testSetup.Assets.FXController.layers,
-                HasCountConstraint.Create(testSetup.Assets.OriginalFXController.layers));
+                HasCountConstraint.Create(0));
             Assert.That(
                 testSetup.Assets.Menu.controls,
-                HasCountConstraint.Create(testSetup.Assets.OriginalMenu.controls));
+                HasCountConstraint.Create(0));
             Assert.That(
-                testSetup.Assets.OriginalParameters.parameters,
-                HasCountConstraint.Create(testSetup.Assets.OriginalParameters.parameters));
+                testSetup.Assets.Parameters.parameters,
+                HasCountConstraint.Create(0));
         }
+
+        //TODO: tests around duplicate layers. we'll allow them for empty layers, tho, useful as markers.
+        //well, duplicate layers where one is a marker isn't too useful yet tho has it's rare scenario.
+        //for avatar-specific settings eventually, this may be important depending on how we implement that.
 
         //instead of accumulating fat lists for the result of the generation, which is for the purpose of asset management
         //consider having a driven port/interface deal with it

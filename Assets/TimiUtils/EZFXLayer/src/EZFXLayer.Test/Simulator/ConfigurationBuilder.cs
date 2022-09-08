@@ -13,13 +13,15 @@ namespace EZFXLayer.Test
         private readonly List<AnimatorLayerConfiguration> layers = new List<AnimatorLayerConfiguration>();
         //not allowed to instantiate a MonoBehavior like ReferenceConfiguration
         private readonly GameObject gameObject;
+        private readonly IAssetRepository assetRepository;
 
-        public ConfigurationBuilder(GameObject gameObject)
+        public ConfigurationBuilder(GameObject gameObject, IAssetRepository assetRepository)
         {
             this.gameObject = gameObject;
+            this.assetRepository = assetRepository;
         }
 
-        public EZFXLayerConfiguration Generate() => new EZFXLayerConfiguration(layers);
+        public EZFXLayerConfiguration Generate() => new EZFXLayerConfiguration(layers, assetRepository);
 
         public ConfigurationBuilder AddLayer(string name) => AddLayer(name, l => { });
 

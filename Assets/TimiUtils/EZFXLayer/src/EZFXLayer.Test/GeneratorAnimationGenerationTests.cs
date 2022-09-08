@@ -22,14 +22,14 @@ namespace EZFXLayer.Test
                     .ConfigureReferenceAnimation(a => { })
                     .AddAnimation("animation", a => { }));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             //could have combined these two and just looked at states to get clips, but this should be more readable
             Assert.That(
                 testSetup.Assets.FXController.layers[0].stateMachine.anyStateTransitions,
                 HasCountConstraint.Create(2));
             Assert.That(
-                result.GeneratedClips,
+                testSetup.Assets.ClipsAdded,
                 HasCountConstraint.Create(2).And.All.Matches<GeneratedClip>(gc => gc.Clip.empty));
         }
 
@@ -47,12 +47,13 @@ namespace EZFXLayer.Test
                     .AddAnimation("On", a => a.SetGameObject(avatarPart, isActive: true))
             );
 
-            GenerationResult generationResult = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
-            AnimationClip offClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "Off").Clip;
-            AnimationClip onClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "On").Clip;
+            Assert.That(testSetup.Assets.ClipsAdded, HasCountConstraint.Create(2));
 
-            Assert.That(generationResult.GeneratedClips, HasCountConstraint.Create(2));
+            AnimationClip offClip = testSetup.Assets.ClipsAdded.Single(gc => gc.AnimationName == "Off").Clip;
+            AnimationClip onClip = testSetup.Assets.ClipsAdded.Single(gc => gc.AnimationName == "On").Clip;
+
             Assert.That(GetCurveValue(offClip), Is.False);
             Assert.That(GetCurveValue(onClip), Is.True);
 
@@ -84,12 +85,13 @@ namespace EZFXLayer.Test
                     .AddAnimation("On", a => a.SetBlendShape(smr, "blendshape", 1f))
             );
 
-            GenerationResult generationResult = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
-            AnimationClip offClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "Off").Clip;
-            AnimationClip onClip = generationResult.GeneratedClips.Single(gc => gc.AnimationName == "On").Clip;
+            Assert.That(testSetup.Assets.ClipsAdded, HasCountConstraint.Create(2));
 
-            Assert.That(generationResult.GeneratedClips, HasCountConstraint.Create(2));
+            AnimationClip offClip = testSetup.Assets.ClipsAdded.Single(gc => gc.AnimationName == "Off").Clip;
+            AnimationClip onClip = testSetup.Assets.ClipsAdded.Single(gc => gc.AnimationName == "On").Clip;
+
             Assert.That(GetCurveValue(offClip), Is.EqualTo(0f));
             Assert.That(GetCurveValue(onClip), Is.EqualTo(1f));
 
@@ -117,8 +119,8 @@ namespace EZFXLayer.Test
                         .ConfigureReferenceAnimation("default", a => { })
                         .AddAnimation("foo", a => { }));
 
-            GenerationResult result = testSetup.StandardGenerate();
-            Assert.That(result.GeneratedClips, HasCountConstraint.Create(1));
+            testSetup.StandardGenerate();
+            Assert.That(testSetup.Assets.ClipsAdded, HasCountConstraint.Create(1));
         }
     }
 }

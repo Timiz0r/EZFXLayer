@@ -8,16 +8,19 @@ namespace EZFXLayer.Test
     public class TestSetup
     {
         public VrcAssets Assets { get; } = new VrcAssets();
-        public ConfigurationBuilder ConfigurationBuilder { get; } =
-            new ConfigurationBuilder(new GameObject("ezfxlayertest"));
+        public ConfigurationBuilder ConfigurationBuilder { get; }
         public GameObject Avatar => Avatars.Single();
         public IEnumerable<GameObject> Avatars { get; } = VrcAvatar.Create("foo");
 
-        public GenerationResult StandardGenerate()
+        public TestSetup()
+        {
+            ConfigurationBuilder = new ConfigurationBuilder(new GameObject("ezfxlayertest"), Assets);
+        }
+
+        public void StandardGenerate()
         {
             EZFXLayerGenerator generator = new EZFXLayerGenerator(ConfigurationBuilder.Generate());
-            GenerationResult generationResult = generator.Generate(Avatars, Assets);
-            return generationResult;
+            generator.Generate(Avatars, Assets);
         }
 
         public static void StandardTestSetUp()

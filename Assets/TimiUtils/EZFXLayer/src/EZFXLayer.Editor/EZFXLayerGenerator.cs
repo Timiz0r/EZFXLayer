@@ -41,19 +41,11 @@
         //
         //  for finding an asset, it should be okay to go folder=layer and file=layer+animation based.
         //  however, because it sounds fun, let's make GenerationResult a ScriptableObject and save it.
-        //
+
         //TODO: thoughts on allowing the user to move the folder? it would be easiest to have it as a setting, but would
         //be interesting to somehow track the asset id of the folder.
-        //
-        //TODO: for single-animation layers, don't add animation name (so Clothes, instead of ClothesOn). could add a
-        //setting to always add the animation name, but we already kinda do via the menuNameOverride setting.
-        //
-        //TODO: add a setting for controlling the naming format of menu items (Foo_{anim}). would be useful for cases
-        //where the user wants all menu items to just be {anim}
-        //TODO: actually, consider just naming things off of animation name. so, we'd for instance use ClothesOff and
-        //ClothesOn instead of Off and On. perhaps simplifies everything. be sure to update tests to represent this
-        //new expected usage.
-        public GenerationResult Generate(
+
+        public void Generate(
             IEnumerable<GameObject> avatars,
             AnimatorController fxLayerAnimatorController,
             VRCExpressionsMenu vrcRootExpressionsMenu,
@@ -64,39 +56,31 @@
             if (vrcExpressionParameters == null) throw new ArgumentNullException(nameof(vrcExpressionParameters));
             if (vrcRootExpressionsMenu == null) throw new ArgumentNullException(nameof(vrcRootExpressionsMenu));
 
-            List<GeneratedClip> generatedClips = new List<GeneratedClip>();
-            List<GeneratedMenu> generatedMenus = new List<GeneratedMenu>();
-
             AnimatorLayerConfiguration previousLayer = null;
             foreach (AnimatorLayerConfiguration layer in configuration.Layers)
             {
                 ProcessedLayer processedLayer = ProcessLayer(layer, previousLayerName: previousLayer?.name);
 
-                processedLayer.EnsureLayerExistsInController(fxLayerAnimatorController);
+                processedLayer.EnsureLayerExistsInController(fxLayerAnimatorController, configuration.AssetRepository);
                 if (layer.manageAnimatorControllerStates)
                 {
-                    processedLayer.PerformStateManagement(fxLayerAnimatorController);
+                    processedLayer.PerformStateManagement(fxLayerAnimatorController, configuration.AssetRepository);
                 }
 
                 //even if not messing with layers, states and transitions,
                 //we'll still put animations in if we get a match
                 //
                 //for animations, we'll simply generate them. we'll leave it to the driver adapter to create the assets
-                generatedClips.AddRange(
-                    processedLayer.UpdateStatesWithClips(fxLayerAnimatorController));
+                processedLayer.UpdateStatesWithClips(fxLayerAnimatorController, configuration.AssetRepository);
 
                 if (layer.manageExpressionMenuAndParameters)
                 {
-                    generatedMenus.AddRange(
-                        processedLayer.PerformExpressionsManagement(vrcRootExpressionsMenu, vrcExpressionParameters)
-                    );
+                    processedLayer.PerformExpressionsManagement(
+                        vrcRootExpressionsMenu, vrcExpressionParameters, configuration.AssetRepository);
                 }
 
                 previousLayer = layer;
             }
-
-            GenerationResult result = new GenerationResult(generatedClips, generatedMenus);
-            return result;
         }
 
         private static ProcessedLayer ProcessLayer(AnimatorLayerConfiguration layer, string previousLayerName)
@@ -104,6 +88,9 @@
             List<ProcessedAnimation> processedAnimations = new List<ProcessedAnimation>(layer.animations.Count);
             int defaultValue = 0; //reference animation/default state, incidentally
             int index = 0;
+
+            //one could argue isToBeDefaultState should be isDefaultAnimation instead of the reference animation.
+            //it's not clear if it's needed or not, and luckily we can easily change the behavior whenever
             processedAnimations.Add(new ProcessedAnimation(
                 name: layer.referenceAnimation.name,
                 toggleName: layer.referenceAnimation.EffectiveToggleName,

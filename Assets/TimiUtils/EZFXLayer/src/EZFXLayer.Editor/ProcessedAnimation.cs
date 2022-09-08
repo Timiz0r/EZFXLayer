@@ -36,7 +36,8 @@ namespace EZFXLayer
         public bool MatchesState(AnimatorState state)
             => state.name.Equals(stateName, StringComparison.OrdinalIgnoreCase);
 
-        public void AddState(AnimatorController parentAsset, List<AnimatorState> states, ref AnimatorState defaultState)
+        public void AddState(
+            List<AnimatorState> states, ref AnimatorState defaultState, IAssetRepository assetRepository)
         {
             AnimatorState correspondingState = states.SingleOrDefault(s => MatchesState(s));
             if (correspondingState != null) return;
@@ -45,10 +46,7 @@ namespace EZFXLayer
                 hideFlags = HideFlags.HideInHierarchy,
                 name = stateName
             };
-            if (parentAsset != null)
-            {
-                Utilities.TryAddObjectToAsset(correspondingState, parentAsset);
-            }
+            assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);
 
             defaultState = IsToBeDefaultState ? correspondingState : defaultState;

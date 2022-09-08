@@ -26,7 +26,7 @@ namespace EZFXLayer.Test
                     .AddAnimation("1", a => { })
                     .AddAnimation("2", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(
                 testSetup.Assets.FXController.parameters[0].type, Is.EqualTo(AnimatorControllerParameterType.Bool));
@@ -68,7 +68,7 @@ namespace EZFXLayer.Test
                     l => l
                         .AddAnimation("foo", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.Parameters.parameters[0].saved, Is.False);
             Assert.That(testSetup.Assets.Parameters.parameters[1].saved, Is.True);
@@ -106,7 +106,7 @@ namespace EZFXLayer.Test
                         .AddAnimation("foo", a => { })
                         .AddAnimation("bar", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(
                 testSetup.Assets.FXController.parameters[0].type, Is.EqualTo(AnimatorControllerParameterType.Bool));
@@ -142,7 +142,7 @@ namespace EZFXLayer.Test
                         .AddAnimation("bar", a => a.MakeDefaultAnimation())
                         .AddAnimation("baz", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.FXController.parameters[0].defaultBool, Is.True);
             Assert.That(testSetup.Assets.FXController.parameters[1].defaultBool, Is.False);
@@ -174,9 +174,9 @@ namespace EZFXLayer.Test
                         .WithMenuPath("/")
                         .AddAnimation("baz", a => { }));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
-            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(0));
+            Assert.That(testSetup.Assets.SubMenusAdded, HasCountConstraint.Create(0));
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("foo"));
             Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("bar"));
             Assert.That(testSetup.Assets.Menu.controls[2].name, Is.EqualTo("baz"));
@@ -193,9 +193,9 @@ namespace EZFXLayer.Test
                         .WithMenuPath("1/foo")
                         .AddAnimation("foo", a => { }));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
-            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(2));
+            Assert.That(testSetup.Assets.SubMenusAdded, HasCountConstraint.Create(2));
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("1"));
             Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo("foo"));
         }
@@ -218,7 +218,7 @@ namespace EZFXLayer.Test
                     l => l
                         .WithMenuPath(@"/\//3\//\/foo\//\//"));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("/1"));
             Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("2/"));
@@ -262,7 +262,7 @@ namespace EZFXLayer.Test
                     l => l
                         .WithMenuPath(@"\foo\bar\")); //aka that backslashes not preceeding a [\\/] work fine
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo(@"\"));
             Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo(@"1"));
@@ -296,7 +296,7 @@ namespace EZFXLayer.Test
                     l => l
                         .WithMenuPath("////////////3////////////////foo/////bar/////"));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("1"));
             Assert.That(testSetup.Assets.Menu.controls[1].name, Is.EqualTo("2"));
@@ -320,7 +320,7 @@ namespace EZFXLayer.Test
                     l => l
                         .AddAnimation("foo", a => a.WithToggleName("bar")));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("bar"));
         }
@@ -341,9 +341,9 @@ namespace EZFXLayer.Test
                     l => l
                         .WithMenuPath("foo/bar"));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
-            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(1));
+            Assert.That(testSetup.Assets.SubMenusAdded, HasCountConstraint.Create(1));
             Assert.That(testSetup.Assets.Menu.controls[0].subMenu.controls[0].name, Is.EqualTo("bar"));
         }
 
@@ -362,7 +362,7 @@ namespace EZFXLayer.Test
             EZFXLayerConfiguration config = testSetup.ConfigurationBuilder.Generate();
             config.Layers[0].referenceAnimation.toggleNameOverride = "shouldnotexist";
             EZFXLayerGenerator generator = new EZFXLayerGenerator(config);
-            GenerationResult result = generator.Generate(testSetup.Avatars, testSetup.Assets);
+            generator.Generate(testSetup.Avatars, testSetup.Assets);
 
             Assert.That(testSetup.Assets.Menu.controls, HasCountConstraint.Create(0));
         }
@@ -380,19 +380,19 @@ namespace EZFXLayer.Test
                         .WithMenuPath(@"foo/\/bar/\\baz")
                         .AddAnimation("anim", a => { }));
 
-            GenerationResult result = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
-            Assert.That(result.GeneratedMenus, HasCountConstraint.Create(3));
+            Assert.That(testSetup.Assets.SubMenusAdded, HasCountConstraint.Create(3));
 
             //note that the foo control is in root menu, which already has a test
-            Assert.That(result.GeneratedMenus[0].Menu.controls[0].name, Is.EqualTo(@"/bar"));
-            Assert.That(result.GeneratedMenus[0].PathComponents, Is.EqualTo(new[] { @"foo" }));
+            Assert.That(testSetup.Assets.SubMenusAdded[0].Menu.controls[0].name, Is.EqualTo(@"/bar"));
+            Assert.That(testSetup.Assets.SubMenusAdded[0].PathComponents, Is.EqualTo(new[] { @"foo" }));
 
-            Assert.That(result.GeneratedMenus[1].Menu.controls[0].name, Is.EqualTo(@"\baz"));
-            Assert.That(result.GeneratedMenus[1].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar" }));
+            Assert.That(testSetup.Assets.SubMenusAdded[1].Menu.controls[0].name, Is.EqualTo(@"\baz"));
+            Assert.That(testSetup.Assets.SubMenusAdded[1].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar" }));
 
-            Assert.That(result.GeneratedMenus[2].Menu.controls[0].name, Is.EqualTo(@"anim"));
-            Assert.That(result.GeneratedMenus[2].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar", @"\baz" }));
+            Assert.That(testSetup.Assets.SubMenusAdded[2].Menu.controls[0].name, Is.EqualTo(@"anim"));
+            Assert.That(testSetup.Assets.SubMenusAdded[2].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar", @"\baz" }));
         }
     }
 }

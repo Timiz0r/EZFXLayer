@@ -13,7 +13,7 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
             _ = testSetup.ConfigurationBuilder.AddLayer("bar");
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             AnimatorController controller = testSetup.Assets.FXController;
             Assert.That(
@@ -28,7 +28,7 @@ namespace EZFXLayer.Test
             testSetup.Assets.FXController.AddLayer("foo");
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(
                 testSetup.Assets.FXController.layers,
@@ -44,7 +44,7 @@ namespace EZFXLayer.Test
             AnimatorState unusedState = controller.layers[0].stateMachine.AddState("unused");
             _ = testSetup.ConfigurationBuilder.AddLayer("foo");
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(
                 controller.layers[0].stateMachine.states,
@@ -61,7 +61,7 @@ namespace EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer("1");
             _ = testSetup.ConfigurationBuilder.AddLayer("2");
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(
                 testSetup.Assets.FXController.layers.Select(l => l.name).ToArray(),
@@ -77,7 +77,7 @@ namespace EZFXLayer.Test
                 l => l
                     .ConfigureReferenceAnimation("foo", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.FXController.layers[0].stateMachine.defaultState.name, Is.EqualTo("foo"));
         }
@@ -105,7 +105,7 @@ namespace EZFXLayer.Test
                     .ConfigureReferenceAnimation("default", a => { })
                     .AddAnimation("state", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(layer.stateMachine.defaultState.name, Is.EqualTo("default"));
         }
@@ -130,7 +130,7 @@ namespace EZFXLayer.Test
                 l => l
                     .AddAnimation("state", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(layer.stateMachine.anyStateTransitions[0].exitTime, Is.EqualTo(100f));
         }
@@ -153,7 +153,7 @@ namespace EZFXLayer.Test
                         .AddAnimation("bar", a => { })
                         .AddAnimation("baz", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             Assert.That(GetConditionInformation("1", "default").mode, Is.EqualTo(AnimatorConditionMode.IfNot));
             Assert.That(GetConditionInformation("1", "foo").mode, Is.EqualTo(AnimatorConditionMode.If));
@@ -184,7 +184,7 @@ namespace EZFXLayer.Test
                         .ConfigureReferenceAnimation("default", a => a.WithStateName("default2"))
                         .AddAnimation("foo", a => { }));
 
-            _ = testSetup.StandardGenerate();
+            testSetup.StandardGenerate();
 
             AnimatorState[] states = testSetup.Assets.FXController.layers[0].stateMachine.states
                 .Select(s => s.state)

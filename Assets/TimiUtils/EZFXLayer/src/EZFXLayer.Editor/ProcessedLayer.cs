@@ -30,7 +30,7 @@ namespace EZFXLayer
             this.menuPath = menuPath;
         }
 
-        public void EnsureLayerExistsInController(AnimatorController controller)
+        public void EnsureLayerExistsInController(AnimatorController controller, IAssetRepository assetRepository)
         {
             List<AnimatorControllerLayer> layers = new List<AnimatorControllerLayer>(controller.layers);
             if (layers.Any(l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase))) return;
@@ -65,10 +65,10 @@ namespace EZFXLayer
             controller.layers = layers.ToArray();
 
             //unity code does an undo record, but we dont since we're generating in a temp folder
-            Utilities.TryAddObjectToAsset(animatorLayer.stateMachine, controller);
+            assetRepository.FXAnimatorStateMachineAdded(animatorLayer.stateMachine);
         }
 
-        public void PerformStateManagement(AnimatorController controller)
+        public void PerformStateManagement(AnimatorController controller, IAssetRepository assetRepository)
         {
             AnimatorStateMachine stateMachine = GetStateMachine(controller);
             //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
@@ -87,7 +87,7 @@ namespace EZFXLayer
             {
                 _ = states.Remove(state);
                 //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
-                AssetDatabase.RemoveObjectFromAsset(state);
+                assetRepository.FXAnimatorControllerStateRemoved(state);
                 Debug.LogWarning(
                     $"The animator state '{state.name}' of controller layer '{name}' exists in the " +
                     $"base animator controller '{controller.name}' but has no corresponding animation set. " +
@@ -101,7 +101,7 @@ namespace EZFXLayer
             AnimatorState defaultState = null;
             foreach (ProcessedAnimation animation in animations)
             {
-                animation.AddState(controller, states, ref defaultState);
+                animation.AddState(states, ref defaultState, assetRepository);
             }
 
             stateMachine.states = states
@@ -126,41 +126,35 @@ namespace EZFXLayer
             parameter.ApplyToControllerParameters(controller);
         }
 
-        public IReadOnlyList<GeneratedClip> UpdateStatesWithClips(
-            AnimatorController controller)
+        public void UpdateStatesWithClips(AnimatorController controller, IAssetRepository assetRepository)
         {
-            List<GeneratedClip> generatedClips = new List<GeneratedClip>();
             AnimatorStateMachine stateMachine = GetStateMachine(controller);
 
             foreach (ProcessedAnimation animation in animations)
             {
                 if (animation.SetMotion(stateMachine, name, out GeneratedClip clip))
                 {
-                    generatedClips.Add(clip);
+                    assetRepository.AnimationClipAdded(clip);
                 }
             }
-
-            return generatedClips;
         }
 
-        public IReadOnlyList<GeneratedMenu> PerformExpressionsManagement(
+        public void PerformExpressionsManagement(
             VRCExpressionsMenu vrcRootExpressionsMenu,
-            VRCExpressionParameters vrcExpressionParameters)
+            VRCExpressionParameters vrcExpressionParameters,
+            IAssetRepository assetRepository)
         {
             VRCExpressionParameters.Parameter expressionParameter =
                 parameter.ApplyToExpressionParameters(vrcExpressionParameters);
 
-            List<GeneratedMenu> generatedMenus = new List<GeneratedMenu>();
             VRCExpressionsMenu targetMenu = Utilities.FindOrCreateTargetMenu(
-                vrcRootExpressionsMenu, menuPath, generatedMenus);
+                vrcRootExpressionsMenu, menuPath, assetRepository);
 
             foreach (ProcessedAnimation animation in animations)
             {
                 if (animation.IsToBeDefaultState) continue;
                 targetMenu.controls.Add(animation.GetMenuToggle(expressionParameter));
             }
-
-            return generatedMenus;
         }
 
         private AnimatorStateMachine GetStateMachine(AnimatorController controller)

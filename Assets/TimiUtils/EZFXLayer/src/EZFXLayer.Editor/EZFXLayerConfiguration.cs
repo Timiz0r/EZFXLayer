@@ -4,12 +4,17 @@ namespace EZFXLayer
 
     public class EZFXLayerConfiguration
     {
-        public IReadOnlyList<AnimatorLayerConfiguration> Layers { get; private set; }
+        public IReadOnlyList<AnimatorLayerConfiguration> Layers { get; }
 
-        public EZFXLayerConfiguration(IReadOnlyList<AnimatorLayerConfiguration> layers
+        public IAssetRepository AssetRepository { get; }
+
+        public EZFXLayerConfiguration(
+            IReadOnlyList<AnimatorLayerConfiguration> layers,
+            IAssetRepository assetRepository
         )
         {
             Layers = layers;
+            AssetRepository = assetRepository;
         }
     }
 }
