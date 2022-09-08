@@ -6,9 +6,9 @@ namespace EZFXLayer.Test
 
     public class ReferenceAnimationConfigurationBuilder
     {
-        private readonly AnimatorLayerConfiguration layer;
+        private readonly AnimatorLayerComponent layer;
 
-        public ReferenceAnimationConfigurationBuilder(string name, AnimatorLayerConfiguration layer)
+        public ReferenceAnimationConfigurationBuilder(string name, AnimatorLayerComponent layer)
         {
             if (layer == null) throw new ArgumentNullException(nameof(layer));
             if (!string.IsNullOrEmpty(name))

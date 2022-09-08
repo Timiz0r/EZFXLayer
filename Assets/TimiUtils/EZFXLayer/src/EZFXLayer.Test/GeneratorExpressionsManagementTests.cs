@@ -359,10 +359,7 @@ namespace EZFXLayer.Test
                     l => l
                         .ConfigureReferenceAnimation("foo", a => { }));
 
-            EZFXLayerConfiguration config = testSetup.ConfigurationBuilder.Generate();
-            config.Layers[0].referenceAnimation.toggleNameOverride = "shouldnotexist";
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(config);
-            generator.Generate(testSetup.Avatars, testSetup.Assets);
+            testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.Menu.controls, HasCountConstraint.Create(0));
         }

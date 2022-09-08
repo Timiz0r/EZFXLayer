@@ -7,13 +7,13 @@ namespace EZFXLayer.Test
 
     public class LayerConfigurationBuilder
     {
-        private readonly AnimatorLayerConfiguration layer;
-        public LayerConfigurationBuilder(GameObject gameObject, string name, List<AnimatorLayerConfiguration> layers)
+        private readonly AnimatorLayerComponent layer;
+        public LayerConfigurationBuilder(GameObject gameObject, string name, List<AnimatorLayerComponent> layers)
         {
             if (layers == null) throw new ArgumentNullException(nameof(layers));
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-            layer = gameObject?.AddComponent<AnimatorLayerConfiguration>()
+            layer = gameObject?.AddComponent<AnimatorLayerComponent>()
                 ?? throw new ArgumentNullException(nameof(gameObject));
             layer.name = name;
             layers.Add(layer);

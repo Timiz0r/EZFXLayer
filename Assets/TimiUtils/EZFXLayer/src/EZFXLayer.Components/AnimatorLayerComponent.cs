@@ -6,7 +6,7 @@ namespace EZFXLayer
     using UnityEngine;
 
     [AddComponentMenu("EZFXLayer/EZFXLayer animator layer configuration")]
-    public class AnimatorLayerConfiguration : MonoBehaviour
+    public class AnimatorLayerComponent : MonoBehaviour
     {
         //TODO: verify that shadowing isnt a problem.
         //want to try it here because it's confusing having an unusable name field
@@ -15,7 +15,8 @@ namespace EZFXLayer
         public AnimationConfiguration referenceAnimation = new AnimationConfiguration()
         {
             name = "Default",
-            isDefaultAnimation = true
+            isDefaultAnimation = true,
+            isDefaultState = true //wont add editor support to change this
         };
         public List<AnimationConfiguration> animations = new List<AnimationConfiguration>();
 

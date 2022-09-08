@@ -31,7 +31,7 @@ namespace EZFXLayer.Test
         public void FXAnimatorStateMachineAdded(AnimatorStateMachine stateMachine) { }
         public void FXAnimatorControllerStateAdded(AnimatorState animatorState) { }
         public void FXAnimatorControllerStateRemoved(AnimatorState animatorState) { }
-        public void FXAnimatorTransitionAdded(AnimatorTransition transition) { }
+        public void FXAnimatorTransitionAdded(AnimatorStateTransition transition) { }
         public void VRCSubMenuAdded(GeneratedMenu menu) => subMenusAdded.Add(menu);
         public void AnimationClipAdded(GeneratedClip clip) => clipsAdded.Add(clip);
     }

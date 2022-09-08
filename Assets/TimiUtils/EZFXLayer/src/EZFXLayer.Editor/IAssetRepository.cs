@@ -11,7 +11,7 @@ namespace EZFXLayer
         void FXAnimatorControllerStateAdded(AnimatorState animatorState);
         void FXAnimatorControllerStateRemoved(AnimatorState animatorState);
 
-        void FXAnimatorTransitionAdded(AnimatorTransition transition);
+        void FXAnimatorTransitionAdded(AnimatorStateTransition transition);
 
         void VRCSubMenuAdded(GeneratedMenu menu);
 

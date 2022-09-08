@@ -8,22 +8,28 @@ namespace EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
-    internal class ProcessedLayer
+    public class AnimatorLayerConfiguration
     {
-        private readonly string name;
-        private readonly IReadOnlyList<ProcessedAnimation> animations;
+        private readonly IReadOnlyList<AnimationConfiguration> animations;
         private readonly IProcessedParameter parameter;
         private readonly string menuPath;
+        private readonly bool manageAnimatorControllerStates;
+        private readonly bool manageExpressionMenuAndParameters;
 
-        public ProcessedLayer(
+        public string Name { get; }
+
+        public AnimatorLayerConfiguration(
             string name,
-            IReadOnlyList<ProcessedAnimation> animations,
-            string menuPath)
+            IReadOnlyList<AnimationConfiguration> animations,
+            string menuPath,
+            bool manageAnimatorControllerStates,
+            bool manageExpressionMenuAndParameters)
         {
-            this.name = name;
-            this.animations = animations;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.animations = animations ?? throw new ArgumentNullException(nameof(animations));
             this.menuPath = menuPath;
-
+            this.manageAnimatorControllerStates = manageAnimatorControllerStates;
+            this.manageExpressionMenuAndParameters = manageExpressionMenuAndParameters;
             int defaultValue = animations.Select((a, i) => (a.isDefaultAnimation, i)).Single(t => t.isDefaultAnimation).i;
 
             parameter = animations.Count > 2
@@ -31,21 +37,21 @@ namespace EZFXLayer
                 : new BooleanProcessedParameter(name, defaultValue != 0);
         }
 
-        public void EnsureLayerExistsInController(
+        internal void EnsureLayerExistsInController(
             AnimatorController controller,
             string previousLayerName,
             IAssetRepository assetRepository)
         {
             List<AnimatorControllerLayer> layers = new List<AnimatorControllerLayer>(controller.layers);
-            if (layers.Any(l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase))) return;
+            if (layers.Any(l => l.name.Equals(Name, StringComparison.OrdinalIgnoreCase))) return;
 
             AnimatorControllerLayer animatorLayer = new AnimatorControllerLayer()
             {
                 blendingMode = AnimatorLayerBlendingMode.Override,
-                name = name,
+                name = Name,
                 stateMachine = new AnimatorStateMachine()
                 {
-                    name = name,
+                    name = Name,
                     hideFlags = HideFlags.HideInHierarchy
                 },
                 defaultWeight = 1
@@ -72,8 +78,10 @@ namespace EZFXLayer
             assetRepository.FXAnimatorStateMachineAdded(animatorLayer.stateMachine);
         }
 
-        public void PerformStateManagement(AnimatorController controller, IAssetRepository assetRepository)
+        internal void PerformStateManagement(AnimatorController controller, IAssetRepository assetRepository)
         {
+            if (!manageAnimatorControllerStates) return;
+
             AnimatorStateMachine stateMachine = GetStateMachine(controller);
             //not using ChildAnimatorState mainly because we're assuming it's okay to reposition them in
             //an orderly fashion if we're allowed to add new states. at least until there's some scenario presented
@@ -93,7 +101,7 @@ namespace EZFXLayer
                 //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
                 assetRepository.FXAnimatorControllerStateRemoved(state);
                 Debug.LogWarning(
-                    $"The animator state '{state.name}' of controller layer '{name}' exists in the " +
+                    $"The animator state '{state.name}' of controller layer '{Name}' exists in the " +
                     $"base animator controller '{controller.name}' but has no corresponding animation set. " +
                     "Consider removing the state from the controller. It has been removed from the generated " +
                     "controller automatically, but not the base one. This has been done because we replace all " +
@@ -103,7 +111,7 @@ namespace EZFXLayer
             }
 
             AnimatorState defaultState = null;
-            foreach (ProcessedAnimation animation in animations)
+            foreach (AnimationConfiguration animation in animations)
             {
                 animation.AddState(states, ref defaultState, assetRepository);
             }
@@ -123,32 +131,34 @@ namespace EZFXLayer
             //likewise, let's just assume this should come after setting stateMachine.states
             for (int i = 0; i < animations.Count; i++)
             {
-                ProcessedAnimation animation = animations[i];
+                AnimationConfiguration animation = animations[i];
                 AnimatorCondition condition = parameter.GetAnimatorCondition(i);
-                animation.SetTransition(stateMachine, condition, controller);
+                animation.SetTransition(stateMachine, condition, assetRepository);
             }
 
             parameter.ApplyToControllerParameters(controller);
         }
 
-        public void UpdateStatesWithClips(AnimatorController controller, IAssetRepository assetRepository)
+        internal void UpdateStatesWithClips(AnimatorController controller, IAssetRepository assetRepository)
         {
             AnimatorStateMachine stateMachine = GetStateMachine(controller);
 
-            foreach (ProcessedAnimation animation in animations)
+            foreach (AnimationConfiguration animation in animations)
             {
-                if (animation.SetMotion(stateMachine, name, out GeneratedClip clip))
+                if (animation.SetMotion(stateMachine, Name, out GeneratedClip clip))
                 {
                     assetRepository.AnimationClipAdded(clip);
                 }
             }
         }
 
-        public void PerformExpressionsManagement(
+        internal void PerformExpressionsManagement(
             VRCExpressionsMenu vrcRootExpressionsMenu,
             VRCExpressionParameters vrcExpressionParameters,
             IAssetRepository assetRepository)
         {
+            if (!manageExpressionMenuAndParameters) return;
+
             VRCExpressionParameters.Parameter expressionParameter =
                 parameter.ApplyToExpressionParameters(vrcExpressionParameters);
 
@@ -157,7 +167,7 @@ namespace EZFXLayer
 
             for (int i = 0; i < animations.Count; i++)
             {
-                ProcessedAnimation animation = animations[i];
+                AnimationConfiguration animation = animations[i];
                 VRCExpressionsMenu.Control toggle = animation.GetMenuToggle(expressionParameter.name, i);
                 if (toggle == null) continue;
                 targetMenu.controls.Add(toggle);
@@ -165,6 +175,6 @@ namespace EZFXLayer
         }
 
         private AnimatorStateMachine GetStateMachine(AnimatorController controller)
-            => controller.layers.Single(l => l.name.Equals(name, StringComparison.OrdinalIgnoreCase)).stateMachine;
+            => controller.layers.Single(l => l.name.Equals(Name, StringComparison.OrdinalIgnoreCase)).stateMachine;
     }
 }

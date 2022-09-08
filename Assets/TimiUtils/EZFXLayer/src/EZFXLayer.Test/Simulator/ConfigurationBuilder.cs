@@ -2,6 +2,7 @@ namespace EZFXLayer.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEditor.Animations;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
@@ -10,7 +11,7 @@ namespace EZFXLayer.Test
     //with decent redesign to interact with a scene, anyway. wonder if tests will try to do that :thinking:
     public class ConfigurationBuilder
     {
-        private readonly List<AnimatorLayerConfiguration> layers = new List<AnimatorLayerConfiguration>();
+        private readonly List<AnimatorLayerComponent> layers = new List<AnimatorLayerComponent>();
         //not allowed to instantiate a MonoBehavior like ReferenceConfiguration
         private readonly GameObject gameObject;
         private readonly IAssetRepository assetRepository;
@@ -21,7 +22,10 @@ namespace EZFXLayer.Test
             this.assetRepository = assetRepository;
         }
 
-        public EZFXLayerConfiguration Generate() => new EZFXLayerConfiguration(layers, assetRepository);
+        public EZFXLayerConfiguration Generate()
+            => new EZFXLayerConfiguration(
+                layers.Select(l => ProcessLayer(l)).ToArray(),
+                assetRepository);
 
         public ConfigurationBuilder AddLayer(string name) => AddLayer(name, l => { });
 
@@ -34,5 +38,13 @@ namespace EZFXLayer.Test
 
             return this;
         }
+
+        private static AnimatorLayerConfiguration ProcessLayer(AnimatorLayerComponent layer)
+            => new AnimatorLayerConfiguration(
+                layer.name,
+                layer.animations.Prepend(layer.referenceAnimation).ToArray(),
+                layer.menuPath,
+                manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
+                manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters);
     }
 }

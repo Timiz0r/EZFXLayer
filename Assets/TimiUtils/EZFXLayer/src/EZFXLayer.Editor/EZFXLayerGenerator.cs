@@ -59,91 +59,21 @@
             AnimatorLayerConfiguration previousLayer = null;
             foreach (AnimatorLayerConfiguration layer in configuration.Layers)
             {
-                ProcessedLayer processedLayer = ProcessLayer(layer);
-
-                processedLayer.EnsureLayerExistsInController(
-                    fxLayerAnimatorController, previousLayer?.name, configuration.AssetRepository);
-                if (layer.manageAnimatorControllerStates)
-                {
-                    processedLayer.PerformStateManagement(fxLayerAnimatorController, configuration.AssetRepository);
-                }
+                layer.EnsureLayerExistsInController(
+                    fxLayerAnimatorController, previousLayer?.Name, configuration.AssetRepository);
+                layer.PerformStateManagement(fxLayerAnimatorController, configuration.AssetRepository);
 
                 //even if not messing with layers, states and transitions,
                 //we'll still put animations in if we get a match
                 //
                 //for animations, we'll simply generate them. we'll leave it to the driver adapter to create the assets
-                processedLayer.UpdateStatesWithClips(fxLayerAnimatorController, configuration.AssetRepository);
+                layer.UpdateStatesWithClips(fxLayerAnimatorController, configuration.AssetRepository);
 
-                if (layer.manageExpressionMenuAndParameters)
-                {
-                    processedLayer.PerformExpressionsManagement(
-                        vrcRootExpressionsMenu, vrcExpressionParameters, configuration.AssetRepository);
-                }
+                layer.PerformExpressionsManagement(
+                    vrcRootExpressionsMenu, vrcExpressionParameters, configuration.AssetRepository);
 
                 previousLayer = layer;
             }
-        }
-
-        private static ProcessedLayer ProcessLayer(AnimatorLayerConfiguration layer)
-        {
-            List<ProcessedAnimation> processedAnimations = new List<ProcessedAnimation>(layer.animations.Count);
-
-            //one could argue isToBeDefaultState should be isDefaultAnimation instead of the reference animation.
-            //it's not clear if it's needed or not, and luckily we can easily change the behavior whenever
-            processedAnimations.Add(new ProcessedAnimation(
-                name: layer.referenceAnimation.name,
-                toggleName: layer.referenceAnimation.EffectiveToggleName,
-                stateName: layer.referenceAnimation.EffectiveStateName,
-                isDefaultState: true,
-                isDefaultAnimation: layer.referenceAnimation.isDefaultAnimation,
-                animationClip: GenerateAnimationClip(layer.referenceAnimation)));
-
-            foreach (AnimationConfiguration animation in layer.animations)
-            {
-                processedAnimations.Add(new ProcessedAnimation(
-                    name: animation.name,
-                    toggleName: animation.EffectiveToggleName,
-                    stateName: animation.EffectiveStateName,
-                    isDefaultState: false,
-                    isDefaultAnimation: animation.isDefaultAnimation,
-                    animationClip: GenerateAnimationClip(animation)));
-            }
-
-
-            ProcessedLayer processedLayer = new ProcessedLayer(
-                name: layer.name,
-                animations: processedAnimations,
-                menuPath: layer.menuPath);
-            return processedLayer;
-        }
-
-        //could hypothetically move this logic into ProcessedAnimation, but Processed* classes are somewhat purposely
-        //isolated from other stuff. could be loosened though. still, shouldnt be any issues keeping this here.
-        private static AnimationClip GenerateAnimationClip(AnimationConfiguration animation)
-        {
-            AnimationClip clip = new AnimationClip();
-            float frameRate = clip.frameRate;
-
-            foreach (AnimatableBlendShape blendShape in animation.blendShapes)
-            {
-                clip.SetCurve(
-                    blendShape.skinnedMeshRenderer.gameObject.GetRelativePath(),
-                    typeof(SkinnedMeshRenderer),
-                    $"blendShape.{blendShape.name}",
-                    AnimationCurve.Constant(0, 1f / frameRate, blendShape.value)
-                );
-            }
-            foreach (AnimatableGameObject gameObject in animation.gameObjects)
-            {
-                clip.SetCurve(
-                    gameObject.gameObject.GetRelativePath(),
-                    typeof(GameObject),
-                    "m_IsActive",
-                    AnimationCurve.Constant(0, 1f / frameRate, gameObject.active ? 1f : 0f)
-                );
-            }
-
-            return clip;
         }
 
         private void PreValidate(IEnumerable<GameObject> avatars)

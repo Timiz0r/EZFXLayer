@@ -7,7 +7,7 @@
     using VRC.SDK3.Avatars.ScriptableObjects;
 
     [AddComponentMenu("EZFXLayer/EZFXLayer reference configuration")]
-    public class ReferenceConfiguration : MonoBehaviour
+    public class ReferenceComponent : MonoBehaviour
     {
         public AnimatorController fxLayerController;
         public VRCExpressionParameters vrcExpressionParameters;
@@ -16,7 +16,7 @@
 
         private void Reset()
         {
-            ReferenceConfiguration[] allComponents = FindObjectsOfType<ReferenceConfiguration>();
+            ReferenceComponent[] allComponents = FindObjectsOfType<ReferenceComponent>();
             if (allComponents.Length == 1) return;
 
             string parentNames = string.Join(", ", allComponents.Select(c => c.gameObject.name));
@@ -30,7 +30,7 @@
             //  this is lower priority tho, since i personally don't care about unusable menu items. this would certainly
             //      increase quality of the product tho!
             throw new InvalidOperationException(
-                $"Only one {nameof(ReferenceConfiguration)} should exist per scene." +
+                $"Only one {nameof(ReferenceComponent)} should exist per scene." +
                 $"Game objects with the component: {parentNames}.");
             //crashes unity if the reset is clicked. works fine on first add tho.
             //but if we bring this back, use the DisplayError overload

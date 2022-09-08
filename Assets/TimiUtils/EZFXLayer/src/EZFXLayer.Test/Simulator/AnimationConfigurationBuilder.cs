@@ -7,10 +7,10 @@ namespace EZFXLayer.Test
 
     public class AnimationConfigurationBuilder
     {
-        private readonly AnimatorLayerConfiguration layer;
+        private readonly AnimatorLayerComponent layer;
         private readonly AnimationConfiguration animation;
 
-        public AnimationConfigurationBuilder(string name, AnimatorLayerConfiguration layer)
+        public AnimationConfigurationBuilder(string name, AnimatorLayerComponent layer)
         {
             if (layer == null) throw new ArgumentNullException(nameof(layer));
 
