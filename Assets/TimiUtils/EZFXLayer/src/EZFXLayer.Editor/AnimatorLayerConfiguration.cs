@@ -18,6 +18,8 @@ namespace EZFXLayer
 
         public string Name { get; }
 
+        public bool IsMarkerLayer { get; }
+
         public AnimatorLayerConfiguration(
             string name,
             IReadOnlyList<AnimationConfiguration> animations,
@@ -35,6 +37,8 @@ namespace EZFXLayer
             parameter = animations.Count > 2
                 ? (IProcessedParameter)new IntProcessedParameter(name, defaultValue)
                 : new BooleanProcessedParameter(name, defaultValue != 0);
+
+            IsMarkerLayer = animations.All(a => a.gameObjects.Count == 0 && a.blendShapes.Count == 0);
         }
 
         internal void EnsureLayerExistsInController(

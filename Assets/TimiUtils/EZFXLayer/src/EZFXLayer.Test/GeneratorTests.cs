@@ -46,8 +46,20 @@ namespace EZFXLayer.Test
                 HasCountConstraint.Create(0));
         }
 
-        //TODO: tests around duplicate layers. we'll allow them for empty layers, tho, useful as markers.
-        //well, duplicate layers where one is a marker isn't too useful yet tho has it's rare scenario.
-        //for avatar-specific settings eventually, this may be important depending on how we implement that.
+        [Test]
+        public void Throws_WhenThereAreDuplicateNonEmptyLayers()
+        {
+            TestSetup testSetup = new TestSetup();
+            SkinnedMeshRenderer smr = testSetup.Avatar.AddComponent<SkinnedMeshRenderer>();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer("foo",
+                    l => l.ConfigureReferenceAnimation(
+                        r => r.AddBlendShape(smr, "foo", 1)))
+                .AddLayer("foo",
+                    l => l.ConfigureReferenceAnimation(
+                        r => r.AddBlendShape(smr, "foo", 1)));
+
+            Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
+        }
     }
 }

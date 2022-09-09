@@ -11,7 +11,7 @@ namespace EZFXLayer
         //TODO: verify that shadowing isnt a problem.
         //want to try it here because it's confusing having an unusable name field
         public new string name;
-        //TODO: allow it to have a custom name after all
+
         public AnimationConfiguration referenceAnimation = new AnimationConfiguration()
         {
             name = "Default",

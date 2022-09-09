@@ -89,6 +89,16 @@
                         $"Avatar '{avatar.name}' has no {nameof(VRCAvatarDescriptor)}.");
                 }
             }
+
+            string[] duplicateLayers = configuration.Layers
+                .Where(l => !l.IsMarkerLayer)
+                .GroupBy(l => l.Name, (name, group) => (Name: name, Count: group.Count()))
+                .Where(g => g.Count > 1)
+                .Select(g => g.Name)
+                .ToArray();
+
+            if (duplicateLayers.Length > 0) throw new InvalidOperationException(
+                $"Duplicate non-empty layers found in configuration: {string.Join(", ", duplicateLayers)}.");
         }
     }
 }
