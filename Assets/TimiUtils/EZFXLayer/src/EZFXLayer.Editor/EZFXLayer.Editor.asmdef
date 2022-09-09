@@ -1,6 +1,8 @@
 {
     "name": "EZFXLayer.Editor",
-    "references": [],
+    "references": [
+        "EZFXLayer.Components"
+    ],
     "includePlatforms": [
         "Editor"
     ],

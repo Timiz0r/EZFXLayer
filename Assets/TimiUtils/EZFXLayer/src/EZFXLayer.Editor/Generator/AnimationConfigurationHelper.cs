@@ -7,18 +7,14 @@ namespace EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
-    public class AnimationConfiguration
+    public class AnimationConfigurationHelper
     {
-        //TODO: encapsulate stuff more
-        public string name;
-        public string animatorStateNameOverride;
-        public string toggleNameOverride;
-        public bool isDefaultState;
-        public bool isDefaultAnimation;
-        public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
+        private readonly AnimationConfiguration animation;
 
-        public List<AnimatableGameObject> gameObjects = new List<AnimatableGameObject>();
-        public bool isFoldedOut = true;
+        public AnimationConfigurationHelper(AnimationConfiguration animation)
+        {
+            this.animation = animation;
+        }
 
         internal bool MatchesState(AnimatorState state)
             => state.name.Equals(EffectiveStateName, StringComparison.OrdinalIgnoreCase);
@@ -36,14 +32,16 @@ namespace EZFXLayer
             assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);
 
-            defaultState = isDefaultState ? correspondingState : defaultState;
+            defaultState = animation.isDefaultState ? correspondingState : defaultState;
         }
 
         //could hypothetically add these params to ctor, but wont for now
         internal VRCExpressionsMenu.Control GetMenuToggle(string parameterName, float toggleValue)
-            => isDefaultState ? null : new VRCExpressionsMenu.Control()
+            => animation.isDefaultState ? null : new VRCExpressionsMenu.Control()
             {
-                name = string.IsNullOrEmpty(toggleNameOverride) ? name : toggleNameOverride,
+                name = string.IsNullOrEmpty(animation.toggleNameOverride)
+                    ? animation.name
+                    : animation.toggleNameOverride,
                 parameter = new VRCExpressionsMenu.Control.Parameter() { name = parameterName },
                 type = VRCExpressionsMenu.Control.ControlType.Toggle,
                 value = toggleValue
@@ -64,7 +62,7 @@ namespace EZFXLayer
 
             clip = new GeneratedClip(
                 layerName: layerName,
-                animationName: name,
+                animationName: animation.name,
                 clip: animationClip
             );
             return true;
@@ -102,14 +100,16 @@ namespace EZFXLayer
         }
 
         private string EffectiveStateName
-            => string.IsNullOrEmpty(animatorStateNameOverride) ? name : animatorStateNameOverride;
+            => string.IsNullOrEmpty(animation.animatorStateNameOverride)
+                ? animation.name
+                : animation.animatorStateNameOverride;
 
         private AnimationClip GenerateAnimationClip()
         {
             AnimationClip clip = new AnimationClip();
             float frameRate = clip.frameRate;
 
-            foreach (AnimatableBlendShape blendShape in blendShapes)
+            foreach (AnimatableBlendShape blendShape in animation.blendShapes)
             {
                 clip.SetCurve(
                     blendShape.skinnedMeshRenderer.gameObject.GetRelativePath(),
@@ -118,7 +118,7 @@ namespace EZFXLayer
                     AnimationCurve.Constant(0, 1f / frameRate, blendShape.value)
                 );
             }
-            foreach (AnimatableGameObject gameObject in gameObjects)
+            foreach (AnimatableGameObject gameObject in animation.gameObjects)
             {
                 clip.SetCurve(
                     gameObject.gameObject.GetRelativePath(),

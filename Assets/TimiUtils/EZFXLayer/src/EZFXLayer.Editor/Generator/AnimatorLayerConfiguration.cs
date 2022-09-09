@@ -10,7 +10,7 @@ namespace EZFXLayer
 
     public class AnimatorLayerConfiguration
     {
-        private readonly IReadOnlyList<AnimationConfiguration> animations;
+        private readonly IReadOnlyList<AnimationConfigurationHelper> animations;
         private readonly IProcessedParameter parameter;
         private readonly string menuPath;
         private readonly bool manageAnimatorControllerStates;
@@ -28,7 +28,8 @@ namespace EZFXLayer
             bool manageExpressionMenuAndParameters)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            this.animations = animations ?? throw new ArgumentNullException(nameof(animations));
+            this.animations = animations?.Select(a => new AnimationConfigurationHelper(a))?.ToArray()
+                ?? throw new ArgumentNullException(nameof(animations));
             this.menuPath = menuPath;
             this.manageAnimatorControllerStates = manageAnimatorControllerStates;
             this.manageExpressionMenuAndParameters = manageExpressionMenuAndParameters;
@@ -115,7 +116,7 @@ namespace EZFXLayer
             }
 
             AnimatorState defaultState = null;
-            foreach (AnimationConfiguration animation in animations)
+            foreach (AnimationConfigurationHelper animation in animations)
             {
                 animation.AddState(states, ref defaultState, assetRepository);
             }
@@ -135,7 +136,7 @@ namespace EZFXLayer
             //likewise, let's just assume this should come after setting stateMachine.states
             for (int i = 0; i < animations.Count; i++)
             {
-                AnimationConfiguration animation = animations[i];
+                AnimationConfigurationHelper animation = animations[i];
                 AnimatorCondition condition = parameter.GetAnimatorCondition(i);
                 animation.SetTransition(stateMachine, condition, assetRepository);
             }
@@ -147,7 +148,7 @@ namespace EZFXLayer
         {
             AnimatorStateMachine stateMachine = GetStateMachine(controller);
 
-            foreach (AnimationConfiguration animation in animations)
+            foreach (AnimationConfigurationHelper animation in animations)
             {
                 if (animation.SetMotion(stateMachine, Name, out GeneratedClip clip))
                 {
@@ -171,7 +172,7 @@ namespace EZFXLayer
 
             for (int i = 0; i < animations.Count; i++)
             {
-                AnimationConfiguration animation = animations[i];
+                AnimationConfigurationHelper animation = animations[i];
                 VRCExpressionsMenu.Control toggle = animation.GetMenuToggle(expressionParameter.name, i);
                 if (toggle == null) continue;
                 targetMenu.controls.Add(toggle);
