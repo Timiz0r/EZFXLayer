@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xmlns:ezfx="EZFXLayer.UIElements"
+    xsi:schemaLocation="
+      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZFXLayer.UIElements.xsd"
+>
+  <VisualElement>
+    <Style src="ReferenceComponentEditor.uss" />
+
+    <ezfx:ObjectField objectType="UnityEngine.RuntimeAnimatorController, UnityEngine" binding-path="fxLayerController" />
+    <ezfx:ObjectField objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />
+    <ezfx:ObjectField objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters, VRCSDK3A" binding-path="vrcExpressionParameters" />
+
+    <Button text="Populate from selected avatar" />
+
+    <VisualElement class="artifact-creation-container">
+      <Button text="Create basic FX layer animator controller" />
+      <Button text="Create basic expression parameters" />
+      <Button text="Create basic root expressions menu" />
+    </VisualElement>
+
+    <ezfx:HelpBox text="Auto-generation not yet working" message-type="Info" />
+    <Toggle text="Generate on upload" binding-path="generateOnUpload" />
+  </VisualElement>
+</UXML>

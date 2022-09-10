@@ -1,0 +1,11 @@
+.artifact-creation-container {
+    flex-direction: row;
+    flex-grow: 0;
+}
+
+.artifact-creation-container > * {
+    flex-basis: 100%;
+    flex-shrink: 1;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}

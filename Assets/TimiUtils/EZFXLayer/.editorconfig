@@ -13,6 +13,9 @@ indent_size = 2
 [*.xml]
 indent_size = 2
 
+[*.uxml]
+indent_size = 2
+
 [*.md]
 indent_size = 2
 # two spaces at end means line break

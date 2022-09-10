@@ -10,8 +10,8 @@
     public class ReferenceComponent : MonoBehaviour
     {
         public AnimatorController fxLayerController;
-        public VRCExpressionParameters vrcExpressionParameters;
         public VRCExpressionsMenu vrcRootExpressionsMenu;
+        public VRCExpressionParameters vrcExpressionParameters;
         public bool generateOnUpload = true;
 
         private void Reset()
