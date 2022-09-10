@@ -1,7 +1,6 @@
 namespace EZFXLayer.UIElements
 {
     using System;
-    using UnityEngine;
     using UnityEngine.UIElements;
     using OriginalObjectField = UnityEditor.UIElements.ObjectField;
     public class ObjectField : OriginalObjectField

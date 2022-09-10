@@ -16,12 +16,12 @@
     <ezfx:ObjectField objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />
     <ezfx:ObjectField objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters, VRCSDK3A" binding-path="vrcExpressionParameters" />
 
-    <Button text="Populate from selected avatar" />
+    <ezfx:Button text="Populate from selected avatar" />
 
     <VisualElement class="artifact-creation-container">
-      <Button text="Create basic FX layer animator controller" />
-      <Button text="Create basic expression parameters" />
-      <Button text="Create basic root expressions menu" />
+      <ezfx:Button name="CreateFXController" text="Create basic FX layer animator controller" onClick="CreateFXController" />
+      <ezfx:Button name="" text="Create basic expression parameters" />
+      <ezfx:Button text="Create basic root expressions menu" />
     </VisualElement>
 
     <ezfx:HelpBox text="Auto-generation not yet working" message-type="Info" />
