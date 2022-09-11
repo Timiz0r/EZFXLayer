@@ -32,10 +32,7 @@ namespace EZFXLayer.UIElements
                     newBlendShape.FindPropertyRelative("name").stringValue = "florpy";
                     newBlendShape.FindPropertyRelative("value").floatValue = 100;
                     _ = blendShapes.serializedObject.ApplyModifiedProperties();
-
-
-                    AnimatableBlendShapeField blendShapeField = new AnimatableBlendShapeField(canModify, newBlendShape);
-                    blendShapeContainer.Add(blendShapeField);
+                    Refresh();
                 };
             }
 
@@ -46,15 +43,43 @@ namespace EZFXLayer.UIElements
 
             blendShapeContainer = foldoutContent.Q<VisualElement>(name: "blendShapes");
             blendShapes = serializedProperty.FindPropertyRelative("blendShapes");
+
+            VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");
+
+            Refresh();
+        }
+
+        private void Refresh()
+        {
             for (int i = 0; i < blendShapes.arraySize; i++)
             {
                 SerializedProperty blendShape = blendShapes.GetArrayElementAtIndex(i);
 
-                AnimatableBlendShapeField blendShapeField = new AnimatableBlendShapeField(canModify, blendShape);
+                AnimatableBlendShapeField blendShapeField;
+                if (i < blendShapeContainer.childCount)
+                {
+                    blendShapeField = (AnimatableBlendShapeField)blendShapeContainer[i];
+                }
+                else
+                {
+                    blendShapeField = new AnimatableBlendShapeField(canModify);
+                }
+                blendShapeField.Reconfigure(() => DeleteBlendShape(blendShape));
+                blendShapeField.BindProperty(blendShape);
                 blendShapeContainer.Add(blendShapeField);
             }
+            while (blendShapeContainer.childCount > blendShapes.arraySize)
+            {
+                blendShapeContainer.RemoveAt(blendShapeContainer.childCount - 1);
+            }
+        }
 
-            VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");
+        private void DeleteBlendShape(SerializedProperty blendShape)
+        {
+            _ = blendShape.DeleteCommand();
+            _ = blendShape.serializedObject.ApplyModifiedProperties();
+            // element.RemoveFromHierarchy();
+            Refresh();
         }
     }
 }

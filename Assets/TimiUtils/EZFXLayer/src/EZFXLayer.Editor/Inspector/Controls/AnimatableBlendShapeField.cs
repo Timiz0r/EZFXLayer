@@ -7,29 +7,24 @@ namespace EZFXLayer.UIElements
     using UnityEngine.UIElements;
     public class AnimatableBlendShapeField : BindableElement
     {
-        public AnimatableBlendShapeField(bool canDelete, SerializedProperty blendShape)
+        private Action deleteAction;
+
+        public AnimatableBlendShapeField(bool canDelete)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
-            this.BindProperty(blendShape);
-
             if (canDelete)
             {
                 RemoveFromClassList("shapekey-deletion-disabled");
-                this.Q<UnityEngine.UIElements.Button>().clicked += () =>
-                {
-                    _ = blendShape.DeleteCommand();
-                    _ = blendShape.serializedObject.ApplyModifiedProperties();
-                    this.RemoveFromHierarchy();
-                    this.SendEvent(new DeleteEvent());
-                };
+                this.Q<UnityEngine.UIElements.Button>().clicked += () => this?.deleteAction();
             }
         }
 
-        public class DeleteEvent : CommandEventBase<DeleteEvent>
+        public void Reconfigure(Action deleteAction)
         {
+            this.deleteAction = deleteAction;
         }
     }
 }
