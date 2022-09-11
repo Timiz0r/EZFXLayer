@@ -1,3 +1,12 @@
 .shapekey-deletion-disabled {
     display: none;
 }
+Slider {
+    flex-grow: 1;
+}
+FloatField {
+    width: 50px;
+}
+Label {
+    min-width: 100px;
+}

@@ -10,10 +10,10 @@
       EZFXLayer.UIElements ../../../../../../../UIElementsSchema/EZFXLayer.UIElements.xsd"
 >
   <VisualElement style="flex-direction: row;">
-    <Style src="AnimatableBlendShape.uss" />
+    <Style src="AnimatableBlendShapeField.uss" />
 
     <Label binding-path="name" />
-    <Slider binding-path="value" />
+    <Slider low-value="0" high-value="100" binding-path="value" />
     <editor:FloatField binding-path="value" />
     <Button class="shapekey-deletion-disabled" text="X" />
   </VisualElement>
