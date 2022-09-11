@@ -1,0 +1,14 @@
+Toggle.left-toggle {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+Toggle.left-toggle > Label {
+    padding-left: 5px;
+}
+Toggle.left-toggle > .unity-toggle__input {
+    flex-grow: 0;
+}
+
+Label.heading-label {
+    -unity-font-style: bold;
+}

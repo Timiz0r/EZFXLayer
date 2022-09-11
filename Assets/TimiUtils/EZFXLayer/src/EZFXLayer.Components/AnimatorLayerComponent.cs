@@ -31,5 +31,25 @@ namespace EZFXLayer
         public string menuPath = null;
         //useful for viewing, in some cases
         public bool hideUnchangedItemsInAnimationConfigurations = false;
+
+        // private void OnValidate()
+        // {
+        //     if (referenceAnimation == null)
+        //     {
+        //         referenceAnimation = ScriptableObject.CreateInstance<AnimationConfiguration>();
+        //         referenceAnimation.name = "Default";
+        //         //could check for other animations, but this should only happen on first creation
+        //         //since we don't allow unsetting it in the editor
+        //         referenceAnimation.isDefaultAnimation = true;
+        //         //wont add editor support to change this
+        //         referenceAnimation.isDefaultState = true;
+        //     }
+        // }
+        //         public AnimationConfiguration referenceAnimation = new AnimationConfiguration()
+        // {
+        //     name = "Default",
+        //     isDefaultAnimation = true,
+        //     isDefaultState = true //wont add editor support to change this
+        // };
     }
 }

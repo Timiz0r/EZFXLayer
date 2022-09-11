@@ -1,0 +1,11 @@
+.foldout-header {
+    flex-direction: row;
+}
+
+.foldout-header > TextField {
+    flex-grow: 1;
+}
+
+.foldout-content-hidden {
+    display: none;
+}

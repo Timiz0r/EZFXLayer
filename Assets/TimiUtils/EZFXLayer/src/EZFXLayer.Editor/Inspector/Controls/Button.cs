@@ -58,7 +58,8 @@ namespace EZFXLayer.UIElements
             };
             private readonly UxmlBoolAttributeDescription enabledAttribute = new UxmlBoolAttributeDescription
             {
-                name = "enabled"
+                name = "enabled",
+                defaultValue = true
             };
 
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)

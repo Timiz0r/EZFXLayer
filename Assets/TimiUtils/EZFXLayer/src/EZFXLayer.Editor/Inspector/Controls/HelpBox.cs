@@ -10,9 +10,9 @@ namespace EZFXLayer.UIElements
 
         public new class UxmlTraits : VisualElement.UxmlTraits
         {
-            private readonly UxmlStringAttributeDescription textAttribute = new UxmlStringAttributeDescription()
+            private readonly UxmlStringAttributeDescription labelAttribute = new UxmlStringAttributeDescription()
             {
-                name = "text"
+                name = "label"
             };
             private readonly UxmlEnumAttributeDescription<MessageType> messageTypeAttribute =
                 new UxmlEnumAttributeDescription<MessageType>()
@@ -24,7 +24,7 @@ namespace EZFXLayer.UIElements
             {
                 base.Init(ve, bag, cc);
 
-                string text = textAttribute.GetValueFromBag(bag, cc);
+                string text = labelAttribute.GetValueFromBag(bag, cc);
                 MessageType messageType = messageTypeAttribute.GetValueFromBag(bag, cc);
 
                 ve.Add(new IMGUIContainer(() => EditorGUILayout.HelpBox(text, messageType)));

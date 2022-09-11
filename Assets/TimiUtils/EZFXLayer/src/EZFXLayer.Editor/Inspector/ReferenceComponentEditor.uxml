@@ -9,7 +9,7 @@
       UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
       EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZFXLayer.UIElements.xsd"
 >
-  <VisualElement>
+  <ezfx:CommonContainer>
     <Style src="ReferenceComponentEditor.uss" />
 
     <ezfx:ObjectField objectType="UnityEngine.RuntimeAnimatorController, UnityEngine" binding-path="fxLayerController" />
@@ -24,8 +24,8 @@
       <ezfx:Button text="Create basic expression parameters" onClick="CreateBasicVRCExpressionParameters" />
     </VisualElement>
 
-    <ezfx:HelpBox text="Auto-generation not yet working" message-type="Info" />
-    <Toggle text="Generate on upload" binding-path="generateOnUpload" />
+    <ezfx:HelpBox label="Auto-generation not yet working" message-type="Info" />
+    <Toggle class="left-toggle" label="Generate on upload" binding-path="generateOnUpload" />
     <ezfx:Button text="Generate" enabled="false" />
-  </VisualElement>
+  </ezfx:CommonContainer>
 </UXML>

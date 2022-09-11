@@ -12,7 +12,8 @@ namespace EZFXLayer
     //the components because there's editor code (and related) here.
     //if we do want to move it back, we'd just need to move the behaviors out of this class
     //likely no problem with the current setup during play mode, and definitely no problem during upload
-    public class AnimationConfiguration
+    [Serializable]
+    public class AnimationConfiguration// : ScriptableObject
     {
         //TODO: encapsulate stuff more
         public string name;
