@@ -27,9 +27,9 @@ namespace EZFXLayer.UIElements
             BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
             BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
 
-            AnimationConfigurationField reference = new AnimationConfigurationField();
-            reference.BindProperty(serializedObject.FindProperty("referenceAnimation"));
-            referenceContainer.Add(reference);
+            AnimationConfigurationField referenceField = new AnimationConfigurationField(
+                serializedObject.FindProperty("referenceAnimation"), canModify: true);
+            referenceContainer.Add(referenceField);
 
             return visualElement;
         }

@@ -20,6 +20,10 @@
     <VisualElement class="animation-container">
       <Label class="heading-label" text="Reference animation" />
       <BindableElement name="reference-animation-container" />
+
+      <Toggle class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
+      <Button text="Add new animation set" />
+
       <BindableElement name="other-animation-container" />
     </VisualElement>
   </ezfx:CommonContainer>

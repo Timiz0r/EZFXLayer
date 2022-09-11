@@ -9,3 +9,7 @@
 .foldout-content-hidden {
     display: none;
 }
+
+.animation-immutable {
+    display: none;
+}

@@ -3,7 +3,7 @@
     "com.unity.collab-proxy": "1.10.2",
     "com.unity.ext.nunit": "2.0.3",
     "com.unity.ide.rider": "1.2.1",
-    "com.unity.ide.visualstudio": "2.0.11",
+    "com.unity.ide.visualstudio": "2.0.16",
     "com.unity.ide.vscode": "https://github.com/Timiz0r/com.unity.ide.vscode.git?path=/Packages/com.unity.ide.vscode#aca83a6ba054d4a97d3848f1937c28846fe6d018",
     "com.unity.test-framework": "2.0.1-exp.1",
     "com.unity.textmeshpro": "2.1.6",

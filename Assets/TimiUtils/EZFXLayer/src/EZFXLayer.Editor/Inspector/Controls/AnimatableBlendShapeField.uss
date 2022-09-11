@@ -1,0 +1,3 @@
+.shapekey-deletion-disabled {
+    display: none;
+}
