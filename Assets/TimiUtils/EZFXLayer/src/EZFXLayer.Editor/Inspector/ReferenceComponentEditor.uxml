@@ -19,12 +19,13 @@
     <ezfx:Button text="Populate from selected avatar" />
 
     <VisualElement class="artifact-creation-container">
-      <ezfx:Button name="CreateFXController" text="Create basic FX layer animator controller" onClick="CreateFXController" />
-      <ezfx:Button name="" text="Create basic expression parameters" />
-      <ezfx:Button text="Create basic root expressions menu" />
+      <ezfx:Button text="Create basic FX layer animator controller" onClick="CreateBasicFXLayerController" />
+      <ezfx:Button text="Create basic root expressions menu" onClick="CreateBasicVRCRootExpressionsMenu" />
+      <ezfx:Button text="Create basic expression parameters" onClick="CreateBasicVRCExpressionParameters" />
     </VisualElement>
 
     <ezfx:HelpBox text="Auto-generation not yet working" message-type="Info" />
     <Toggle text="Generate on upload" binding-path="generateOnUpload" />
+    <ezfx:Button text="Generate" enabled="false" />
   </VisualElement>
 </UXML>

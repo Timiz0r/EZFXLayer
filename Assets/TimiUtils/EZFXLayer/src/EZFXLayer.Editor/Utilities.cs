@@ -75,5 +75,13 @@ namespace EZFXLayer
 
             return currentMenu;
         }
+
+        public static void RecordChange<T>(T target, string operationDescription, Action<T> changer)
+            where T : UnityEngine.Object
+        {
+            Undo.RecordObject(target, operationDescription);
+            changer(target);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+        }
     }
 }

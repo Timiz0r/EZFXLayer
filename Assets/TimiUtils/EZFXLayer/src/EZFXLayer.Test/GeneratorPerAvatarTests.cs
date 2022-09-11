@@ -50,3 +50,7 @@
 //value. we'll also have a component ui utility to select avatars to apply this new component to.
 //
 //the downside of this all ofc is complexity of implementation. we'd only do it if perf proved to be a concern.
+
+//be sure to do a pass on component editors. for instance, we generate a scene-level fx controller, where this would then
+//depend on the location of the component.
+//menus for creating reference component and game object assume scene root.

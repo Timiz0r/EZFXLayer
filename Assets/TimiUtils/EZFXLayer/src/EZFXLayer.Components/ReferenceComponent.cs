@@ -2,14 +2,13 @@
 {
     using System;
     using System.Linq;
-    using UnityEditor.Animations;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
     [AddComponentMenu("EZFXLayer/EZFXLayer reference configuration")]
     public class ReferenceComponent : MonoBehaviour
     {
-        public AnimatorController fxLayerController;
+        public RuntimeAnimatorController fxLayerController;
         public VRCExpressionsMenu vrcRootExpressionsMenu;
         public VRCExpressionParameters vrcExpressionParameters;
         public bool generateOnUpload = true;

@@ -6,15 +6,19 @@ namespace EZFXLayer
 
     internal static class EditorError
     {
-        public static void Display(string message) => Display(message, () => { });
+        public static void Display(string message) => Display(message, null);
 
         public static void Display(string message, Action undoCallback)
         {
             Debug.LogError(message);
 
-            if (!EditorUtility.DisplayDialog("EZFXLayer", message, "OK", "Undo"))
+            if (undoCallback == null)
             {
-                undoCallback?.Invoke();
+                _ = EditorUtility.DisplayDialog("EZFXLayer", message, "OK");
+            }
+            else if (!EditorUtility.DisplayDialog("EZFXLayer", message, "OK", "Undo"))
+            {
+                undoCallback();
             }
         }
     }
