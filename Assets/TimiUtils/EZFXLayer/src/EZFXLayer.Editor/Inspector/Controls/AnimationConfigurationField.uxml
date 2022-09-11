@@ -14,18 +14,14 @@
 
     <!-- cant use a Foldout control if we want the textfield next to the toggle -->
     <!-- but getting poor results, so will leaveit for now. control doesnt load folded in -->
-    <!-- <VisualElement class="foldout-header">
-      <Toggle name="foldoutToggle" class="unity-foldout__toggle" binding-path="isFoldedOut" />
+    <VisualElement class="foldout-header">
+      <ezfx:FoldoutWithContainer binding-path="isFoldedOut" />
       <TextField binding-path="name" />
     </VisualElement>
 
     <VisualElement name="foldoutContent" class="foldout-content">
       <Label class="heading-label" text="Blend shapes" />
       <Label class="heading-label" text="GameObjects" />
-    </VisualElement> -->
-    <Foldout binding-path="isFoldedOut">
-      <Label class="heading-label" text="Blend shapes" />
-      <Label class="heading-label" text="GameObjects" />
-    </Foldout>
+    </VisualElement>
   </VisualElement>
 </UXML>

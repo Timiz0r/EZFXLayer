@@ -16,20 +16,10 @@ namespace EZFXLayer.UIElements
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimationConfigurationField.uxml");
             visualTree.CloneTree(this);
 
-            // VisualElement foldoutContent = this.Q<VisualElement>(name: "foldoutContent");
+            VisualElement foldoutContent = this.Q<VisualElement>(name: "foldoutContent");
 
-            // Toggle foldoutToggle = this.Q<Toggle>(name: "foldoutToggle");
-            // _ = foldoutToggle.RegisterValueChangedCallback(e =>
-            // {
-            //     if (foldoutToggle.value)
-            //     {
-            //         foldoutContent.RemoveFromClassList("foldout-content-hidden");
-            //     }
-            //     else
-            //     {
-            //         foldoutContent.AddToClassList("foldout-content-hidden");
-            //     }
-            // });
+            FoldoutWithContainer foldout = this.Q<FoldoutWithContainer>();
+            foldout.ConfigureSeparateContainer(foldoutContent);
         }
     }
 }
