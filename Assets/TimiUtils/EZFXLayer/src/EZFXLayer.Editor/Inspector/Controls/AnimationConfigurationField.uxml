@@ -17,7 +17,7 @@
     <VisualElement class="foldout-header">
       <ezfx:FoldoutWithContainer binding-path="isFoldedOut" />
       <TextField binding-path="name" />
-      <Button class="animation-edit" text="X" />
+      <Button name="removeAnimationConfiguration" class="animation-edit" text="X" />
     </VisualElement>
 
     <VisualElement name="foldoutContent" class="foldout-content">

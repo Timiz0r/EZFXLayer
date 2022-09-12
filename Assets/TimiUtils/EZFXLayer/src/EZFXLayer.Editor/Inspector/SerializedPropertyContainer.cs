@@ -102,7 +102,7 @@ namespace EZFXLayer.UIElements
             return newProperty;
         }
 
-        public void Delete(Func<SerializedProperty, bool> predicate, bool apply = true)
+        public void Remove(Func<SerializedProperty, bool> predicate, bool apply = true)
         {
             //reverse because DeleteCommand shifts elements
             //toarray because DeleteCommand changes the count

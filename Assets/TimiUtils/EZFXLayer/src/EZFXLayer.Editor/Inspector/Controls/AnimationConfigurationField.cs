@@ -10,6 +10,7 @@ namespace EZFXLayer.UIElements
     {
         private readonly AnimatorLayerComponentEditor editor;
         private SerializedPropertyContainer<AnimatableBlendShapeField> blendShapes;
+        private string animationConfigurationKey = null;
 
         public AnimationConfigurationField(AnimatorLayerComponentEditor editor)
         {
@@ -20,11 +21,28 @@ namespace EZFXLayer.UIElements
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimationConfigurationField.uxml");
             visualTree.CloneTree(this);
+
+            this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
+            {
+                //TODO: ofc we'll need a picker
+                //slightly circular, since we can add here directly, but this keeps it consistent with removes
+                editor.AddBlendShape(new AnimatableBlendShape()
+                {
+                    skinnedMeshRenderer = null,
+                    name = $"florp{blendShapes.Count}",
+                    value = 0
+                });
+            };
+
+            this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked += () =>
+            {
+                editor.RemoveAnimation(animationConfigurationKey);
+            };
         }
 
-        public void DeleteBlendShape(AnimatableBlendShape blendShape)
+        public void RemoveBlendShape(AnimatableBlendShape blendShape)
         {
-            blendShapes.Delete(sp => AnimatableBlendShapeField.Deserialize(sp).Matches(blendShape), apply: false);
+            blendShapes.Remove(sp => AnimatableBlendShapeField.Deserialize(sp).Matches(blendShape), apply: false);
         }
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
@@ -43,20 +61,11 @@ namespace EZFXLayer.UIElements
                 serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.isReferenceAnimation)).boolValue;
             if (isReferenceAnimation)
             {
-                this.AddToClassList("reference-animation");
+                AddToClassList("reference-animation");
             }
 
-            this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
-            {
-                //TODO: ofc we'll need a picker
-                //slightly circular, since we can add here directly, but this keeps it consistent with deletes
-                editor.AddBlendShape(new AnimatableBlendShape()
-                {
-                    skinnedMeshRenderer = null,
-                    name = $"florp{blendShapes.Count}",
-                    value = 0
-                });
-            };
+            animationConfigurationKey =
+                serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue;
 
             //TODO: the attribute-based way isn't working properly, so we'll keep on doing this for now
             //also is faulty because it's coded to start at the root, and we'll have many animation configurations

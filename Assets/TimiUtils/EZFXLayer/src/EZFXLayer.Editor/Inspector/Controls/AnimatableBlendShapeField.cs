@@ -16,7 +16,7 @@ namespace EZFXLayer.UIElements
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
-            this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.DeleteBlendShape(blendShape);
+            this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.RemoveBlendShape(blendShape);
         }
 
         public void Rebind(SerializedProperty serializedProperty)

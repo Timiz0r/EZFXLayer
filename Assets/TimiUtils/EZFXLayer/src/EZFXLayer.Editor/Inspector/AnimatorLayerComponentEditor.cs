@@ -8,6 +8,7 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using VRC.SDK3.Avatars.ScriptableObjects;
     using System.Linq;
+    using System;
 
     [CustomEditor(typeof(AnimatorLayerComponent))]
     public class AnimatorLayerComponentEditor : Editor
@@ -55,11 +56,19 @@ namespace EZFXLayer.UIElements
             return visualElement;
         }
 
-        public void DeleteBlendShape(AnimatableBlendShape blendShape)
+        //while other things use their deserialized objects, we just use key here because it's all we need
+        //and deserialization of serializedproperty is obnoxious
+        public void RemoveAnimation(string animationConfigurationKey)
         {
-            referenceField.DeleteBlendShape(blendShape);
+            animations.Remove(
+                sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
+        }
 
-            animations.ForEachElement(e => e.DeleteBlendShape(blendShape));
+        public void RemoveBlendShape(AnimatableBlendShape blendShape)
+        {
+            referenceField.RemoveBlendShape(blendShape);
+
+            animations.ForEachElement(e => e.RemoveBlendShape(blendShape));
 
             _ = serializedObject.ApplyModifiedProperties();
         }
