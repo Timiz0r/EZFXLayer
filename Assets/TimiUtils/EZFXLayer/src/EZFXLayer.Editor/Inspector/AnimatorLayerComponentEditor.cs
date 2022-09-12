@@ -1,18 +1,18 @@
 namespace EZFXLayer.UIElements
 {
-    using System;
     using System.IO;
     using UnityEditor;
-    using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
+    using UnityEditor.UIElements;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
     [CustomEditor(typeof(AnimatorLayerComponent))]
     public class AnimatorLayerComponentEditor : Editor
     {
-        private AnimatorLayerComponent Target => (AnimatorLayerComponent)target;
+        private AnimationConfigurationField referenceField;
+        private SerializedPropertyContainer<AnimationConfigurationField> animations;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -25,13 +25,27 @@ namespace EZFXLayer.UIElements
             visualTree.CloneTree(visualElement);
 
             BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
-            BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
-
-            AnimationConfigurationField referenceField = new AnimationConfigurationField(
-                serializedObject.FindProperty("referenceAnimation"), canModify: true);
+            referenceField = new AnimationConfigurationField(editor: this, canModify: true);
+            referenceField.Rebind(serializedObject.FindProperty("referenceAnimation"));
             referenceContainer.Add(referenceField);
 
+            BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
+            SerializedProperty animationsArray = serializedObject.FindProperty("animations");
+            animations = new SerializedPropertyContainer<AnimationConfigurationField>(
+                animationContainer, animationsArray, () => new AnimationConfigurationField(editor: this, canModify: true));
+
             return visualElement;
+        }
+
+        public void DeleteBlendShape(AnimatableBlendShape blendShape)
+        {
+            referenceField.DeleteBlendShape(blendShape);
+
+        }
+
+        public void AddBlendShape(AnimatableBlendShape blendShape)
+        {
+            referenceField.AddBlendShape(blendShape);
         }
     }
 }

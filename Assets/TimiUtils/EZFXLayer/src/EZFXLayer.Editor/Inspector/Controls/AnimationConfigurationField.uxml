@@ -17,6 +17,7 @@
     <VisualElement class="foldout-header">
       <ezfx:FoldoutWithContainer binding-path="isFoldedOut" containerName="foldoutContent" />
       <TextField binding-path="name" />
+      <Button text="X" />
     </VisualElement>
 
     <VisualElement name="foldoutContent" class="foldout-content">

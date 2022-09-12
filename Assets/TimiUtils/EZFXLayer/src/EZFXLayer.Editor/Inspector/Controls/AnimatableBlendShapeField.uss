@@ -1,4 +1,4 @@
-.shapekey-deletion-disabled {
+.animation-immutable {
     display: none;
 }
 Slider {
