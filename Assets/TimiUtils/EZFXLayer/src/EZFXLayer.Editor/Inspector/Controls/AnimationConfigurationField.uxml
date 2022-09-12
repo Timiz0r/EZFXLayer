@@ -15,7 +15,7 @@
     <!-- cant use a Foldout control if we want the textfield next to the toggle -->
     <!-- but getting poor results, so will leaveit for now. control doesnt load folded in -->
     <VisualElement class="foldout-header">
-      <ezfx:FoldoutWithContainer binding-path="isFoldedOut" containerName="foldoutContent" />
+      <ezfx:FoldoutWithContainer binding-path="isFoldedOut" />
       <TextField binding-path="name" />
       <Button class="animation-edit" text="X" />
     </VisualElement>

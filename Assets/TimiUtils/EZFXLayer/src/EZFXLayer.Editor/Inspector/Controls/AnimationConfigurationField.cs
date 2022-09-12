@@ -58,7 +58,9 @@ namespace EZFXLayer.UIElements
                 });
             };
 
-            //the attribute-based way isn't working properly, so we'll keep on doing this for now
+            //TODO: the attribute-based way isn't working properly, so we'll keep on doing this for now
+            //also is faulty because it's coded to start at the root, and we'll have many animation configurations
+            //aka all fold and unfold with the attribute
             FoldoutWithContainer foldout = this.Q<FoldoutWithContainer>();
             VisualElement foldoutContent = this.Q<VisualElement>(name: "foldoutContent");
             foldout.ConfigureSeparateContainer(foldoutContent);
