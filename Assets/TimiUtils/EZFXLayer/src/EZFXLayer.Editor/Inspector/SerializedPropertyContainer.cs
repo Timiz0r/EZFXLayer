@@ -9,7 +9,10 @@ namespace EZFXLayer.UIElements
 
     internal class SerializedPropertyContainer<T> where T : BindableElement, ISerializedPropertyContainerItem
     {
-        private int lastArrayCount;
+        private int currentChangeSequence;
+        private int lastRefreshedChangeSequence = -1;
+        private int preUndoRedoArrayLength;
+
         private readonly string pathToArray;
         private readonly VisualElement container;
         private readonly SerializedProperty array;
@@ -22,8 +25,8 @@ namespace EZFXLayer.UIElements
             this.array = array;
             this.elementCreator = elementCreator;
 
-            lastArrayCount = array.arraySize;
             pathToArray = array.propertyPath;
+            preUndoRedoArrayLength = array.arraySize;
 
             Undo.undoRedoPerformed += HandleUndo;
             container.RegisterCallback<DetachFromPanelEvent>(
@@ -35,15 +38,26 @@ namespace EZFXLayer.UIElements
         {
             array.serializedObject.Update();
             if (!IsValid) return;
+
+            if (preUndoRedoArrayLength != array.arraySize)
+            {
+                preUndoRedoArrayLength = array.arraySize;
+                currentChangeSequence++;
+            }
+
+            Refresh();
+        }
+
+        public void RefreshExternalChanges()
+        {
+            currentChangeSequence++;
+            preUndoRedoArrayLength = array.arraySize;
             Refresh();
         }
 
         public void Refresh()
         {
-            //at time of writing, this works fine since we don't allow reordering
-            //if we add a sort or something, then we'll need something else.
-            //perhaps maintain a sequence number that counts up for each modifying operation
-            //if (lastArrayCount == array.arraySize) return;
+            if (lastRefreshedChangeSequence == currentChangeSequence) return;
 
             ForEach((i, current) =>
             {
@@ -65,7 +79,8 @@ namespace EZFXLayer.UIElements
                 container.RemoveAt(container.childCount - 1);
             }
 
-            lastArrayCount = array.arraySize;
+            lastRefreshedChangeSequence = currentChangeSequence;
+            preUndoRedoArrayLength = array.arraySize;
         }
 
         public SerializedProperty Add(Action<SerializedProperty> initializer)
@@ -74,6 +89,9 @@ namespace EZFXLayer.UIElements
             SerializedProperty newProperty = array.GetArrayElementAtIndex(array.arraySize - 1);
             initializer(newProperty);
             _ = array.serializedObject.ApplyModifiedProperties();
+            preUndoRedoArrayLength++;
+
+            currentChangeSequence++;
             Refresh();
 
             return newProperty;
@@ -90,6 +108,9 @@ namespace EZFXLayer.UIElements
                 _ = sp.DeleteCommand();
             }
             _ = array.serializedObject.ApplyModifiedProperties();
+            preUndoRedoArrayLength -=  all.Length;
+
+            currentChangeSequence++;
             Refresh();
         }
 

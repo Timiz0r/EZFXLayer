@@ -49,7 +49,7 @@ namespace EZFXLayer.UIElements
                     layer.animations.Add(newAnimation);
                 });
                 serializedObject.Update();
-                animations.Refresh();
+                animations.RefreshExternalChanges();
             };
 
             return visualElement;
