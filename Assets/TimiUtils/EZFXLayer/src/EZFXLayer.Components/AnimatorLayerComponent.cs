@@ -16,7 +16,7 @@ namespace EZFXLayer
         {
             name = "Default",
             isDefaultAnimation = true,
-            isDefaultState = true //wont add editor support to change this
+            isReferenceAnimation = true //wont add editor support to change this
         };
         public List<AnimationConfiguration> animations = new List<AnimationConfiguration>();
 

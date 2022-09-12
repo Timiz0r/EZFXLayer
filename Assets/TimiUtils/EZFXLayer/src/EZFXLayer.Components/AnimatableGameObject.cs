@@ -6,6 +6,7 @@ namespace EZFXLayer
     [Serializable]
     public class AnimatableGameObject
     {
+        public string key = Guid.NewGuid().ToString(); //shared across reference animation and other animations
         //serializes just fine
 #pragma warning disable CA2235
         public GameObject gameObject;
@@ -19,10 +20,11 @@ namespace EZFXLayer
 
         public bool Matches(AnimatableGameObject gameObject) => gameObject == null
             ? throw new ArgumentNullException(nameof(gameObject))
-            : this.gameObject == gameObject.gameObject;
+            : this.key == gameObject.key;
 
         public AnimatableGameObject Clone() => new AnimatableGameObject()
         {
+            key = key,
             gameObject = gameObject,
             path = path,
             active = active

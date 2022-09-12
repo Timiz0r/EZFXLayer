@@ -6,6 +6,7 @@ namespace EZFXLayer
     [Serializable]
     public class AnimatableBlendShape
     {
+        public string key = Guid.NewGuid().ToString(); //shared across reference animation and other animations
         //serializes just fine
 #pragma warning disable CA2235
         public SkinnedMeshRenderer skinnedMeshRenderer;
@@ -15,10 +16,11 @@ namespace EZFXLayer
 
         public bool Matches(AnimatableBlendShape blendShape) => blendShape == null
             ? throw new ArgumentNullException(nameof(blendShape))
-            : skinnedMeshRenderer == blendShape.skinnedMeshRenderer && name == blendShape.name;
+            : key == blendShape.key;
 
         public AnimatableBlendShape Clone() => new AnimatableBlendShape()
         {
+            key = key,
             skinnedMeshRenderer = skinnedMeshRenderer,
             name = name,
             value = value

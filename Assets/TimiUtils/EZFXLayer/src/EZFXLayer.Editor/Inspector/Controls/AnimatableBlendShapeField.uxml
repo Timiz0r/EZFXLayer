@@ -15,6 +15,6 @@
     <Label binding-path="name" />
     <Slider low-value="0" high-value="100" binding-path="value" />
     <editor:FloatField binding-path="value" />
-    <Button class="animation-immutable" text="X" />
+    <Button class="reference-animation-edit" text="X" />
   </VisualElement>
 </UXML>

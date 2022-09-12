@@ -10,6 +10,16 @@
     display: none;
 }
 
-.animation-immutable {
+.animation-edit {
+    display: flex;
+}
+.reference-animation .animation-edit {
     display: none;
+}
+
+.reference-animation-edit {
+    display: none;
+}
+.reference-animation .reference-animation-edit {
+    display: flex;
 }

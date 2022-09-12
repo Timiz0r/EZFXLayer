@@ -16,10 +16,11 @@ namespace EZFXLayer
     public class AnimationConfiguration// : ScriptableObject
     {
         //TODO: encapsulate stuff more
+        public string key = Guid.NewGuid().ToString();
         public string name;
         public string animatorStateNameOverride;
         public string toggleNameOverride;
-        public bool isDefaultState;
+        public bool isReferenceAnimation;
         public bool isDefaultAnimation;
         public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
 

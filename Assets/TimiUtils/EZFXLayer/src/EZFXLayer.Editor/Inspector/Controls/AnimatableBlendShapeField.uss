@@ -1,6 +1,3 @@
-.animation-immutable {
-    display: none;
-}
 Slider {
     flex-grow: 1;
 }

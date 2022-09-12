@@ -6,22 +6,17 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
-    public class AnimatableBlendShapeField : BindableElement, IRebindable
+    public class AnimatableBlendShapeField : BindableElement, ISerializedPropertyContainerItem
     {
         private AnimatableBlendShape blendShape;
 
-        public AnimatableBlendShapeField(bool canDelete, AnimatorLayerComponentEditor editor)
+        public AnimatableBlendShapeField(AnimatorLayerComponentEditor editor)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
-            if (canDelete)
-            {
-                UnityEngine.UIElements.Button deleteButton = this.Q<UnityEngine.UIElements.Button>();
-                deleteButton.RemoveFromClassList("animation-immutable");
-                this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.DeleteBlendShape(blendShape);
-            }
+            this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.DeleteBlendShape(blendShape);
         }
 
         public void Rebind(SerializedProperty serializedProperty)
@@ -34,11 +29,22 @@ namespace EZFXLayer.UIElements
         {
             AnimatableBlendShape result = new AnimatableBlendShape()
             {
-                skinnedMeshRenderer = (SkinnedMeshRenderer)serializedProperty.FindPropertyRelative("skinnedMeshRenderer").objectReferenceValue,
-                name = serializedProperty.FindPropertyRelative("name").stringValue,
-                value = serializedProperty.FindPropertyRelative("value").floatValue
+                key = serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue,
+                skinnedMeshRenderer = (SkinnedMeshRenderer)serializedProperty.FindPropertyRelative(
+                    nameof(AnimatableBlendShape.skinnedMeshRenderer)).objectReferenceValue,
+                name = serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.name)).stringValue,
+                value = serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.value)).floatValue
             };
             return result;
+        }
+
+        public static void Serialize(SerializedProperty serializedProperty, AnimatableBlendShape blendShape)
+        {
+            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue = blendShape.key;
+            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.skinnedMeshRenderer)).objectReferenceValue =
+                blendShape.skinnedMeshRenderer;
+            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.name)).stringValue = blendShape.name;
+            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.value)).floatValue = blendShape.value;
         }
     }
 }

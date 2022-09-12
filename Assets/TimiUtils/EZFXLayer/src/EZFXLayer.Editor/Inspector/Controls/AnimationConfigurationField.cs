@@ -6,16 +6,13 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
-    public class AnimationConfigurationField : BindableElement, IRebindable
+    public class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
     {
-        //TODO: this should be able to be replaced by looking at isDefaultState
-        private readonly bool canModify;
         private readonly AnimatorLayerComponentEditor editor;
         private SerializedPropertyContainer<AnimatableBlendShapeField> blendShapes;
 
-        public AnimationConfigurationField(bool canModify, AnimatorLayerComponentEditor editor)
+        public AnimationConfigurationField(AnimatorLayerComponentEditor editor)
         {
-            this.canModify = canModify;
             this.editor = editor;
 
             //TODO: on second thought, go with serialized fields since we dont have to hard code paths
@@ -23,22 +20,6 @@ namespace EZFXLayer.UIElements
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimationConfigurationField.uxml");
             visualTree.CloneTree(this);
-
-            if (canModify)
-            {
-                this.Query(className: "animation-immutable").ForEach(e => e.RemoveFromClassList("animation-immutable"));
-                this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
-                {
-                    //TODO: ofc we'll need a picker
-                    //slightly circular, since we can add here directly, but this keeps it consistent with deletes
-                    editor.AddBlendShape(new AnimatableBlendShape()
-                    {
-                        skinnedMeshRenderer = null,
-                        name = $"florp{blendShapes.All.Count()}",
-                        value = 0
-                    });
-                };
-            }
         }
 
         public void DeleteBlendShape(AnimatableBlendShape blendShape)
@@ -50,15 +31,32 @@ namespace EZFXLayer.UIElements
         {
             blendShapes.Add(sp =>
             {
-                sp.FindPropertyRelative("skinnedMeshRenderer").objectReferenceValue = blendShape.skinnedMeshRenderer;
-                sp.FindPropertyRelative("name").stringValue = blendShape.name;
-                sp.FindPropertyRelative("value").floatValue = blendShape.value;
+                AnimatableBlendShapeField.Serialize(sp, blendShape);
             });
         }
 
         public void Rebind(SerializedProperty serializedProperty)
         {
             this.BindProperty(serializedProperty);
+
+            bool isReferenceAnimation =
+                serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.isReferenceAnimation)).boolValue;
+            if (isReferenceAnimation)
+            {
+                this.AddToClassList("reference-animation");
+            }
+
+            this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
+            {
+                //TODO: ofc we'll need a picker
+                //slightly circular, since we can add here directly, but this keeps it consistent with deletes
+                editor.AddBlendShape(new AnimatableBlendShape()
+                {
+                    skinnedMeshRenderer = null,
+                    name = $"florp{blendShapes.All.Count()}",
+                    value = 0
+                });
+            };
 
             //the attribute-based way isn't working properly, so we'll keep on doing this for now
             FoldoutWithContainer foldout = this.Q<FoldoutWithContainer>();
@@ -68,7 +66,7 @@ namespace EZFXLayer.UIElements
             VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(name: "blendShapes");
             SerializedProperty blendShapeProperty = serializedProperty.FindPropertyRelative("blendShapes");
             blendShapes = new SerializedPropertyContainer<AnimatableBlendShapeField>(
-                blendShapeContainer, blendShapeProperty, () => new AnimatableBlendShapeField(canModify, editor));
+                blendShapeContainer, blendShapeProperty, () => new AnimatableBlendShapeField(editor));
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");
 

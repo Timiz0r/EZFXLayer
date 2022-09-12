@@ -32,12 +32,12 @@ namespace EZFXLayer
             assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);
 
-            defaultState = animation.isDefaultState ? correspondingState : defaultState;
+            defaultState = animation.isReferenceAnimation ? correspondingState : defaultState;
         }
 
         //could hypothetically add these params to ctor, but wont for now
         internal VRCExpressionsMenu.Control GetMenuToggle(string parameterName, float toggleValue)
-            => animation.isDefaultState ? null : new VRCExpressionsMenu.Control()
+            => animation.isReferenceAnimation ? null : new VRCExpressionsMenu.Control()
             {
                 name = string.IsNullOrEmpty(animation.toggleNameOverride)
                     ? animation.name

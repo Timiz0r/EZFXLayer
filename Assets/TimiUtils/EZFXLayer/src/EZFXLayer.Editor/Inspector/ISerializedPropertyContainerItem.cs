@@ -2,7 +2,7 @@ namespace EZFXLayer.UIElements
 {
     using UnityEditor;
 
-    public interface IRebindable
+    public interface ISerializedPropertyContainerItem
     {
         void Rebind(SerializedProperty serializedProperty);
     }
