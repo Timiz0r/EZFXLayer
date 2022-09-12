@@ -57,16 +57,20 @@ namespace EZFXLayer.UIElements
 
         public void DeleteBlendShape(AnimatableBlendShape blendShape)
         {
-            //TODO: these will probably create a lot of undos
-            //so need a mechanism to unify applies, probably just by not doing it in the serializedpropertycontainer
-            //(or an option)
             referenceField.DeleteBlendShape(blendShape);
 
+            animations.ForEachElement(e => e.DeleteBlendShape(blendShape));
+
+            _ = serializedObject.ApplyModifiedProperties();
         }
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
         {
             referenceField.AddBlendShape(blendShape);
+
+            animations.ForEachElement(e => e.AddBlendShape(blendShape));
+
+            _ = serializedObject.ApplyModifiedProperties();
         }
     }
 }

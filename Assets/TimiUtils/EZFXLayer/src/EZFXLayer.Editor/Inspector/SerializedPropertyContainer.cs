@@ -59,7 +59,7 @@ namespace EZFXLayer.UIElements
         {
             if (lastRefreshedChangeSequence == currentChangeSequence) return;
 
-            ForEach((i, current) =>
+            ForEachProperty((i, current) =>
             {
                 T element;
                 if (i < container.childCount)
@@ -83,38 +83,47 @@ namespace EZFXLayer.UIElements
             preUndoRedoArrayLength = array.arraySize;
         }
 
-        public SerializedProperty Add(Action<SerializedProperty> initializer)
+        public SerializedProperty Add(Action<SerializedProperty> initializer, bool apply = true)
         {
             array.arraySize++;
             SerializedProperty newProperty = array.GetArrayElementAtIndex(array.arraySize - 1);
             initializer(newProperty);
-            _ = array.serializedObject.ApplyModifiedProperties();
-            preUndoRedoArrayLength++;
 
+            preUndoRedoArrayLength++;
             currentChangeSequence++;
+
+            if (apply)
+            {
+                _ = array.serializedObject.ApplyModifiedProperties();
+            }
+
             Refresh();
 
             return newProperty;
         }
 
-        public void Delete(Func<SerializedProperty, bool> predicate)
+        public void Delete(Func<SerializedProperty, bool> predicate, bool apply = true)
         {
             //reverse because DeleteCommand shifts elements
             //toarray because DeleteCommand changes the count
-            SerializedProperty[] all = All.Reverse().ToArray();
+            SerializedProperty[] all = AllProperties.Reverse().ToArray();
             foreach (SerializedProperty sp in all)
             {
                 if (!predicate(sp)) continue;
                 _ = sp.DeleteCommand();
             }
-            _ = array.serializedObject.ApplyModifiedProperties();
-            preUndoRedoArrayLength -=  all.Length;
-
+            preUndoRedoArrayLength -= all.Length;
             currentChangeSequence++;
+
+            if (apply)
+            {
+                _ = array.serializedObject.ApplyModifiedProperties();
+            }
+
             Refresh();
         }
 
-        public void ForEach(Action<int, SerializedProperty> action)
+        public void ForEachProperty(Action<int, SerializedProperty> action)
         {
             for (int i = 0; i < array.arraySize; i++)
             {
@@ -124,10 +133,20 @@ namespace EZFXLayer.UIElements
             }
         }
 
-        public void ForEach(Action<SerializedProperty> action) => ForEach((i, sp) => action(sp));
+        public void ForEachProperty(Action<SerializedProperty> action) => ForEachProperty((i, sp) => action(sp));
 
-        public IEnumerable<SerializedProperty> All
+        public IEnumerable<SerializedProperty> AllProperties
             => Enumerable.Range(0, array.arraySize).Select(i => array.GetArrayElementAtIndex(i));
+
+        public void ForEachElement(Action<T> action)
+        {
+            foreach (T element in AllElements)
+            {
+                action(element);
+            }
+        }
+
+        public IEnumerable<T> AllElements => container.Children().Cast<T>();
 
         public int Count => array.arraySize;
 

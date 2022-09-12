@@ -24,7 +24,7 @@ namespace EZFXLayer.UIElements
 
         public void DeleteBlendShape(AnimatableBlendShape blendShape)
         {
-            blendShapes.Delete(sp => AnimatableBlendShapeField.Deserialize(sp).Matches(blendShape));
+            blendShapes.Delete(sp => AnimatableBlendShapeField.Deserialize(sp).Matches(blendShape), apply: false);
         }
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
@@ -32,7 +32,7 @@ namespace EZFXLayer.UIElements
             blendShapes.Add(sp =>
             {
                 AnimatableBlendShapeField.Serialize(sp, blendShape);
-            });
+            }, apply: false);
         }
 
         public void Rebind(SerializedProperty serializedProperty)
@@ -53,7 +53,7 @@ namespace EZFXLayer.UIElements
                 editor.AddBlendShape(new AnimatableBlendShape()
                 {
                     skinnedMeshRenderer = null,
-                    name = $"florp{blendShapes.All.Count()}",
+                    name = $"florp{blendShapes.Count}",
                     value = 0
                 });
             };
