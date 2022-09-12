@@ -64,12 +64,17 @@ namespace EZFXLayer.UIElements
                 sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
         }
 
+        //was attempting, and could have succeeded, to manually handle undo change recordings and refreshing
+        //but for the reference field, we'd need to rebind to trigger an update, since serializedObject.Update
+        //doesn't seem to trigger it. the design improved a decent amount, but this one workaround was looking hacky
+        //and prob has a perf impact, though minor in our use case.
         public void RemoveBlendShape(AnimatableBlendShape blendShape)
         {
             referenceField.RemoveBlendShape(blendShape);
 
             animations.ForEachElement(e => e.RemoveBlendShape(blendShape));
 
+            //for undo reasons, we've suppressed this call until this point
             _ = serializedObject.ApplyModifiedProperties();
         }
 
