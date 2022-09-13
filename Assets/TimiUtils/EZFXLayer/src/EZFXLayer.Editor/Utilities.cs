@@ -101,5 +101,8 @@ namespace EZFXLayer
                 action(i, current);
             }
         }
+
+        public static IEnumerable<string> GetBlendShapeNames(this SkinnedMeshRenderer smr)
+            => Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i));
     }
 }

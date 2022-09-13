@@ -141,6 +141,13 @@ namespace EZFXLayer.UIElements
                 {
                     element.RemoveFromHierarchy();
                 }
+
+                foreach (VisualElement container in groupedBlendShapes.Select(kvp => kvp.Value))
+                {
+                    container.Sort((lhs, rhs) => AnimatableBlendShapeField.Compare(
+                        (AnimatableBlendShapeField)lhs,
+                        (AnimatableBlendShapeField)rhs));
+                }
             }
 
             private VisualElement GetBlendShapeContainer(AnimatableBlendShape blendShape)

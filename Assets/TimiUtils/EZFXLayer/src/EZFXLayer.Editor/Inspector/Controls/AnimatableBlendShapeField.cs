@@ -1,6 +1,7 @@
 namespace EZFXLayer.UIElements
 {
     using System;
+    using System.Linq;
     using EZFXLayer;
     using UnityEditor;
     using UnityEditor.UIElements;
@@ -65,6 +66,13 @@ namespace EZFXLayer.UIElements
                 blendShape.skinnedMeshRenderer;
             serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.name)).stringValue = blendShape.name;
             serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.value)).floatValue = blendShape.value;
+        }
+
+        public static int Compare(AnimatableBlendShapeField lhs, AnimatableBlendShapeField rhs)
+        {
+            string[] blendShapeNames = lhs.blendShape.skinnedMeshRenderer.GetBlendShapeNames().ToArray();
+            int result = Array.IndexOf(blendShapeNames, lhs.name) - Array.IndexOf(blendShapeNames, rhs.name);
+            return result;
         }
     }
 }
