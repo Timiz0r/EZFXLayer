@@ -14,22 +14,25 @@ namespace EZFXLayer.UIElements
         private int preUndoRedoArrayLength;
 
         private readonly string pathToArray;
-        private readonly VisualElement container;
         private readonly SerializedProperty array;
-        private readonly Func<T> elementCreator;
+        private readonly ISerializedPropertyContainerRenderer renderer;
 
-        public SerializedPropertyContainer(
-            VisualElement container, SerializedProperty array, Func<T> elementCreator)
+        public SerializedPropertyContainer(VisualElement container, SerializedProperty array, Func<T> elementCreator)
+            : this(array, new SimpleSerializedPropertyContainerRenderer<T>(container, elementCreator))
         {
-            this.container = container;
+
+        }
+
+        public SerializedPropertyContainer(SerializedProperty array, ISerializedPropertyContainerRenderer renderer)
+        {
             this.array = array;
-            this.elementCreator = elementCreator;
+            this.renderer = renderer;
 
             pathToArray = array.propertyPath;
             preUndoRedoArrayLength = array.arraySize;
 
             Undo.undoRedoPerformed += HandleUndo;
-            container.RegisterCallback<DetachFromPanelEvent>(
+            renderer.RootContainer.RegisterCallback<DetachFromPanelEvent>(
                 evt =>
                     Undo.undoRedoPerformed -= HandleUndo);
         }
@@ -51,7 +54,6 @@ namespace EZFXLayer.UIElements
         public void RefreshExternalChanges()
         {
             currentChangeSequence++;
-            preUndoRedoArrayLength = array.arraySize;
             Refresh();
         }
 
@@ -61,23 +63,10 @@ namespace EZFXLayer.UIElements
 
             ForEachProperty((i, current) =>
             {
-                T element;
-                if (i < container.childCount)
-                {
-                    element = (T)container[i];
-                }
-                else
-                {
-                    element = elementCreator();
-                    container.Add(element);
-                }
-                element.Rebind(current);
+                renderer.ProcessRefresh(current, index: i);
             });
 
-            while (container.childCount > array.arraySize)
-            {
-                container.RemoveAt(container.childCount - 1);
-            }
+            renderer.FinalizeRefresh(array);
 
             lastRefreshedChangeSequence = currentChangeSequence;
             preUndoRedoArrayLength = array.arraySize;
@@ -146,11 +135,55 @@ namespace EZFXLayer.UIElements
             }
         }
 
-        public IEnumerable<T> AllElements => container.Children().Cast<T>();
+        public IEnumerable<T> AllElements => renderer.RootContainer.Query<T>().ToList();
 
         public int Count => array.arraySize;
 
         //this is intentionally not checked for everywhere because most places are expected to be valid
         public bool IsValid => array.serializedObject.FindProperty(pathToArray) != null;
+    }
+
+    public interface ISerializedPropertyContainerRenderer
+    {
+        VisualElement RootContainer { get; }
+        void ProcessRefresh(SerializedProperty item, int index);
+        void FinalizeRefresh(SerializedProperty array);
+    }
+
+    public class SimpleSerializedPropertyContainerRenderer<T> : ISerializedPropertyContainerRenderer
+        where T : BindableElement, ISerializedPropertyContainerItem
+    {
+        private readonly Func<T> elementCreator;
+
+        public SimpleSerializedPropertyContainerRenderer(VisualElement container, Func<T> elementCreator)
+        {
+            RootContainer = container;
+            this.elementCreator = elementCreator;
+        }
+
+        public VisualElement RootContainer { get; }
+
+        public void ProcessRefresh(SerializedProperty item, int index)
+        {
+            T element;
+            if (index < RootContainer.childCount)
+            {
+                element = (T)RootContainer[index];
+            }
+            else
+            {
+                element = elementCreator();
+                RootContainer.Add(element);
+            }
+            element.Rebind(item);
+        }
+
+        public void FinalizeRefresh(SerializedProperty array)
+        {
+            while (RootContainer.childCount > array.arraySize)
+            {
+                RootContainer.RemoveAt(RootContainer.childCount - 1);
+            }
+        }
     }
 }
