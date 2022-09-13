@@ -18,7 +18,7 @@ namespace EZFXLayer.UIElements
         private readonly ISerializedPropertyContainerRenderer renderer;
 
         public SerializedPropertyContainer(VisualElement container, SerializedProperty array, Func<T> elementCreator)
-            : this(array, new SimpleSerializedPropertyContainerRenderer<T>(container, elementCreator))
+            : this(array, new SimpleSerializedPropertyContainerRenderer(container, elementCreator))
         {
 
         }
@@ -112,28 +112,11 @@ namespace EZFXLayer.UIElements
             Refresh();
         }
 
-        public void ForEachProperty(Action<int, SerializedProperty> action)
-        {
-            for (int i = 0; i < array.arraySize; i++)
-            {
-                SerializedProperty current = array.GetArrayElementAtIndex(i);
+        public void ForEachProperty(Action<int, SerializedProperty> action) => array.ForEachArrayElement(action);
 
-                action(i, current);
-            }
-        }
+        public void ForEachProperty(Action<SerializedProperty> action) => array.ForEachArrayElement(action);
 
-        public void ForEachProperty(Action<SerializedProperty> action) => ForEachProperty((i, sp) => action(sp));
-
-        public IEnumerable<SerializedProperty> AllProperties
-            => Enumerable.Range(0, array.arraySize).Select(i => array.GetArrayElementAtIndex(i));
-
-        public void ForEachElement(Action<T> action)
-        {
-            foreach (T element in AllElements)
-            {
-                action(element);
-            }
-        }
+        public IEnumerable<SerializedProperty> AllProperties => array.GetArrayElements();
 
         public IEnumerable<T> AllElements => renderer.RootContainer.Query<T>().ToList();
 
@@ -141,49 +124,50 @@ namespace EZFXLayer.UIElements
 
         //this is intentionally not checked for everywhere because most places are expected to be valid
         public bool IsValid => array.serializedObject.FindProperty(pathToArray) != null;
+
+        private class SimpleSerializedPropertyContainerRenderer : ISerializedPropertyContainerRenderer
+        {
+            private readonly Func<T> elementCreator;
+
+            public SimpleSerializedPropertyContainerRenderer(VisualElement rootContainer, Func<T> elementCreator)
+            {
+                RootContainer = rootContainer;
+                this.elementCreator = elementCreator;
+            }
+
+            public VisualElement RootContainer { get; }
+
+            public void ProcessRefresh(SerializedProperty item, int index)
+            {
+                T element;
+                if (index < RootContainer.childCount)
+                {
+                    element = (T)RootContainer[index];
+                }
+                else
+                {
+                    element = elementCreator();
+                    RootContainer.Add(element);
+                }
+                element.Rebind(item);
+            }
+
+            public void FinalizeRefresh(SerializedProperty array)
+            {
+                while (RootContainer.childCount > array.arraySize)
+                {
+                    RootContainer.RemoveAt(RootContainer.childCount - 1);
+                }
+            }
+        }
     }
 
     public interface ISerializedPropertyContainerRenderer
     {
         VisualElement RootContainer { get; }
+        //could instead get the index by getting it from the propertypath (.Array.item[69])
+        //while makes the design of this interface prettier, really who cares
         void ProcessRefresh(SerializedProperty item, int index);
         void FinalizeRefresh(SerializedProperty array);
-    }
-
-    public class SimpleSerializedPropertyContainerRenderer<T> : ISerializedPropertyContainerRenderer
-        where T : BindableElement, ISerializedPropertyContainerItem
-    {
-        private readonly Func<T> elementCreator;
-
-        public SimpleSerializedPropertyContainerRenderer(VisualElement container, Func<T> elementCreator)
-        {
-            RootContainer = container;
-            this.elementCreator = elementCreator;
-        }
-
-        public VisualElement RootContainer { get; }
-
-        public void ProcessRefresh(SerializedProperty item, int index)
-        {
-            T element;
-            if (index < RootContainer.childCount)
-            {
-                element = (T)RootContainer[index];
-            }
-            else
-            {
-                element = elementCreator();
-                RootContainer.Add(element);
-            }
-            element.Rebind(item);
-        }
-
-        public void FinalizeRefresh(SerializedProperty array)
-        {
-            while (RootContainer.childCount > array.arraySize)
-            {
-                RootContainer.RemoveAt(RootContainer.childCount - 1);
-            }
-        }
     }
 }

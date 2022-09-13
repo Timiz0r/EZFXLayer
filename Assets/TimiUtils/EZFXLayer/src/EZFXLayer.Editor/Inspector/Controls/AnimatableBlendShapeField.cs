@@ -28,6 +28,8 @@ namespace EZFXLayer.UIElements
             blendShape = Deserialize(serializedProperty);
         }
 
+        public bool IsElementFor(AnimatableBlendShape blendShape) => this.blendShape.key == blendShape.key;
+
         public void SetHideUnchangedItems(bool enabled)
         {
             //TODO: to be called when value in animation changes by looping thru all elements

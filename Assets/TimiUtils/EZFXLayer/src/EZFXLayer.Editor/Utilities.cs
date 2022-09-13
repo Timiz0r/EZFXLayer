@@ -83,5 +83,23 @@ namespace EZFXLayer
             changer(target);
             PrefabUtility.RecordPrefabInstancePropertyModifications(target);
         }
+
+        public static IEnumerable<SerializedProperty> GetArrayElements(this SerializedProperty array)
+            => Enumerable.Range(0, array.arraySize).Select(i => array.GetArrayElementAtIndex(i));
+
+        public static void ForEachArrayElement(
+            this SerializedProperty array, Action<SerializedProperty> action)
+                => array.ForEachArrayElement((i, p) => action(p));
+
+        public static void ForEachArrayElement(
+            this SerializedProperty array, Action<int, SerializedProperty> action)
+        {
+            for (int i = 0; i < array.arraySize; i++)
+            {
+                SerializedProperty current = array.GetArrayElementAtIndex(i);
+
+                action(i, current);
+            }
+        }
     }
 }

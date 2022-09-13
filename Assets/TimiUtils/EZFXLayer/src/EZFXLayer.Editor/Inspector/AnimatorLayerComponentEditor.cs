@@ -72,7 +72,10 @@ namespace EZFXLayer.UIElements
         {
             referenceField.RemoveBlendShape(blendShape);
 
-            animations.ForEachElement(e => e.RemoveBlendShape(blendShape));
+            foreach (AnimationConfigurationField element in animations.AllElements)
+            {
+                element.RemoveBlendShape(blendShape);
+            }
 
             //for undo reasons, we've suppressed this call until this point
             _ = serializedObject.ApplyModifiedProperties();
@@ -82,7 +85,10 @@ namespace EZFXLayer.UIElements
         {
             referenceField.AddBlendShape(blendShape);
 
-            animations.ForEachElement(e => e.AddBlendShape(blendShape));
+            foreach (AnimationConfigurationField element in animations.AllElements)
+            {
+                element.AddBlendShape(blendShape);
+            }
 
             _ = serializedObject.ApplyModifiedProperties();
         }
