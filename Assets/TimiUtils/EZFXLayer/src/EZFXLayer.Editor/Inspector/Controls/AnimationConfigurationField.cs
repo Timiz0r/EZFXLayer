@@ -10,8 +10,10 @@ namespace EZFXLayer.UIElements
     public class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
     {
         private readonly AnimatorLayerComponentEditor editor;
-        private SerializedPropertyContainer<AnimatableBlendShapeField> blendShapes;
+        private SerializedPropertyContainer blendShapes;
         private string animationConfigurationKey = null;
+
+        public IEnumerable<AnimatableBlendShapeField> BlendShapes => blendShapes.AllElements<AnimatableBlendShapeField>();
 
         public AnimationConfigurationField(AnimatorLayerComponentEditor editor)
         {
@@ -77,9 +79,9 @@ namespace EZFXLayer.UIElements
 
             VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(name: "blendShapes");
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
-            blendShapes = new SerializedPropertyContainer<AnimatableBlendShapeField>(
             blendShapes?.StopUndoRedoHandling(); //about to make a new one
-                blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, editor));
+            blendShapes = new SerializedPropertyContainer(
+                blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, editor));
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");
 
@@ -90,15 +92,18 @@ namespace EZFXLayer.UIElements
 
         private class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
         {
+            private readonly bool isFromReferenceAnimation;
             private readonly AnimatorLayerComponentEditor editor;
             //these BlendShapeContainers will be simple ones that we'll sort later when finalizing refresh
-            private readonly Dictionary<SkinnedMeshRenderer, VisualElement> groupedBlendShapes
+            private readonly Dictionary<SkinnedMeshRenderer, VisualElement> blendShapeContainers
                 = new Dictionary<SkinnedMeshRenderer, VisualElement>();
             private Dictionary<AnimatableBlendShapeField, bool> refreshElementTracker;
 
-            public BlendShapeContainerRenderer(VisualElement rootContainer, AnimatorLayerComponentEditor editor)
+            public BlendShapeContainerRenderer(
+                VisualElement rootContainer, bool isFromReferenceAnimation, AnimatorLayerComponentEditor editor)
             {
                 RootContainer = rootContainer;
+                this.isFromReferenceAnimation = isFromReferenceAnimation;
                 this.editor = editor;
             }
 
@@ -125,7 +130,7 @@ namespace EZFXLayer.UIElements
                 {
                     AnimatableBlendShapeField newElement = new AnimatableBlendShapeField(editor);
                     blendShapeContainer.Add(newElement);
-                    newElement.Rebind(item);
+                    newElement.Rebind(item, isFromReferenceAnimation);
                 }
                 else
                 {
@@ -143,7 +148,7 @@ namespace EZFXLayer.UIElements
                     element.RemoveFromHierarchy();
                 }
 
-                foreach (VisualElement container in groupedBlendShapes.Select(kvp => kvp.Value))
+                foreach (VisualElement container in blendShapeContainers.Select(kvp => kvp.Value))
                 {
                     container.Sort((lhs, rhs) => AnimatableBlendShapeField.Compare(
                         (AnimatableBlendShapeField)lhs,
@@ -153,7 +158,7 @@ namespace EZFXLayer.UIElements
 
             private VisualElement GetBlendShapeContainer(AnimatableBlendShape blendShape)
             {
-                if (groupedBlendShapes.TryGetValue(blendShape.skinnedMeshRenderer, out VisualElement existingGroup))
+                if (blendShapeContainers.TryGetValue(blendShape.skinnedMeshRenderer, out VisualElement existingGroup))
                 {
                     return existingGroup;
                 }
@@ -175,7 +180,7 @@ namespace EZFXLayer.UIElements
                 blendShapeGroup.Add(blendShapeContainer);
 
                 RootContainer.Add(blendShapeGroup);
-                groupedBlendShapes.Add(blendShape.skinnedMeshRenderer, blendShapeContainer);
+                blendShapeContainers.Add(blendShape.skinnedMeshRenderer, blendShapeContainer);
 
                 return blendShapeContainer;
             }

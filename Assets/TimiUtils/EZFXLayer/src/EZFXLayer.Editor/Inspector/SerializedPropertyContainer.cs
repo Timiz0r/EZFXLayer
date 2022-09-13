@@ -7,7 +7,7 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine.UIElements;
 
-    internal class SerializedPropertyContainer<T> where T : BindableElement, ISerializedPropertyContainerItem
+    internal class SerializedPropertyContainer
     {
         private int currentChangeSequence;
         private int lastRefreshedChangeSequence = -1;
@@ -16,12 +16,6 @@ namespace EZFXLayer.UIElements
         private readonly string pathToArray;
         private readonly SerializedProperty array;
         private readonly ISerializedPropertyContainerRenderer renderer;
-
-        public SerializedPropertyContainer(VisualElement container, SerializedProperty array, Func<T> elementCreator)
-            : this(array, new SimpleSerializedPropertyContainerRenderer(container, elementCreator))
-        {
-
-        }
 
         public SerializedPropertyContainer(SerializedProperty array, ISerializedPropertyContainerRenderer renderer)
         {
@@ -37,14 +31,20 @@ namespace EZFXLayer.UIElements
                     Undo.undoRedoPerformed -= HandleUndo);
         }
 
+        public static SerializedPropertyContainer CreateSimple<T>(
+            VisualElement container, SerializedProperty array, Func<T> elementCreator)
+            where T : BindableElement, ISerializedPropertyContainerItem
+            => new SerializedPropertyContainer(array, new SimpleSerializedPropertyContainerRenderer<T>(container, elementCreator));
+
         //TODO
         //a bit of a leaky implementation detail
         //ideally would do something like  MarkComplete or Finalize, but then we'd want to make the rest of the instance
         //unusable when that happens, and don't feel like putting in the work yet
         public void StopUndoRedoHandling()
         {
-            Undo.undoRedoPerformed -= HandleUndo
+            Undo.undoRedoPerformed -= HandleUndo;
         }
+
         private void HandleUndo()
         {
             array.serializedObject.Update();
@@ -126,14 +126,18 @@ namespace EZFXLayer.UIElements
 
         public IEnumerable<SerializedProperty> AllProperties => array.GetArrayElements();
 
-        public IEnumerable<T> AllElements => renderer.RootContainer.Query<T>().ToList();
+        public IEnumerable<T> AllElements<T>() where T : VisualElement
+            => renderer.RootContainer.Query<T>().ToList();
 
         public int Count => array.arraySize;
 
         //this is intentionally not checked for everywhere because most places are expected to be valid
         public bool IsValid => array.serializedObject.FindProperty(pathToArray) != null;
 
-        private class SimpleSerializedPropertyContainerRenderer : ISerializedPropertyContainerRenderer
+        //TODO: salso, change that one interface back to IRebindable, which will only be used by SimpleSerializedPropertyContainerRenderer
+        //could call it ISimpleSerializedPropertyContainerItem? not sure how i feel about that
+        private class SimpleSerializedPropertyContainerRenderer<T> : ISerializedPropertyContainerRenderer
+            where T : BindableElement, ISerializedPropertyContainerItem
         {
             private readonly Func<T> elementCreator;
 

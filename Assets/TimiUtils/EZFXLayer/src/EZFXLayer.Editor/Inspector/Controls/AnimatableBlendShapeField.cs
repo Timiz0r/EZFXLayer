@@ -7,44 +7,65 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
-    public class AnimatableBlendShapeField : BindableElement, ISerializedPropertyContainerItem
+    public class AnimatableBlendShapeField : BindableElement
     {
         private AnimatableBlendShape blendShape;
+        private bool isFromReferenceAnimation;
+        private AnimatableBlendShape referenceBlendShape;
         private readonly AnimatorLayerComponentEditor editor;
-        private bool hideIfMatchingReference = false;
 
         public AnimatableBlendShapeField(AnimatorLayerComponentEditor editor)
         {
+            this.editor = editor;
+
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
             this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.RemoveBlendShape(blendShape);
-            this.editor = editor;
+
+            _ = this.Q<Slider>().RegisterValueChangedCallback(evt =>
+            {
+                blendShape.value = evt.newValue;
+
+                if (isFromReferenceAnimation)
+                {
+                    editor.ReferenceBlendShapeChanged(blendShape);
+                }
+                else
+                {
+                    CheckForReferenceMatch();
+                }
+            });
         }
 
-        public void Rebind(SerializedProperty serializedProperty)
+        public void Rebind(SerializedProperty serializedProperty, bool isFromReferenceAnimation)
         {
             this.BindProperty(serializedProperty);
             blendShape = Deserialize(serializedProperty);
+            this.isFromReferenceAnimation = isFromReferenceAnimation;
+
+            //if we've bound a new reference animation, then assume all the other animations' blendshapes need it
+            //(theoretically only a one-time thing, incidentally, not that it matters)
+            if (isFromReferenceAnimation)
+            {
+                editor.ReferenceBlendShapeChanged(blendShape);
+            }
         }
 
         public bool IsElementFor(AnimatableBlendShape blendShape) => this.blendShape.key == blendShape.key;
 
-        public void SetHideUnchangedItems(bool enabled)
+        public void TryRecordNewReference(AnimatableBlendShape referenceBlendShape)
         {
-            //TODO: to be called when value in animation changes by looping thru all elements
-            hideIfMatchingReference = enabled;
-            //TODO: move this to animation. will be part of selector
-            this.EnableInClassList("hide-unchanged-items", enabled);
-            ApplyMatchingReferenceCheck();
+            if (!IsElementFor(referenceBlendShape)) return;
+            this.referenceBlendShape = referenceBlendShape;
+            CheckForReferenceMatch();
         }
 
-        private void ApplyMatchingReferenceCheck()
-        {
-            //TODO: to be called when toggle or floatfield are changed. idk if we need two event thingies, prob do
-            //TODO: to be called reference (so this class) -> editor -> ApplyMatchingReferenceCheck
-        }
+        private void CheckForReferenceMatch()
+            => EnableInClassList(
+                "blendshape-matches-reference",
+                referenceBlendShape.key == blendShape.key && referenceBlendShape.value == blendShape.value);
 
         public static AnimatableBlendShape Deserialize(SerializedProperty serializedProperty)
         {

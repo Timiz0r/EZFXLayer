@@ -21,7 +21,7 @@
       <Label class="heading-label" text="Reference animation" />
       <BindableElement name="reference-animation-container" />
 
-      <Toggle class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
+      <Toggle name="hideUnchangedItems" class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
       <Button name="addNewAnimation" text="Add new animation" />
 
       <BindableElement name="other-animation-container" />

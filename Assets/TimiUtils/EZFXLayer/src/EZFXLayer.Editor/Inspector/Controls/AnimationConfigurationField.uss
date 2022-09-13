@@ -23,3 +23,7 @@
 .reference-animation .reference-animation-edit {
     display: flex;
 }
+
+.hide-unchanged-items .blendshape-matches-reference {
+    display: none;
+}
