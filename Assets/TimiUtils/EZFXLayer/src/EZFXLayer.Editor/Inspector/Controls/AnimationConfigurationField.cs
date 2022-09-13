@@ -7,11 +7,10 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
-    using BlendShapeContainer = SerializedPropertyContainer<AnimatableBlendShapeField>;
     public class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
     {
         private readonly AnimatorLayerComponentEditor editor;
-        private BlendShapeContainer blendShapes;
+        private SerializedPropertyContainer<AnimatableBlendShapeField> blendShapes;
         private string animationConfigurationKey = null;
 
         public AnimationConfigurationField(AnimatorLayerComponentEditor editor)
@@ -94,6 +93,7 @@ namespace EZFXLayer.UIElements
             //these BlendShapeContainers will be simple ones that we'll sort later when finalizing refresh
             private readonly Dictionary<SkinnedMeshRenderer, VisualElement> groupedBlendShapes
                 = new Dictionary<SkinnedMeshRenderer, VisualElement>();
+            private Dictionary<AnimatableBlendShapeField, bool> refreshElementTracker;
 
             public BlendShapeContainerRenderer(VisualElement rootContainer, AnimatorLayerComponentEditor editor)
             {
@@ -108,38 +108,38 @@ namespace EZFXLayer.UIElements
                 AnimatableBlendShape blendShape = AnimatableBlendShapeField.Deserialize(item);
                 VisualElement blendShapeContainer = GetBlendShapeContainer(blendShape);
 
-                //currently mass rebinding for simplicity of information
-                //if we wanted to stop doing this, first we'd add an InitializeRefresh, then here record elements that
-                //are confirmed to exist, and, during finalize, remove elements confirmed to no longer exist.
-                //ofc, also add elements that didnt exist before refresh
-
-                AnimatableBlendShapeField element;
-                if (index < blendShapeContainer.childCount)
+                if (index == 0)
                 {
-                    element = (AnimatableBlendShapeField)blendShapeContainer[index];
+                    refreshElementTracker = RootContainer.Query<AnimatableBlendShapeField>()
+                        .ToList()
+                        .ToDictionary(e => e, _ => false);
+                }
+
+                AnimatableBlendShapeField matchingElement = blendShapeContainer
+                    .Query<AnimatableBlendShapeField>()
+                    .Where(e => e.IsElementFor(blendShape))
+                    .First();
+
+                if (matchingElement == null)
+                {
+                    AnimatableBlendShapeField newElement = new AnimatableBlendShapeField(editor);
+                    blendShapeContainer.Add(newElement);
+                    newElement.Rebind(item);
                 }
                 else
                 {
-                    element = new AnimatableBlendShapeField(editor);
-                    blendShapeContainer.Add(element);
+                    refreshElementTracker[matchingElement] = true;
+                    //and no need to rebind what is already correctly bound
                 }
-                element.Rebind(item);
             }
 
             public void FinalizeRefresh(SerializedProperty array)
             {
-                IEnumerable<(VisualElement container, int count)> elementDatas = array.GetArrayElements()
-                    .Select(p => AnimatableBlendShapeField.Deserialize(p))
-                    .GroupBy(
-                        bs => bs.skinnedMeshRenderer,
-                        (smr, group) => (container: groupedBlendShapes[smr], count: group.Count()));
-
-                foreach ((VisualElement container, int count) elementData in elementDatas)
+                IEnumerable<AnimatableBlendShapeField> unusedElements =
+                    refreshElementTracker.Where(kvp => !kvp.Value).Select(kvp => kvp.Key);
+                foreach (AnimatableBlendShapeField element in unusedElements)
                 {
-                    while (elementData.container.childCount > elementData.count)
-                    {
-                        elementData.container.RemoveAt(elementData.container.childCount - 1);
-                    }
+                    element.RemoveFromHierarchy();
                 }
             }
 
