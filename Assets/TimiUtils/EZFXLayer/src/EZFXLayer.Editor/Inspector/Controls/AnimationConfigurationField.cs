@@ -78,6 +78,7 @@ namespace EZFXLayer.UIElements
             VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(name: "blendShapes");
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
             blendShapes = new SerializedPropertyContainer<AnimatableBlendShapeField>(
+            blendShapes?.StopUndoRedoHandling(); //about to make a new one
                 blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, editor));
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");

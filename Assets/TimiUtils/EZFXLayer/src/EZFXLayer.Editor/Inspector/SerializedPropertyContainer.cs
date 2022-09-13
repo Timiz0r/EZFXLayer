@@ -37,6 +37,14 @@ namespace EZFXLayer.UIElements
                     Undo.undoRedoPerformed -= HandleUndo);
         }
 
+        //TODO
+        //a bit of a leaky implementation detail
+        //ideally would do something like  MarkComplete or Finalize, but then we'd want to make the rest of the instance
+        //unusable when that happens, and don't feel like putting in the work yet
+        public void StopUndoRedoHandling()
+        {
+            Undo.undoRedoPerformed -= HandleUndo
+        }
         private void HandleUndo()
         {
             array.serializedObject.Update();

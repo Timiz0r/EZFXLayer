@@ -36,6 +36,8 @@ namespace EZFXLayer.UIElements
             BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
             SerializedProperty animationsArray = serializedObject.FindProperty("animations");
             animations = new SerializedPropertyContainer<AnimationConfigurationField>(
+            //we don't currently do any sort of rebinding of this class, but just in case...
+            animations?.StopUndoRedoHandling();
                 animationContainer, animationsArray, () => new AnimationConfigurationField(editor: this));
             animations.Refresh();
 
