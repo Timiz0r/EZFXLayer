@@ -29,22 +29,18 @@ namespace EZFXLayer.UIElements
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/AnimatorLayerComponentEditor.uxml");
             visualTree.CloneTree(visualElement);
 
+            BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
+            referenceField = new AnimationConfigurationField(this, isReferenceAnimation: true);
+            referenceField.Rebind(serializedObject.FindProperty("referenceAnimation"));
+            referenceContainer.Add(referenceField);
+
             BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
             SerializedProperty animationsArray = serializedObject.FindProperty("animations");
             //we don't currently do any sort of rebinding of this class, but just in case...
             animations?.StopUndoRedoHandling();
             animations = SerializedPropertyContainer.CreateSimple(
-                animationContainer, animationsArray, () => new AnimationConfigurationField(editor: this));
+                animationContainer, animationsArray, () => new AnimationConfigurationField(this, isReferenceAnimation: false));
             animations.Refresh();
-
-            //TODO: this needs to come after the animations are created first, but we dont want such a fragile design
-            //after the reference animation blendshapes are rebound, we do a ReferenceBlendShapeChanged, which assumes
-            //non-null (and populated) animations
-            BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
-            referenceField = new AnimationConfigurationField(editor: this);
-            referenceField.Rebind(serializedObject.FindProperty("referenceAnimation"));
-            referenceContainer.Add(referenceField);
-
             visualElement.Q<UnityEngine.UIElements.Button>(name: "addNewAnimation").clicked += () =>
             {
                 Utilities.RecordChange(target, "Add new animation", layer =>
@@ -67,15 +63,19 @@ namespace EZFXLayer.UIElements
             return visualElement;
         }
 
-        public void ReferenceBlendShapeChanged(AnimatableBlendShape referenceBlendShape)
+        public void ReferenceBlendShapeChanged()
         {
             IEnumerable<AnimatableBlendShapeField> blendShapes =
                 animations.AllElements<AnimationConfigurationField>().SelectMany(a => a.BlendShapes);
             foreach (AnimatableBlendShapeField element in blendShapes)
             {
-                element.TryRecordNewReference(referenceBlendShape);
+                element.CheckForReferenceMatch();
             }
         }
+
+        public bool BlendShapeMatchesReference(AnimatableBlendShape blendShape)
+            => referenceField.BlendShapes.Any(
+                rbs => rbs.BlendShape.Matches(blendShape) && rbs.BlendShape.value == blendShape.value);
 
         //while other things use their deserialized objects, we just use key here because it's all we need
         //and deserialization of serializedproperty is obnoxious

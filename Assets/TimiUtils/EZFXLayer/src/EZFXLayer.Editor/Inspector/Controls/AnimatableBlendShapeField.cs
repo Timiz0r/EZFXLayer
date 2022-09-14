@@ -9,63 +9,47 @@ namespace EZFXLayer.UIElements
     using UnityEngine.UIElements;
     public class AnimatableBlendShapeField : BindableElement
     {
-        private AnimatableBlendShape blendShape;
-        private bool isFromReferenceAnimation;
-        private AnimatableBlendShape referenceBlendShape;
         private readonly AnimatorLayerComponentEditor editor;
 
-        public AnimatableBlendShapeField(AnimatorLayerComponentEditor editor)
+        public AnimatableBlendShape BlendShape { get; }
+
+        public AnimatableBlendShapeField(
+            SerializedProperty serializedProperty, AnimatorLayerComponentEditor editor, bool isFromReferenceAnimation)
         {
+            this.BindProperty(serializedProperty);
+            BlendShape = Deserialize(serializedProperty);
             this.editor = editor;
 
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
-            this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.RemoveBlendShape(blendShape);
+            if (isFromReferenceAnimation)
+            {
+                this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.RemoveBlendShape(BlendShape);
+            }
 
             _ = this.Q<Slider>().RegisterValueChangedCallback(evt =>
             {
-                blendShape.value = evt.newValue;
+                BlendShape.value = evt.newValue;
 
                 if (isFromReferenceAnimation)
                 {
-                    editor.ReferenceBlendShapeChanged(blendShape);
+                    editor.ReferenceBlendShapeChanged();
                 }
                 else
                 {
                     CheckForReferenceMatch();
                 }
             });
-        }
-
-        public void Rebind(SerializedProperty serializedProperty, bool isFromReferenceAnimation)
-        {
-            this.BindProperty(serializedProperty);
-            blendShape = Deserialize(serializedProperty);
-            this.isFromReferenceAnimation = isFromReferenceAnimation;
-
-            //if we've bound a new reference animation, then assume all the other animations' blendshapes need it
-            //(theoretically only a one-time thing, incidentally, not that it matters)
-            if (isFromReferenceAnimation)
+            if (!isFromReferenceAnimation)
             {
-                editor.ReferenceBlendShapeChanged(blendShape);
+                CheckForReferenceMatch();
             }
         }
 
-        public bool IsElementFor(AnimatableBlendShape blendShape) => this.blendShape.key == blendShape.key;
-
-        public void TryRecordNewReference(AnimatableBlendShape referenceBlendShape)
-        {
-            if (!IsElementFor(referenceBlendShape)) return;
-            this.referenceBlendShape = referenceBlendShape;
-            CheckForReferenceMatch();
-        }
-
-        private void CheckForReferenceMatch()
-            => EnableInClassList(
-                "blendshape-matches-reference",
-                referenceBlendShape.key == blendShape.key && referenceBlendShape.value == blendShape.value);
+        public void CheckForReferenceMatch()
+            => EnableInClassList("blendshape-matches-reference", editor.BlendShapeMatchesReference(BlendShape));
 
         public static AnimatableBlendShape Deserialize(SerializedProperty serializedProperty)
         {
@@ -91,8 +75,10 @@ namespace EZFXLayer.UIElements
 
         public static int Compare(AnimatableBlendShapeField lhs, AnimatableBlendShapeField rhs)
         {
-            string[] blendShapeNames = lhs.blendShape.skinnedMeshRenderer.GetBlendShapeNames().ToArray();
-            int result = Array.IndexOf(blendShapeNames, lhs.name) - Array.IndexOf(blendShapeNames, rhs.name);
+            string[] blendShapeNames = lhs.BlendShape.skinnedMeshRenderer.GetBlendShapeNames().ToArray();
+            int result =
+                Array.IndexOf(blendShapeNames, lhs.BlendShape.name)
+                - Array.IndexOf(blendShapeNames, rhs.BlendShape.name);
             return result;
         }
     }

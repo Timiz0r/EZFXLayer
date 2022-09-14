@@ -10,20 +10,27 @@ namespace EZFXLayer.UIElements
     public class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
     {
         private readonly AnimatorLayerComponentEditor editor;
+        private readonly bool isReferenceAnimation;
         private SerializedPropertyContainer blendShapes;
         private string animationConfigurationKey = null;
 
         public IEnumerable<AnimatableBlendShapeField> BlendShapes => blendShapes.AllElements<AnimatableBlendShapeField>();
 
-        public AnimationConfigurationField(AnimatorLayerComponentEditor editor)
+        public AnimationConfigurationField(AnimatorLayerComponentEditor editor, bool isReferenceAnimation)
         {
             this.editor = editor;
+            this.isReferenceAnimation = isReferenceAnimation;
 
             //TODO: on second thought, go with serialized fields since we dont have to hard code paths
             //prob not this, but other controls may move to a common area
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimationConfigurationField.uxml");
             visualTree.CloneTree(this);
+
+            if (isReferenceAnimation)
+            {
+                AddToClassList("reference-animation");
+            }
 
             this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
             {
@@ -49,23 +56,11 @@ namespace EZFXLayer.UIElements
         }
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
-        {
-            blendShapes.Add(sp =>
-            {
-                AnimatableBlendShapeField.Serialize(sp, blendShape);
-            }, apply: false);
-        }
+            => blendShapes.Add(sp => AnimatableBlendShapeField.Serialize(sp, blendShape), apply: false);
 
         public void Rebind(SerializedProperty serializedProperty)
         {
             this.BindProperty(serializedProperty);
-
-            bool isReferenceAnimation =
-                serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.isReferenceAnimation)).boolValue;
-            if (isReferenceAnimation)
-            {
-                AddToClassList("reference-animation");
-            }
 
             animationConfigurationKey =
                 serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue;
@@ -123,14 +118,13 @@ namespace EZFXLayer.UIElements
 
                 AnimatableBlendShapeField matchingElement = blendShapeContainer
                     .Query<AnimatableBlendShapeField>()
-                    .Where(e => e.IsElementFor(blendShape))
+                    .Where(e => e.BlendShape.Matches(blendShape))
                     .First();
 
                 if (matchingElement == null)
                 {
-                    AnimatableBlendShapeField newElement = new AnimatableBlendShapeField(editor);
+                    AnimatableBlendShapeField newElement = new AnimatableBlendShapeField(item, editor, isFromReferenceAnimation);
                     blendShapeContainer.Add(newElement);
-                    newElement.Rebind(item, isFromReferenceAnimation);
                 }
                 else
                 {
