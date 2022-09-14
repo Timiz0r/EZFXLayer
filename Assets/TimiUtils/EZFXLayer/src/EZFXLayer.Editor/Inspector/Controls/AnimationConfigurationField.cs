@@ -60,10 +60,12 @@ namespace EZFXLayer.UIElements
 
         public void Rebind(SerializedProperty serializedProperty)
         {
-            this.BindProperty(serializedProperty);
-
-            animationConfigurationKey =
+            string newKey =
                 serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue;
+            if (newKey == animationConfigurationKey) return;
+
+            this.BindProperty(serializedProperty);
+            animationConfigurationKey = newKey;
 
             //TODO: the attribute-based way isn't working properly, so we'll keep on doing this for now
             //also is faulty because it's coded to start at the root, and we'll have many animation configurations
@@ -73,16 +75,14 @@ namespace EZFXLayer.UIElements
             foldout.ConfigureSeparateContainer(foldoutContent);
 
             VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(name: "blendShapes");
+            blendShapeContainer.Clear(); //BlendShapeContainerRenderer doesn't support reuse
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
             blendShapes?.StopUndoRedoHandling(); //about to make a new one
             blendShapes = new SerializedPropertyContainer(
                 blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, editor));
+            blendShapes.Refresh();
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");
-
-            //the beauty here is that, even if we have a completely different animation after rebind,
-            //the refreshes will take care of everything. no need to, for instance, clear out the containers beforehand
-            blendShapes.Refresh();
         }
 
         private class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
