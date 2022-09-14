@@ -7,20 +7,23 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
-    public class AnimatableBlendShapeField : BindableElement
+
+    internal class AnimatableBlendShapeField : BindableElement
     {
-        private readonly AnimatorLayerComponentEditor editor;
+        private readonly ConfigurationOperations configOperations;
 
         public AnimatableBlendShape BlendShape { get; }
 
         public AnimatableBlendShapeField(
-            SerializedProperty serializedProperty, AnimatorLayerComponentEditor editor, bool isFromReferenceAnimation)
+            ConfigurationOperations configOperations,
+            SerializedProperty serializedProperty,
+            bool isFromReferenceAnimation)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
-            this.editor = editor;
+            this.configOperations = configOperations;
             this.BindProperty(serializedProperty);
             BlendShape = ConfigSerialization.DeserializeBlendShape(serializedProperty);
 
@@ -31,7 +34,7 @@ namespace EZFXLayer.UIElements
 
             if (isFromReferenceAnimation)
             {
-                this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.RemoveBlendShape(BlendShape);
+                this.Q<UnityEngine.UIElements.Button>().clicked += () => this.configOperations.RemoveBlendShape(BlendShape);
             }
 
             _ = this.Q<Slider>().RegisterValueChangedCallback(evt =>
@@ -40,7 +43,7 @@ namespace EZFXLayer.UIElements
 
                 if (isFromReferenceAnimation)
                 {
-                    editor.ReferenceBlendShapeChanged();
+                    this.configOperations.ReferenceBlendShapeChanged();
                 }
                 else
                 {
@@ -50,7 +53,7 @@ namespace EZFXLayer.UIElements
         }
 
         public void CheckForReferenceMatch()
-            => EnableInClassList("blendshape-matches-reference", editor.BlendShapeMatchesReference(BlendShape));
+            => EnableInClassList("blendshape-matches-reference", configOperations.BlendShapeMatchesReference(BlendShape));
 
         public static int Compare(AnimatableBlendShapeField lhs, AnimatableBlendShapeField rhs)
         {

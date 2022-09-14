@@ -14,32 +14,42 @@ namespace EZFXLayer.UIElements
     [CustomEditor(typeof(AnimatorLayerComponent))]
     public class AnimatorLayerComponentEditor : Editor
     {
-        private AnimationConfigurationField referenceField;
-        private SerializedPropertyContainer animations;
-
         public override VisualElement CreateInspectorGUI()
         {
-            AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
-
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/AnimatorLayerComponentEditor.uxml");
-
             VisualElement visualElement = visualTree.CloneTree();
             //is more convenient to do this immediately, in our case
             visualElement.Bind(serializedObject);
 
+            ConfigurationOperations configOperations = new ConfigurationOperations(serializedObject);
+
             BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
-            referenceField = new AnimationConfigurationField(this, isReferenceAnimation: true);
+            AnimationConfigurationField referenceField =
+                new AnimationConfigurationField(configOperations, isReferenceAnimation: true);
             referenceField.Rebind(serializedObject.FindProperty("referenceAnimation"));
             referenceContainer.Add(referenceField);
 
             BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
             SerializedProperty animationsArray = serializedObject.FindProperty("animations");
-            //we don't currently do any sort of rebinding of this class, but just in case...
-            animations?.StopUndoRedoHandling();
-            animations = SerializedPropertyContainer.CreateSimple(
-                animationContainer, animationsArray, () => new AnimationConfigurationField(this, isReferenceAnimation: false));
+            SerializedPropertyContainer animations = SerializedPropertyContainer.CreateSimple(
+                animationContainer,
+                animationsArray,
+                () => new AnimationConfigurationField(configOperations, isReferenceAnimation: false));
+
+            //not a big fan of initialization, and there's a bit of a circular reference thing going on here
+            //would like a design that doesn't do this, but it's somewhat difficult with uielements without other
+            //crazy stuff, like moving all event handling into this class and out of their respective controls
+            //or funneling around custom events, perhaps
+            //as long as dependencies of this class don't use them in their ctor, we should be pretty fine though
+            //
+            //this is also still better than previous designs, where this circular dependency was hidden and this class
+            //littered with methods
+            configOperations.Initialize(referenceField, animations);
             animations.Refresh();
+
+
+            AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
 
             visualElement.Q<UnityEngine.UIElements.Button>(name: "addNewAnimation").clicked += () =>
             {
@@ -62,58 +72,6 @@ namespace EZFXLayer.UIElements
                 "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
             return visualElement;
-        }
-
-        public void ReferenceBlendShapeChanged()
-        {
-            IEnumerable<AnimatableBlendShapeField> blendShapes =
-                animations.AllElements<AnimationConfigurationField>().SelectMany(a => a.BlendShapes);
-            foreach (AnimatableBlendShapeField element in blendShapes)
-            {
-                element.CheckForReferenceMatch();
-            }
-        }
-
-        public bool BlendShapeMatchesReference(AnimatableBlendShape blendShape)
-            => referenceField.BlendShapes.Any(
-                rbs => rbs.BlendShape.Matches(blendShape) && rbs.BlendShape.value == blendShape.value);
-
-        //while other things use their deserialized objects, we just use key here because it's all we need
-        //and deserialization of serializedproperty is obnoxious
-        public void RemoveAnimation(string animationConfigurationKey)
-        {
-            animations.Remove(
-                sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
-        }
-
-        //was attempting, and could have succeeded, to manually handle undo change recordings and refreshing
-        //but for the reference field, we'd need to rebind to trigger an update, since serializedObject.Update
-        //doesn't seem to trigger it. the design improved a decent amount, but this one workaround was looking hacky
-        //and prob has a perf impact, though minor in our use case.
-        //TODO: instead of all the bubbling thru like this, just expose the damn property
-        public void RemoveBlendShape(AnimatableBlendShape blendShape)
-        {
-            referenceField.RemoveBlendShape(blendShape);
-
-            foreach (AnimationConfigurationField element in animations.AllElements<AnimationConfigurationField>())
-            {
-                element.RemoveBlendShape(blendShape);
-            }
-
-            //for undo reasons, we've suppressed this call until this point
-            _ = serializedObject.ApplyModifiedProperties();
-        }
-
-        public void AddBlendShape(AnimatableBlendShape blendShape)
-        {
-            referenceField.AddBlendShape(blendShape);
-
-            foreach (AnimationConfigurationField element in animations.AllElements<AnimationConfigurationField>())
-            {
-                element.AddBlendShape(blendShape);
-            }
-
-            _ = serializedObject.ApplyModifiedProperties();
         }
     }
 }

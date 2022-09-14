@@ -6,18 +6,19 @@ namespace EZFXLayer.UIElements
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.UIElements;
-    public class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
+
+    internal class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
     {
-        private readonly AnimatorLayerComponentEditor editor;
+        private readonly ConfigurationOperations configOperations;
         private readonly bool isReferenceAnimation;
         private SerializedPropertyContainer blendShapes;
         private string animationConfigurationKey = null;
 
         public IEnumerable<AnimatableBlendShapeField> BlendShapes => blendShapes.AllElements<AnimatableBlendShapeField>();
 
-        public AnimationConfigurationField(AnimatorLayerComponentEditor editor, bool isReferenceAnimation)
+        public AnimationConfigurationField(ConfigurationOperations configOperations, bool isReferenceAnimation)
         {
-            this.editor = editor;
+            this.configOperations = configOperations;
             this.isReferenceAnimation = isReferenceAnimation;
 
             //TODO: on second thought, go with serialized fields since we dont have to hard code paths
@@ -33,15 +34,15 @@ namespace EZFXLayer.UIElements
 
             this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
                 //TODO: ofc we'll need a picker
-                editor.AddBlendShape(new AnimatableBlendShape()
+                this.configOperations.AddBlendShape(new AnimatableBlendShape()
                 {
-                    skinnedMeshRenderer = ((AnimatorLayerComponent)editor.target).gameObject.scene.GetRootGameObjects()[2].GetComponentInChildren<SkinnedMeshRenderer>(),
+                    skinnedMeshRenderer = ((AnimatorLayerComponent)this.configOperations.target).gameObject.scene.GetRootGameObjects()[2].GetComponentInChildren<SkinnedMeshRenderer>(),
                     name = $"florp{blendShapes.Count}",
                     value = 0
                 });
 
             this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked +=
-                () => editor.RemoveAnimation(animationConfigurationKey);
+                () => this.configOperations.RemoveAnimation(animationConfigurationKey);
         }
 
         public void RemoveBlendShape(AnimatableBlendShape blendShape) => blendShapes.Remove(
@@ -68,7 +69,7 @@ namespace EZFXLayer.UIElements
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
             blendShapes?.StopUndoRedoHandling(); //about to make a new one
             blendShapes = new SerializedPropertyContainer(
-                blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, editor));
+                blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, configOperations));
             blendShapes.Refresh();
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(className: "gameobject-container");

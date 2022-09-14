@@ -6,10 +6,10 @@ namespace EZFXLayer.UIElements
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
+    internal class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
     {
         private readonly bool isFromReferenceAnimation;
-        private readonly AnimatorLayerComponentEditor editor;
+        private readonly ConfigurationOperations configOperations;
         private readonly VisualTreeAsset groupVisualTree;
 
         //these BlendShapeContainers will be simple ones that we'll sort later when finalizing refresh
@@ -19,11 +19,11 @@ namespace EZFXLayer.UIElements
         private Dictionary<AnimatableBlendShapeField, bool> refreshElementTracker;
 
         public BlendShapeContainerRenderer(
-            VisualElement rootContainer, bool isFromReferenceAnimation, AnimatorLayerComponentEditor editor)
+            VisualElement rootContainer, bool isFromReferenceAnimation, ConfigurationOperations configOperations)
         {
             RootContainer = rootContainer;
             this.isFromReferenceAnimation = isFromReferenceAnimation;
-            this.editor = editor;
+            this.configOperations = configOperations;
 
             groupVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/BlendShapeContainer.uxml");
@@ -50,7 +50,8 @@ namespace EZFXLayer.UIElements
 
             if (matchingElement == null)
             {
-                AnimatableBlendShapeField newElement = new AnimatableBlendShapeField(item, editor, isFromReferenceAnimation);
+                AnimatableBlendShapeField newElement =
+                    new AnimatableBlendShapeField(configOperations, item, isFromReferenceAnimation);
                 blendShapeContainer.Add(newElement);
             }
             else
