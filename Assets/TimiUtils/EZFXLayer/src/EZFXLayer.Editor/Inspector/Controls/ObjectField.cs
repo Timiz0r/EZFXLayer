@@ -14,6 +14,11 @@ namespace EZFXLayer.UIElements
                 //future unity versions have type attribute we wont want to conflict with
                 name = "objectType"
             };
+            private readonly UxmlBoolAttributeDescription enabledAttribute = new UxmlBoolAttributeDescription
+            {
+                name = "enabled",
+                defaultValue = true
+            };
 
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
             {
@@ -23,6 +28,9 @@ namespace EZFXLayer.UIElements
                 Type type = Type.GetType(typeString);
 
                 ((ObjectField)ve).objectType = type;
+
+                bool isEnabled = enabledAttribute.GetValueFromBag(bag, cc);
+                ve.SetEnabled(isEnabled);
             }
         }
     }

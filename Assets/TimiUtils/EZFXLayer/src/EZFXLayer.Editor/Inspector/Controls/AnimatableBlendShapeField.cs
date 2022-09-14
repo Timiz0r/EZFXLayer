@@ -24,6 +24,11 @@ namespace EZFXLayer.UIElements
             this.BindProperty(serializedProperty);
             BlendShape = Deserialize(serializedProperty);
 
+            if (!isFromReferenceAnimation)
+            {
+                CheckForReferenceMatch();
+            }
+
             if (isFromReferenceAnimation)
             {
                 this.Q<UnityEngine.UIElements.Button>().clicked += () => editor.RemoveBlendShape(BlendShape);
@@ -42,10 +47,6 @@ namespace EZFXLayer.UIElements
                     CheckForReferenceMatch();
                 }
             });
-            if (!isFromReferenceAnimation)
-            {
-                CheckForReferenceMatch();
-            }
         }
 
         public void CheckForReferenceMatch()
