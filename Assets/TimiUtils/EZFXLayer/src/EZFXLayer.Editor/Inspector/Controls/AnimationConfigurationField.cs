@@ -32,30 +32,23 @@ namespace EZFXLayer.UIElements
             }
 
             this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clicked += () =>
-            {
                 //TODO: ofc we'll need a picker
-                //slightly circular, since we can add here directly, but this keeps it consistent with removes
                 editor.AddBlendShape(new AnimatableBlendShape()
                 {
                     skinnedMeshRenderer = ((AnimatorLayerComponent)editor.target).gameObject.scene.GetRootGameObjects()[2].GetComponentInChildren<SkinnedMeshRenderer>(),
                     name = $"florp{blendShapes.Count}",
                     value = 0
                 });
-            };
 
-            this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked += () =>
-            {
-                editor.RemoveAnimation(animationConfigurationKey);
-            };
+            this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked +=
+                () => editor.RemoveAnimation(animationConfigurationKey);
         }
 
-        public void RemoveBlendShape(AnimatableBlendShape blendShape)
-        {
-            blendShapes.Remove(sp => AnimatableBlendShapeField.Deserialize(sp).Matches(blendShape), apply: false);
-        }
+        public void RemoveBlendShape(AnimatableBlendShape blendShape) => blendShapes.Remove(
+            sp => ConfigSerialization.DeserializeBlendShape(sp).Matches(blendShape), apply: false);
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
-            => blendShapes.Add(sp => AnimatableBlendShapeField.Serialize(sp, blendShape), apply: false);
+            => blendShapes.Add(sp => ConfigSerialization.SerializeBlendShape(sp, blendShape), apply: false);
 
         public void Rebind(SerializedProperty serializedProperty)
         {

@@ -33,7 +33,7 @@ namespace EZFXLayer.UIElements
 
         public void ProcessRefresh(SerializedProperty item, int index)
         {
-            AnimatableBlendShape blendShape = AnimatableBlendShapeField.Deserialize(item);
+            AnimatableBlendShape blendShape = ConfigSerialization.DeserializeBlendShape(item);
             VisualElement blendShapeContainer = GetBlendShapeContainer(blendShape);
 
             if (index == 0)

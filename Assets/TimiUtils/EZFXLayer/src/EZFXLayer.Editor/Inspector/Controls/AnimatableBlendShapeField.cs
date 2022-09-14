@@ -22,7 +22,7 @@ namespace EZFXLayer.UIElements
 
             this.editor = editor;
             this.BindProperty(serializedProperty);
-            BlendShape = Deserialize(serializedProperty);
+            BlendShape = ConfigSerialization.DeserializeBlendShape(serializedProperty);
 
             if (!isFromReferenceAnimation)
             {
@@ -51,28 +51,6 @@ namespace EZFXLayer.UIElements
 
         public void CheckForReferenceMatch()
             => EnableInClassList("blendshape-matches-reference", editor.BlendShapeMatchesReference(BlendShape));
-
-        public static AnimatableBlendShape Deserialize(SerializedProperty serializedProperty)
-        {
-            AnimatableBlendShape result = new AnimatableBlendShape()
-            {
-                key = serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue,
-                skinnedMeshRenderer = (SkinnedMeshRenderer)serializedProperty.FindPropertyRelative(
-                    nameof(AnimatableBlendShape.skinnedMeshRenderer)).objectReferenceValue,
-                name = serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.name)).stringValue,
-                value = serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.value)).floatValue
-            };
-            return result;
-        }
-
-        public static void Serialize(SerializedProperty serializedProperty, AnimatableBlendShape blendShape)
-        {
-            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue = blendShape.key;
-            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.skinnedMeshRenderer)).objectReferenceValue =
-                blendShape.skinnedMeshRenderer;
-            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.name)).stringValue = blendShape.name;
-            serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.value)).floatValue = blendShape.value;
-        }
 
         public static int Compare(AnimatableBlendShapeField lhs, AnimatableBlendShapeField rhs)
         {
