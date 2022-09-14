@@ -21,13 +21,12 @@ namespace EZFXLayer.UIElements
         {
             AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
 
-            ViewModelVisualElement visualElement = new ViewModelVisualElement()
-            {
-                ViewModel = this
-            };
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/AnimatorLayerComponentEditor.uxml");
-            visualTree.CloneTree(visualElement);
+
+            VisualElement visualElement = visualTree.CloneTree();
+            //is more convenient to do this immediately, in our case
+            visualElement.Bind(serializedObject);
 
             BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
             referenceField = new AnimationConfigurationField(this, isReferenceAnimation: true);
@@ -41,6 +40,7 @@ namespace EZFXLayer.UIElements
             animations = SerializedPropertyContainer.CreateSimple(
                 animationContainer, animationsArray, () => new AnimationConfigurationField(this, isReferenceAnimation: false));
             animations.Refresh();
+
             visualElement.Q<UnityEngine.UIElements.Button>(name: "addNewAnimation").clicked += () =>
             {
                 Utilities.RecordChange(target, "Add new animation", layer =>
@@ -55,10 +55,11 @@ namespace EZFXLayer.UIElements
                 animations.RefreshExternalChanges();
             };
 
-            _ = visualElement.Q<Toggle>(name: "hideUnchangedItems").RegisterValueChangedCallback(
+            Toggle hideUnchangedItemsToggle = visualElement.Q<Toggle>(name: "hideUnchangedItems");
+            _ = hideUnchangedItemsToggle.RegisterValueChangedCallback(
                 evt => visualElement.EnableInClassList("hide-unchanged-items", evt.newValue));
-            //TODO: we got a less-hacky way to do it? i mean we could read the property directly i guess
-            visualElement.RegisterCallback<AttachToPanelEvent>(evt => visualElement.EnableInClassList("hide-unchanged-items", visualElement.Q<Toggle>(name: "hideUnchangedItems").value));
+            visualElement.EnableInClassList(
+                "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
             return visualElement;
         }
