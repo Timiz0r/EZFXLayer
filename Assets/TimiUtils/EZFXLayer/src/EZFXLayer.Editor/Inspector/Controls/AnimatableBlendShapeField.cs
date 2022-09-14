@@ -16,13 +16,13 @@ namespace EZFXLayer.UIElements
         public AnimatableBlendShapeField(
             SerializedProperty serializedProperty, AnimatorLayerComponentEditor editor, bool isFromReferenceAnimation)
         {
-            this.BindProperty(serializedProperty);
-            BlendShape = Deserialize(serializedProperty);
-            this.editor = editor;
-
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
+
+            this.editor = editor;
+            this.BindProperty(serializedProperty);
+            BlendShape = Deserialize(serializedProperty);
 
             if (isFromReferenceAnimation)
             {
