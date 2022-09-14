@@ -66,14 +66,11 @@ namespace EZFXLayer.UIElements
             this.BindProperty(serializedProperty);
             animationConfigurationKey = newKey;
 
-            //TODO: the attribute-based way isn't working properly, so we'll keep on doing this for now
-            //also is faulty because it's coded to start at the root, and we'll have many animation configurations
-            //aka all fold and unfold with the attribute
             FoldoutWithContainer foldout = this.Q<FoldoutWithContainer>();
-            VisualElement foldoutContent = this.Q<VisualElement>(name: "foldoutContent");
+            VisualElement foldoutContent = this.Q<VisualElement>(className: "animation-foldout-content");
             foldout.ConfigureSeparateContainer(foldoutContent);
 
-            VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(name: "blendShapes");
+            VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(className: "blend-shape-container");
             blendShapeContainer.Clear(); //BlendShapeContainerRenderer doesn't support reuse
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
             blendShapes?.StopUndoRedoHandling(); //about to make a new one
@@ -81,7 +78,7 @@ namespace EZFXLayer.UIElements
                 blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, editor));
             blendShapes.Refresh();
 
-            VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(name: "gameObjects");
+            VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(className: "gameobject-container");
         }
     }
 }

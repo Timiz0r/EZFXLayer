@@ -1,8 +1,8 @@
-.foldout-header {
+.animation-foldout-header {
     flex-direction: row;
 }
 
-.foldout-header > TextField {
+.animation-foldout-header > TextField {
     flex-grow: 1;
 }
 
