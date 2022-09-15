@@ -60,12 +60,14 @@ namespace EZFXLayer.UIElements
                 serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue;
             if (newKey == animationConfigurationKey) return;
 
-            this.BindProperty(serializedProperty);
             animationConfigurationKey = newKey;
 
             FoldoutWithContainer foldout = this.Q<FoldoutWithContainer>();
             VisualElement foldoutContent = this.Q<VisualElement>(className: "animation-foldout-content");
             foldout.ConfigureSeparateContainer(foldoutContent);
+
+            //this does need to go below the foldout so that, when we bind to it, it hides the container if needed
+            this.BindProperty(serializedProperty);
 
             VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(className: "blend-shape-container");
             blendShapeContainer.Clear(); //BlendShapeContainerRenderer doesn't support reuse
