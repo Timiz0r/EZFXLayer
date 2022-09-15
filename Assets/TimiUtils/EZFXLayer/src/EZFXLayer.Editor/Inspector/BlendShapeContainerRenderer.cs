@@ -86,6 +86,7 @@ namespace EZFXLayer.UIElements
             }
 
             VisualElement blendShapeGroup = groupVisualTree.CloneTree();
+            blendShapeGroup.Q<EZFXLayer.UIElements.ObjectField>().value = blendShape.skinnedMeshRenderer;
             VisualElement blendShapeContainer = blendShapeGroup.Q<VisualElement>(className: "blendshape-smr-container");
             blendShapeContainers.Add(blendShape.skinnedMeshRenderer, blendShapeContainer);
             RootContainer.Add(blendShapeGroup);

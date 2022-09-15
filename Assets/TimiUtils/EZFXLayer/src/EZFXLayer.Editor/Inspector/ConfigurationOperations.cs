@@ -1,18 +1,23 @@
 namespace EZFXLayer.UIElements
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using UnityEditor;
+    using UnityEngine;
+    using UnityEngine.SceneManagement;
 
     internal class ConfigurationOperations
     {
         private AnimationConfigurationField referenceField;
         private SerializedPropertyContainer animations;
         private readonly SerializedObject serializedObject;
+        private readonly Scene scene;
 
-        public ConfigurationOperations(SerializedObject serializedObject)
+        public ConfigurationOperations(SerializedObject serializedObject, Scene scene)
         {
             this.serializedObject = serializedObject;
+            this.scene = scene;
         }
 
         public void Initialize(
@@ -39,10 +44,12 @@ namespace EZFXLayer.UIElements
 
         //while other things use their deserialized objects, we just use key here because it's all we need
         //and deserialization of serializedproperty is obnoxious
-        public void RemoveAnimation(string animationConfigurationKey)
+        public void RemoveAnimation(string animationConfigurationKey) => animations.Remove(
+            sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
+
+        public void SelectBlendShapes(Rect buttonBox)
         {
-            animations.Remove(
-                sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
+            BlendShapeSelectorPopup.Show(buttonBox, this, scene);
         }
 
         //was attempting, and could have succeeded, to manually handle undo change recordings and refreshing
@@ -63,8 +70,24 @@ namespace EZFXLayer.UIElements
             _ = serializedObject.ApplyModifiedProperties();
         }
 
-        public void AddBlendShape(AnimatableBlendShape blendShape)
+        public void RemoveBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name) => RemoveBlendShape(
+            referenceField.BlendShapes
+                .Select(bs => bs.BlendShape)
+                .Single(bs => bs.skinnedMeshRenderer == skinnedMeshRenderer && bs.name == name));
+
+        public bool HasBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
+            => referenceField.BlendShapes
+                .Select(bs => bs.BlendShape)
+                .Any(bs => bs.skinnedMeshRenderer == skinnedMeshRenderer && bs.name == name);
+
+        public void AddBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
         {
+            AnimatableBlendShape blendShape = new AnimatableBlendShape()
+            {
+                skinnedMeshRenderer = skinnedMeshRenderer,
+                name = name
+            };
+
             referenceField.AddBlendShape(blendShape);
 
             foreach (AnimationConfigurationField element in animations.AllElements<AnimationConfigurationField>())

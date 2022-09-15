@@ -22,7 +22,9 @@ namespace EZFXLayer.UIElements
             //is more convenient to do this immediately, in our case
             visualElement.Bind(serializedObject);
 
-            ConfigurationOperations configOperations = new ConfigurationOperations(serializedObject);
+            AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
+
+            ConfigurationOperations configOperations = new ConfigurationOperations(serializedObject, target.gameObject.scene);
 
             BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
             AnimationConfigurationField referenceField =
@@ -49,7 +51,6 @@ namespace EZFXLayer.UIElements
             animations.Refresh();
 
 
-            AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
 
             visualElement.Q<UnityEngine.UIElements.Button>(name: "addNewAnimation").clicked += () =>
             {
