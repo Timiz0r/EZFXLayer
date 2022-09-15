@@ -27,7 +27,7 @@
 
       <Label class="heading-label" text="GameObjects" />
       <VisualElement class="gameobject-container" />
-      <ezfx:ObjectField class="reference-animation-edit" name="addGameObject" text="Add game object" type="UnityEngine.GameObject, UnityEngine" />
+      <ezfx:ObjectField class="reference-animation-edit" name="addGameObject" text="Add game object" objectType="UnityEngine.GameObject, UnityEngine" />
     </VisualElement>
   </VisualElement>
 </UXML>

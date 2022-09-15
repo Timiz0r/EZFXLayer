@@ -28,29 +28,17 @@ namespace EZFXLayer.UIElements
             this.animations = animations;
         }
 
-        public void ReferenceBlendShapeChanged()
-        {
-            IEnumerable<AnimatableBlendShapeField> blendShapes =
-                animations.AllElements<AnimationConfigurationField>().SelectMany(a => a.BlendShapes);
-            foreach (AnimatableBlendShapeField element in blendShapes)
-            {
-                element.CheckForReferenceMatch();
-            }
-        }
-
-        public bool BlendShapeMatchesReference(AnimatableBlendShape blendShape)
-            => referenceField.BlendShapes.Any(
-                rbs => rbs.BlendShape.Matches(blendShape) && rbs.BlendShape.value == blendShape.value);
-
         //while other things use their deserialized objects, we just use key here because it's all we need
         //and deserialization of serializedproperty is obnoxious
         public void RemoveAnimation(string animationConfigurationKey) => animations.Remove(
             sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
 
-        public void SelectBlendShapes(Rect buttonBox)
-        {
-            BlendShapeSelectorPopup.Show(buttonBox, this, scene);
-        }
+        public bool HasBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
+            => referenceField.BlendShapes
+                .Select(bs => bs.BlendShape)
+                .Any(bs => bs.skinnedMeshRenderer == skinnedMeshRenderer && bs.name == name);
+
+        public void SelectBlendShapes(Rect buttonBox) => BlendShapeSelectorPopup.Show(buttonBox, this, scene);
 
         //was attempting, and could have succeeded, to manually handle undo change recordings and refreshing
         //but for the reference field, we'd need to rebind to trigger an update, since serializedObject.Update
@@ -75,11 +63,6 @@ namespace EZFXLayer.UIElements
                 .Select(bs => bs.BlendShape)
                 .Single(bs => bs.skinnedMeshRenderer == skinnedMeshRenderer && bs.name == name));
 
-        public bool HasBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
-            => referenceField.BlendShapes
-                .Select(bs => bs.BlendShape)
-                .Any(bs => bs.skinnedMeshRenderer == skinnedMeshRenderer && bs.name == name);
-
         public void AddBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
         {
             AnimatableBlendShape blendShape = new AnimatableBlendShape()
@@ -97,5 +80,58 @@ namespace EZFXLayer.UIElements
 
             _ = serializedObject.ApplyModifiedProperties();
         }
+
+        public void ReferenceBlendShapeChanged()
+        {
+            IEnumerable<AnimatableBlendShapeField> blendShapes =
+                animations.AllElements<AnimationConfigurationField>().SelectMany(a => a.BlendShapes);
+            foreach (AnimatableBlendShapeField element in blendShapes)
+            {
+                element.CheckForReferenceMatch();
+            }
+        }
+
+        public bool BlendShapeMatchesReference(AnimatableBlendShape blendShape)
+            => referenceField.BlendShapes.Any(
+                rbs => rbs.BlendShape.Matches(blendShape) && rbs.BlendShape.value == blendShape.value);
+
+        public void RemoveGameObject(AnimatableGameObject gameObject)
+        {
+            referenceField.RemoveGameObject(gameObject);
+
+            foreach (AnimationConfigurationField element in animations.AllElements<AnimationConfigurationField>())
+            {
+                element.RemoveGameObject(gameObject);
+            }
+
+            //for undo reasons, we've suppressed this call until this point
+            _ = serializedObject.ApplyModifiedProperties();
+        }
+
+        public void AddGameObject(AnimatableGameObject gameObject)
+        {
+            referenceField.AddGameObject(gameObject);
+
+            foreach (AnimationConfigurationField element in animations.AllElements<AnimationConfigurationField>())
+            {
+                element.AddGameObject(gameObject);
+            }
+
+            _ = serializedObject.ApplyModifiedProperties();
+        }
+
+        public void ReferenceGameObjectChanged()
+        {
+            IEnumerable<AnimatableGameObjectField> gameObjects =
+                animations.AllElements<AnimationConfigurationField>().SelectMany(a => a.GameObjects);
+            foreach (AnimatableGameObjectField element in gameObjects)
+            {
+                element.CheckForReferenceMatch();
+            }
+        }
+
+        public bool GameObjectMatchesReference(AnimatableGameObject gameObject)
+            => referenceField.GameObjects.Any(
+                go => go.GameObject.Matches(gameObject) && go.GameObject.active == gameObject.active);
     }
 }

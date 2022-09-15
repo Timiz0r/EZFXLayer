@@ -1,5 +1,6 @@
 namespace EZFXLayer
 {
+    using System;
     using UnityEditor;
     using UnityEngine;
 
@@ -25,6 +26,28 @@ namespace EZFXLayer
                 blendShape.skinnedMeshRenderer;
             serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.name)).stringValue = blendShape.name;
             serializedProperty.FindPropertyRelative(nameof(AnimatableBlendShape.value)).floatValue = blendShape.value;
+        }
+
+        public static AnimatableGameObject DeserializeGameObject(SerializedProperty serializedProperty)
+        {
+            AnimatableGameObject result = new AnimatableGameObject()
+            {
+                key = serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue,
+                gameObject = (GameObject)serializedProperty.FindPropertyRelative(
+                    nameof(AnimatableGameObject.gameObject)).objectReferenceValue,
+                path = serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.path)).stringValue,
+                active = serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.active)).boolValue
+            };
+            return result;
+        }
+
+        internal static void SerializeGameObject(SerializedProperty serializedProperty, AnimatableGameObject gameObject)
+        {
+            serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue = gameObject.key;
+            serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.gameObject)).objectReferenceValue =
+                gameObject.gameObject;
+            serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.path)).stringValue = gameObject.path;
+            serializedProperty.FindPropertyRelative(nameof(AnimatableGameObject.active)).boolValue = gameObject.active;
         }
     }
 }

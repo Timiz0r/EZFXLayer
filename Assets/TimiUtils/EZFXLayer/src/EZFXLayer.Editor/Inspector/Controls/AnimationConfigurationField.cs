@@ -11,10 +11,13 @@ namespace EZFXLayer.UIElements
     {
         private readonly ConfigurationOperations configOperations;
         private readonly bool isReferenceAnimation;
-        private SerializedPropertyContainer blendShapes;
         private string animationConfigurationKey = null;
 
+        private SerializedPropertyContainer blendShapes;
+        private SerializedPropertyContainer gameObjects;
+
         public IEnumerable<AnimatableBlendShapeField> BlendShapes => blendShapes.AllElements<AnimatableBlendShapeField>();
+        public IEnumerable<AnimatableGameObjectField> GameObjects => gameObjects.AllElements<AnimatableGameObjectField>();
 
         public AnimationConfigurationField(ConfigurationOperations configOperations, bool isReferenceAnimation)
         {
@@ -48,12 +51,6 @@ namespace EZFXLayer.UIElements
                 () => this.configOperations.RemoveAnimation(animationConfigurationKey);
         }
 
-        public void RemoveBlendShape(AnimatableBlendShape blendShape) => blendShapes.Remove(
-            sp => ConfigSerialization.DeserializeBlendShape(sp).Matches(blendShape), apply: false);
-
-        public void AddBlendShape(AnimatableBlendShape blendShape)
-            => blendShapes.Add(sp => ConfigSerialization.SerializeBlendShape(sp, blendShape), apply: false);
-
         public void Rebind(SerializedProperty serializedProperty)
         {
             string newKey =
@@ -74,10 +71,43 @@ namespace EZFXLayer.UIElements
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
             blendShapes?.StopUndoRedoHandling(); //about to make a new one
             blendShapes = new SerializedPropertyContainer(
-                blendShapesProperty, new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, configOperations));
+                blendShapesProperty,
+                new BlendShapeContainerRenderer(blendShapeContainer, isReferenceAnimation, configOperations));
             blendShapes.Refresh();
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(className: "gameobject-container");
+            SerializedProperty gameObjectsProperty = serializedProperty.FindPropertyRelative("gameObjects");
+            gameObjects?.StopUndoRedoHandling();
+            gameObjects = SerializedPropertyContainer.CreateSimple(
+                gameObjectContainer,
+                gameObjectsProperty,
+                () => new AnimatableGameObjectField(configOperations, isReferenceAnimation));
+            gameObjects.Refresh();
+
+            _ = foldoutContent.Q<EZFXLayer.UIElements.ObjectField>(name: "addGameObject").RegisterValueChangedCallback(evt =>
+            {
+                GameObject value = (GameObject)evt.newValue;
+                ((EZFXLayer.UIElements.ObjectField)evt.target).SetValueWithoutNotify(null);
+
+                configOperations.AddGameObject(new AnimatableGameObject()
+                {
+                    gameObject = value,
+                    path = value.GetRelativePath(),
+                    active = false
+                });
+            });
         }
+
+        public void RemoveBlendShape(AnimatableBlendShape blendShape) => blendShapes.Remove(
+            sp => ConfigSerialization.DeserializeBlendShape(sp).Matches(blendShape), apply: false);
+
+        public void AddBlendShape(AnimatableBlendShape blendShape)
+            => blendShapes.Add(sp => ConfigSerialization.SerializeBlendShape(sp, blendShape), apply: false);
+
+        public void RemoveGameObject(AnimatableGameObject gameObject) => gameObjects.Remove(
+            sp => ConfigSerialization.DeserializeGameObject(sp).Matches(gameObject), apply: false);
+
+        public void AddGameObject(AnimatableGameObject gameObject)
+            => gameObjects.Add(sp => ConfigSerialization.SerializeGameObject(sp, gameObject), apply: false);
     }
 }
