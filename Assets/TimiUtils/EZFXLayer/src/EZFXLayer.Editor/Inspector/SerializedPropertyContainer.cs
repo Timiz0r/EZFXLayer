@@ -68,6 +68,8 @@ namespace EZFXLayer.UIElements
         public void Refresh()
         {
             if (lastRefreshedChangeSequence == currentChangeSequence) return;
+            //other than making sense, without this, we'd otherwise finalize a refresh without ever having ProcessRefresh
+            if (Count == 0) return;
 
             ForEachProperty((i, current) =>
             {
