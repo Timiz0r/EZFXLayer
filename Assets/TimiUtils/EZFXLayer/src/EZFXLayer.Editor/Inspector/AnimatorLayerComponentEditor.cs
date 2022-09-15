@@ -26,13 +26,13 @@ namespace EZFXLayer.UIElements
 
             ConfigurationOperations configOperations = new ConfigurationOperations(serializedObject, target.gameObject.scene);
 
-            BindableElement referenceContainer = visualElement.Q<BindableElement>(name: "reference-animation-container");
+            VisualElement referenceContainer = visualElement.Q<VisualElement>(name: "reference-animation-container");
             AnimationConfigurationField referenceField =
                 new AnimationConfigurationField(configOperations, isReferenceAnimation: true);
             referenceField.Rebind(serializedObject.FindProperty("referenceAnimation"));
             referenceContainer.Add(referenceField);
 
-            BindableElement animationContainer = visualElement.Q<BindableElement>(name: "other-animation-container");
+            VisualElement animationContainer = visualElement.Q<VisualElement>(name: "other-animation-container");
             SerializedProperty animationsArray = serializedObject.FindProperty("animations");
             SerializedPropertyContainer animations = SerializedPropertyContainer.CreateSimple(
                 animationContainer,

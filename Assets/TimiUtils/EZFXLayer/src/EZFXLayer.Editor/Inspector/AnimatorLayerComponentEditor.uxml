@@ -19,12 +19,12 @@
 
     <VisualElement class="animation-container">
       <Label class="heading-label" text="Reference animation" />
-      <BindableElement name="reference-animation-container" />
+      <VisualElement name="reference-animation-container" />
 
       <Toggle name="hideUnchangedItems" class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
       <Button name="addNewAnimation" text="Add new animation" />
 
-      <BindableElement name="other-animation-container" />
+      <VisualElement name="other-animation-container" />
     </VisualElement>
   </ezfx:CommonContainer>
 </UXML>

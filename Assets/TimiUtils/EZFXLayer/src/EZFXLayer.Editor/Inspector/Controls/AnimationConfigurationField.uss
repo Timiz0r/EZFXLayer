@@ -1,13 +1,30 @@
+.animation-foldout-content {
+    padding-left: 12px;
+}
+
 .animation-foldout-header {
     flex-direction: row;
 }
 
 .animation-foldout-header > TextField {
     flex-grow: 1;
+    margin-left: -12px; /* foldout is shifted to the left, so let's use that space */
 }
 
 .foldout-content-hidden {
     display: none;
+}
+
+.blend-shape-content, .gameobject-content {
+    margin-bottom: 8px;
+}
+
+.blend-shape-container, .gameobject-container, .blend-shape-content > Button {
+    margin-left: 12px;
+}
+
+.gameobject-content > ObjectField {
+    margin-left: 15px;
 }
 
 .animation-edit {
