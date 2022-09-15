@@ -68,8 +68,8 @@ namespace EZFXLayer.UIElements
         public void Refresh()
         {
             if (lastRefreshedChangeSequence == currentChangeSequence) return;
-            //other than making sense, without this, we'd otherwise finalize a refresh without ever having ProcessRefresh
-            if (Count == 0) return;
+
+            renderer.InitializeRefresh();
 
             ForEachProperty((i, current) =>
             {
@@ -173,6 +173,8 @@ namespace EZFXLayer.UIElements
                     RootContainer.RemoveAt(RootContainer.childCount - 1);
                 }
             }
+
+            public void InitializeRefresh() { }
         }
     }
 
@@ -183,5 +185,6 @@ namespace EZFXLayer.UIElements
         //while makes the design of this interface prettier, really who cares
         void ProcessRefresh(SerializedProperty item, int index);
         void FinalizeRefresh(SerializedProperty array);
+        void InitializeRefresh();
     }
 }

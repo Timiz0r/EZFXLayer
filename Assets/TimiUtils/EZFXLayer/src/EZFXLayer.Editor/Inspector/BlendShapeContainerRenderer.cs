@@ -31,17 +31,16 @@ namespace EZFXLayer.UIElements
 
         public VisualElement RootContainer { get; }
 
+        public void InitializeRefresh() =>
+            refreshElementTracker = RootContainer
+                .Query<AnimatableBlendShapeField>()
+                .ToList()
+                .ToDictionary(e => e, _ => false);
+
         public void ProcessRefresh(SerializedProperty item, int index)
         {
             AnimatableBlendShape blendShape = ConfigSerialization.DeserializeBlendShape(item);
             VisualElement blendShapeContainer = GetBlendShapeContainer(blendShape);
-
-            if (index == 0)
-            {
-                refreshElementTracker = RootContainer.Query<AnimatableBlendShapeField>()
-                    .ToList()
-                    .ToDictionary(e => e, _ => false);
-            }
 
             AnimatableBlendShapeField matchingElement = blendShapeContainer
                 .Query<AnimatableBlendShapeField>()
