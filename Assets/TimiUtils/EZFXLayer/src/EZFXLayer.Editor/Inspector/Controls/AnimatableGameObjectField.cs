@@ -60,8 +60,10 @@ namespace EZFXLayer.UIElements
 
         public void Rebind(SerializedProperty serializedProperty)
         {
-            this.BindProperty(serializedProperty);
             GameObject = ConfigSerialization.DeserializeGameObject(serializedProperty);
+            //note that under some circumstances (including redos), a rebind will trigger the toggle's
+            //RegisterValueChangedCallback, so we want the GameObject it uses to be initialized first
+            this.BindProperty(serializedProperty);
 
             if (!isFromReferenceAnimation)
             {
