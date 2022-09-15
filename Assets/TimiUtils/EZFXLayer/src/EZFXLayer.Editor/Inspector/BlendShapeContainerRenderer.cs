@@ -70,12 +70,13 @@ namespace EZFXLayer.UIElements
                 element.RemoveFromHierarchy();
             }
 
-            foreach (KeyValuePair<SkinnedMeshRenderer, VisualElement> blendShapeGroup in blendShapeGroups)
+            foreach (KeyValuePair<SkinnedMeshRenderer, VisualElement> kvp in blendShapeGroups.ToArray())
             {
-                VisualElement container = blendShapeGroup.Value.Q<VisualElement>(className: "blendshape-smr-container");
+                VisualElement container = kvp.Value.Q<VisualElement>(className: "blendshape-smr-container");
                 if (container.childCount == 0)
                 {
-                    blendShapeGroup.Value.RemoveFromHierarchy();
+                    kvp.Value.RemoveFromHierarchy();
+                    _ = blendShapeGroups.Remove(kvp.Key);
                 }
                 else
                 {
