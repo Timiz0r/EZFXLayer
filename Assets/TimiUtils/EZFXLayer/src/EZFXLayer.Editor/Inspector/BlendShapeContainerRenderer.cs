@@ -13,7 +13,7 @@ namespace EZFXLayer.UIElements
         private readonly VisualTreeAsset groupVisualTree;
 
         //these BlendShapeContainers will be simple ones that we'll sort later when finalizing refresh
-        private readonly Dictionary<SkinnedMeshRenderer, VisualElement> blendShapeContainers
+        private readonly Dictionary<SkinnedMeshRenderer, VisualElement> blendShapeGroups
             = new Dictionary<SkinnedMeshRenderer, VisualElement>();
 
         private Dictionary<AnimatableBlendShapeField, bool> refreshElementTracker;
@@ -40,7 +40,8 @@ namespace EZFXLayer.UIElements
         public void ProcessRefresh(SerializedProperty item, int index)
         {
             AnimatableBlendShape blendShape = ConfigSerialization.DeserializeBlendShape(item);
-            VisualElement blendShapeContainer = GetBlendShapeContainer(blendShape);
+            VisualElement blendShapeContainer =
+                GetBlendShapeGroup(blendShape).Q<VisualElement>(className: "blendshape-smr-container");
 
             AnimatableBlendShapeField matchingElement = blendShapeContainer
                 .Query<AnimatableBlendShapeField>()
@@ -69,28 +70,35 @@ namespace EZFXLayer.UIElements
                 element.RemoveFromHierarchy();
             }
 
-            foreach (VisualElement container in blendShapeContainers.Select(kvp => kvp.Value))
+            foreach (KeyValuePair<SkinnedMeshRenderer, VisualElement> blendShapeGroup in blendShapeGroups)
             {
-                container.Sort((lhs, rhs) => AnimatableBlendShapeField.Compare(
-                    (AnimatableBlendShapeField)lhs,
-                    (AnimatableBlendShapeField)rhs));
+                VisualElement container = blendShapeGroup.Value.Q<VisualElement>(className: "blendshape-smr-container");
+                if (container.childCount == 0)
+                {
+                    blendShapeGroup.Value.RemoveFromHierarchy();
+                }
+                else
+                {
+                    container.Sort((lhs, rhs) => AnimatableBlendShapeField.Compare(
+                        (AnimatableBlendShapeField)lhs,
+                        (AnimatableBlendShapeField)rhs));
+                }
             }
         }
 
-        private VisualElement GetBlendShapeContainer(AnimatableBlendShape blendShape)
+        private VisualElement GetBlendShapeGroup(AnimatableBlendShape blendShape)
         {
-            if (blendShapeContainers.TryGetValue(blendShape.skinnedMeshRenderer, out VisualElement existingContainer))
+            if (blendShapeGroups.TryGetValue(blendShape.skinnedMeshRenderer, out VisualElement existingGroup))
             {
-                return existingContainer;
+                return existingGroup;
             }
 
             VisualElement blendShapeGroup = groupVisualTree.CloneTree();
             blendShapeGroup.Q<EZFXLayer.UIElements.ObjectField>().value = blendShape.skinnedMeshRenderer;
-            VisualElement blendShapeContainer = blendShapeGroup.Q<VisualElement>(className: "blendshape-smr-container");
-            blendShapeContainers.Add(blendShape.skinnedMeshRenderer, blendShapeContainer);
+            blendShapeGroups.Add(blendShape.skinnedMeshRenderer, blendShapeGroup);
             RootContainer.Add(blendShapeGroup);
 
-            return blendShapeContainer;
+            return blendShapeGroup;
         }
     }
 }
