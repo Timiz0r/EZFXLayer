@@ -51,6 +51,15 @@ namespace EZFXLayer.UIElements
             }
         }
 
+        public void PropagateDefaultAnimationNameChangeToDefaultAnimationField(string newName)
+        {
+            //we're doing this weird trick because this method gets called a bit too early
+            //defaultAnimationPopup.value doesn't yet have its name set, so we'll set it a bit earlier
+            defaultAnimationPopup.value.name = newName;
+            //if the popup used a binding, wouldn't need to this
+            defaultAnimationPopup.SetValueWithoutNotify(defaultAnimationPopup.value);
+        }
+
         public bool HasBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
             => referenceField.BlendShapes
                 .Select(bs => bs.BlendShape)

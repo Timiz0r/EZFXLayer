@@ -12,6 +12,7 @@ namespace EZFXLayer.UIElements
         private readonly ConfigurationOperations configOperations;
         private readonly bool isReferenceAnimation;
         private string animationConfigurationKey = null;
+        private bool isDefaultAnimation;
 
         private SerializedPropertyContainer blendShapes;
         private SerializedPropertyContainer gameObjects;
@@ -40,12 +41,21 @@ namespace EZFXLayer.UIElements
 
             this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked += ()
                 => this.configOperations.RemoveAnimation(animationConfigurationKey);
+
+            _ = this.Q<TextField>(name: "animationName").RegisterValueChangedCallback(evt =>
+            {
+                if (isDefaultAnimation)
+                {
+                    configOperations.PropagateDefaultAnimationNameChangeToDefaultAnimationField(evt.newValue);
+                }
+            });
         }
 
         public void Rebind(SerializedProperty serializedProperty)
         {
             string newKey =
                 serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue;
+            isDefaultAnimation = serializedProperty.FindPropertyRelative("isDefaultAnimation").boolValue;
             if (newKey == animationConfigurationKey) return;
 
             animationConfigurationKey = newKey;
@@ -100,7 +110,5 @@ namespace EZFXLayer.UIElements
 
         public void AddGameObject(AnimatableGameObject gameObject)
             => gameObjects.Add(sp => ConfigSerialization.SerializeGameObject(sp, gameObject), apply: false);
-
-        public bool IsMatch(AnimationConfiguration animation) => animation.key == animationConfigurationKey;
     }
 }
