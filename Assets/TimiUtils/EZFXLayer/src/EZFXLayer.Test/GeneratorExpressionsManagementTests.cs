@@ -311,7 +311,7 @@ namespace EZFXLayer.Test
         }
 
         [Test]
-        public void MenuControlNamesCanBeChanged_WhenMenuNameOverrideIsSet()
+        public void MenuControlNamesCanBeChanged_WhenCustomToggleNameIsSet()
         {
             TestSetup testSetup = new TestSetup();
             _ = testSetup.ConfigurationBuilder

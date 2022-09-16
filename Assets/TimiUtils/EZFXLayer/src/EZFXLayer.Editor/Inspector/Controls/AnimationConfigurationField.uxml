@@ -21,6 +21,11 @@
     </VisualElement>
 
     <VisualElement class="animation-foldout-content">
+      <VisualElement class="general-animation-content">
+        <TextField label="Custom toggle name" binding-path="customToggleName" />
+        <TextField label="Custom state name" binding-path="customAnimatorStateName" />
+      </VisualElement>
+
       <VisualElement class="blend-shape-content">
         <Label class="heading-label" text="Blend shapes" />
         <VisualElement class="blend-shape-container" />

@@ -71,7 +71,7 @@ namespace EZFXLayer.Test
 
         public AnimationConfigurationBuilder WithToggleName(string toggleName)
         {
-            animation.toggleNameOverride = toggleName;
+            animation.customToggleName = toggleName;
 
             return this;
         }

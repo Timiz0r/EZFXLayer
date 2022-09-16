@@ -39,9 +39,9 @@ namespace EZFXLayer
         internal VRCExpressionsMenu.Control GetMenuToggle(string parameterName, float toggleValue)
             => animation.isReferenceAnimation ? null : new VRCExpressionsMenu.Control()
             {
-                name = string.IsNullOrEmpty(animation.toggleNameOverride)
+                name = string.IsNullOrEmpty(animation.customToggleName)
                     ? animation.name
-                    : animation.toggleNameOverride,
+                    : animation.customToggleName,
                 parameter = new VRCExpressionsMenu.Control.Parameter() { name = parameterName },
                 type = VRCExpressionsMenu.Control.ControlType.Toggle,
                 value = toggleValue
@@ -100,9 +100,9 @@ namespace EZFXLayer
         }
 
         private string EffectiveStateName
-            => string.IsNullOrEmpty(animation.animatorStateNameOverride)
+            => string.IsNullOrEmpty(animation.customAnimatorStateName)
                 ? animation.name
-                : animation.animatorStateNameOverride;
+                : animation.customAnimatorStateName;
 
         private AnimationClip GenerateAnimationClip()
         {

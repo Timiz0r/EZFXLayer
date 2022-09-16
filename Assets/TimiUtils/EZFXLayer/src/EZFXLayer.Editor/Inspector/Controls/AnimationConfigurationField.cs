@@ -35,20 +35,11 @@ namespace EZFXLayer.UIElements
                 AddToClassList("reference-animation");
             }
 
-            this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clickable.clickedWithEventInfo += evt =>
-            {
-                //TODO: ofc we'll need a picker
-                // this.configOperations.AddBlendShape(new AnimatableBlendShape()
-                // {
-                //     skinnedMeshRenderer = ((AnimatorLayerComponent)this.configOperations.target).gameObject.scene.GetRootGameObjects()[2].GetComponentInChildren<SkinnedMeshRenderer>(),
-                //     name = $"florp{blendShapes.Count}",
-                //     value = 0
-                // });
-                configOperations.SelectBlendShapes(buttonBox: ((UnityEngine.UIElements.Button)evt.target).worldBound);
-            };
+            this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clickable.clickedWithEventInfo += evt
+                => configOperations.SelectBlendShapes(buttonBox: ((UnityEngine.UIElements.Button)evt.target).worldBound);
 
-            this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked +=
-                () => this.configOperations.RemoveAnimation(animationConfigurationKey);
+            this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked += ()
+                => this.configOperations.RemoveAnimation(animationConfigurationKey);
         }
 
         public void Rebind(SerializedProperty serializedProperty)

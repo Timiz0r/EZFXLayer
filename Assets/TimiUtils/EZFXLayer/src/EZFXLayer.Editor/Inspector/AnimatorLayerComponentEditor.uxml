@@ -21,9 +21,9 @@
       <Label class="heading-label" text="Reference animation" />
       <VisualElement name="reference-animation-container" />
 
+      <Label class="heading-label" text="Animations" />
       <Toggle name="hideUnchangedItems" class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
       <Button name="addNewAnimation" text="Add new animation" />
-
       <VisualElement name="other-animation-container" />
     </VisualElement>
   </ezfx:CommonContainer>
