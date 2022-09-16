@@ -12,20 +12,20 @@
   <ezfx:CommonContainer>
     <Style src="ReferenceComponentEditor.uss" />
 
-    <ezfx:ObjectField objectType="UnityEngine.RuntimeAnimatorController, UnityEngine" binding-path="fxLayerController" />
-    <ezfx:ObjectField objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />
-    <ezfx:ObjectField objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters, VRCSDK3A" binding-path="vrcExpressionParameters" />
+    <ezfx:ObjectField name="fxControllerField" objectType="UnityEngine.RuntimeAnimatorController, UnityEngine" binding-path="fxLayerController" />
+    <ezfx:ObjectField name="menuField" objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />
+    <ezfx:ObjectField name="parametersField" objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters, VRCSDK3A" binding-path="vrcExpressionParameters" />
 
-    <ezfx:Button text="Populate from selected avatar" />
+    <Button text="Populate from selected avatar" />
 
     <VisualElement class="artifact-creation-container">
-      <ezfx:Button text="Create basic FX layer animator controller" onClick="CreateBasicFXLayerController" />
-      <ezfx:Button text="Create basic root expressions menu" onClick="CreateBasicVRCRootExpressionsMenu" />
-      <ezfx:Button text="Create basic expression parameters" onClick="CreateBasicVRCExpressionParameters" />
+      <Button name="createBasicFXLayerController" text="Create basic FX layer animator controller" />
+      <Button name="createBasicVRCRootExpressionsMenu" text="Create basic root expressions menu" />
+      <Button name="createBasicVRCExpressionParameters" text="Create basic expression parameters" />
     </VisualElement>
 
     <ezfx:HelpBox label="Auto-generation not yet working" message-type="Info" />
     <Toggle class="left-toggle" label="Generate on upload" binding-path="generateOnUpload" />
-    <ezfx:Button text="Generate" enabled="false" />
+    <Button text="Generate" />
   </ezfx:CommonContainer>
 </UXML>

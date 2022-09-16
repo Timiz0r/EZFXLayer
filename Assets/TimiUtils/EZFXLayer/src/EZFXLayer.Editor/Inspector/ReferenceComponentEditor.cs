@@ -13,75 +13,83 @@ namespace EZFXLayer.UIElements
     {
         private ReferenceComponent Target => (ReferenceComponent)target;
 
-        public void CreateBasicFXLayerController()
-        {
-            if (!CopyAsset(
-                guid: "404d228aeae421f4590305bc4cdaba16",
-                destPath: GenerateSceneBasedPath(s => $"FX_{s.name}.controller"),
-                out RuntimeAnimatorController controller))
-            {
-                EditorError.Display("vrc_AvatarV3HandsLayer.controller not found.");
-                return;
-            }
-
-            Utilities.RecordChange(
-                Target, "Configure default FX layer animator controller", t => t.fxLayerController = controller);
-        }
-
-        public void CreateBasicVRCExpressionParameters()
-        {
-            VRCExpressionParameters parameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
-            parameters.parameters = new[]
-            {
-                new VRCExpressionParameters.Parameter()
-                {
-                    defaultValue = 0,
-                    name = "VRCEmote",
-                    saved = true,
-                    valueType = VRCExpressionParameters.ValueType.Int
-                },
-                new VRCExpressionParameters.Parameter()
-                {
-                    defaultValue = 0,
-                    name = "VRCFaceBlendH",
-                    saved = true,
-                    valueType = VRCExpressionParameters.ValueType.Float
-                },
-                new VRCExpressionParameters.Parameter()
-                {
-                    defaultValue = 0,
-                    name = "VRCFaceBlendH",
-                    saved = true,
-                    valueType = VRCExpressionParameters.ValueType.Float
-                }
-            };
-
-            AssetDatabase.CreateAsset(parameters, GenerateSceneBasedPath(s => $"ExpressionParameters_{s.name}.asset"));
-
-            Utilities.RecordChange(
-                Target, "Configure default VRC expression parameters", t => t.vrcExpressionParameters = parameters);
-        }
-
-        public void CreateBasicVRCRootExpressionsMenu()
-        {
-            VRCExpressionsMenu menu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
-            AssetDatabase.CreateAsset(menu, GenerateSceneBasedPath(s => $"ExpressionsMenu_{s.name}.asset"));
-
-            Utilities.RecordChange(
-                Target, "Configure default VRC root expressions menu", t => t.vrcRootExpressionsMenu = menu);
-        }
-
         public override VisualElement CreateInspectorGUI()
         {
-            ViewModelVisualElement visualElement = new ViewModelVisualElement()
-            {
-                ViewModel = this
-            };
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/TimiUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/ReferenceComponentEditor.uxml");
-            visualTree.CloneTree(visualElement);
+            VisualElement element = visualTree.CloneTree();
 
-            return visualElement;
+            Button createBasicFXControllerButton = element.Q<Button>(name: "createBasicFXLayerController");
+            createBasicFXControllerButton.clicked += () =>
+            {
+                if (!CopyAsset(
+                    guid: "404d228aeae421f4590305bc4cdaba16",
+                    destPath: GenerateSceneBasedPath(s => $"FX_{s.name}.controller"),
+                    out RuntimeAnimatorController controller))
+                {
+                    EditorError.Display("vrc_AvatarV3HandsLayer.controller not found.");
+                    return;
+                }
+
+                Utilities.RecordChange(
+                    Target, "Configure default FX layer animator controller", t => t.fxLayerController = controller);
+            };
+
+            Button createBasicMenuButton = element.Q<Button>(name: "createBasicVRCRootExpressionsMenu");
+            createBasicMenuButton.clicked += () =>
+            {
+                VRCExpressionsMenu menu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+                AssetDatabase.CreateAsset(menu, GenerateSceneBasedPath(s => $"ExpressionsMenu_{s.name}.asset"));
+
+                Utilities.RecordChange(
+                    Target, "Configure default VRC root expressions menu", t => t.vrcRootExpressionsMenu = menu);
+            };
+
+            Button createBasicParametersButton = element.Q<Button>(name: "createBasicVRCExpressionParameters");
+            createBasicParametersButton.clicked += () =>
+            {
+                VRCExpressionParameters parameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
+                parameters.parameters = new[]
+                {
+                    new VRCExpressionParameters.Parameter()
+                    {
+                        defaultValue = 0,
+                        name = "VRCEmote",
+                        saved = true,
+                        valueType = VRCExpressionParameters.ValueType.Int
+                    },
+                    new VRCExpressionParameters.Parameter()
+                    {
+                        defaultValue = 0,
+                        name = "VRCFaceBlendH",
+                        saved = true,
+                        valueType = VRCExpressionParameters.ValueType.Float
+                    },
+                    new VRCExpressionParameters.Parameter()
+                    {
+                        defaultValue = 0,
+                        name = "VRCFaceBlendH",
+                        saved = true,
+                        valueType = VRCExpressionParameters.ValueType.Float
+                    }
+                };
+
+                AssetDatabase.CreateAsset(parameters, GenerateSceneBasedPath(s => $"ExpressionParameters_{s.name}.asset"));
+
+                Utilities.RecordChange(
+                    Target, "Configure default VRC expression parameters", t => t.vrcExpressionParameters = parameters);
+            };
+
+            _ = element.Q<ObjectField>(name: "fxControllerField").RegisterValueChangedCallback(
+                evt => createBasicFXControllerButton.SetEnabled(evt.newValue == null));
+
+            _ = element.Q<ObjectField>(name: "menuField").RegisterValueChangedCallback(
+                evt => createBasicMenuButton.SetEnabled(evt.newValue == null));
+
+            _ = element.Q<ObjectField>(name: "parametersField").RegisterValueChangedCallback(
+                evt => createBasicParametersButton.SetEnabled(evt.newValue == null));
+
+            return element;
         }
 
         private string GenerateSceneBasedPath(Func<Scene, string> fileNameGenerator)
