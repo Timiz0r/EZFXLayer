@@ -2,10 +2,12 @@ namespace EZFXLayer.UIElements
 {
     using System;
     using System.IO;
+    using System.Linq;
     using UnityEditor;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
+    using VRC.SDK3.Avatars.Components;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
     [CustomEditor(typeof(ReferenceComponent))]
@@ -80,14 +82,53 @@ namespace EZFXLayer.UIElements
                     Target, "Configure default VRC expression parameters", t => t.vrcExpressionParameters = parameters);
             };
 
-            _ = element.Q<ObjectField>(name: "fxControllerField").RegisterValueChangedCallback(
+
+            ObjectField fxControllerField = element.Q<ObjectField>(name: "fxControllerField");
+            _ = fxControllerField.RegisterValueChangedCallback(
                 evt => createBasicFXControllerButton.SetEnabled(evt.newValue == null));
 
-            _ = element.Q<ObjectField>(name: "menuField").RegisterValueChangedCallback(
+            ObjectField menuField = element.Q<ObjectField>(name: "menuField");
+            _ = menuField.RegisterValueChangedCallback(
                 evt => createBasicMenuButton.SetEnabled(evt.newValue == null));
 
-            _ = element.Q<ObjectField>(name: "parametersField").RegisterValueChangedCallback(
+            ObjectField parametersField = element.Q<ObjectField>(name: "parametersField");
+            _ = parametersField.RegisterValueChangedCallback(
                 evt => createBasicParametersButton.SetEnabled(evt.newValue == null));
+
+            element.Q<Button>(name: "populateFromFirstAvatar").clicked += () =>
+            {
+                //we do first avatar instead of selected avatar because it's easier for the user
+                //and this is likely just for initial setup. otherwise, would need to lock the inspector
+                //though could allow dragging and dropping into an object field to popupate
+                //TODO: would also want the button to be disabled if any of the 3 object fields have a value
+                //but am rushing
+                VRCAvatarDescriptor firstAvatar = Target.gameObject.scene.GetRootGameObjects()
+                    .Select(g => g.GetComponentInChildren<VRCAvatarDescriptor>())
+                    .First(d => d != null);
+
+                Utilities.RecordChange(Target, "Populate reference configuration from first avatar", target =>
+                {
+                    target.fxLayerController = firstAvatar.baseAnimationLayers[4].animatorController;
+                    if (target.fxLayerController == null)
+                    {
+                        Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
+                    }
+
+                    target.vrcExpressionParameters = firstAvatar.expressionParameters;
+                    if (target.vrcExpressionParameters == null)
+                    {
+                        Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expression parameters.");
+                    }
+
+                    target.vrcRootExpressionsMenu = firstAvatar.expressionsMenu;
+                    if (target.vrcRootExpressionsMenu == null)
+                    {
+                        Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expressions menu.");
+                    }
+                });
+
+                serializedObject.Update();
+            };
 
             return element;
         }
