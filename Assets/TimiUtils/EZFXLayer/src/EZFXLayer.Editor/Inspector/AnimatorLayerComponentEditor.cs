@@ -39,6 +39,24 @@ namespace EZFXLayer.UIElements
                 animationsArray,
                 () => new AnimationConfigurationField(configOperations, isReferenceAnimation: false));
 
+            DefaultAnimationPopupField defaultAnimationPopup =
+                DefaultAnimationPopupField.Create(target.referenceAnimation, target.animations);
+            _ = defaultAnimationPopup.RegisterValueChangedCallback(evt =>
+            {
+                Utilities.RecordChange(target, "Set default animation", layer =>
+                {
+                    target.referenceAnimation.isDefaultAnimation = target.referenceAnimation == evt.newValue;
+
+                    foreach (AnimationConfiguration animation in target.animations)
+                    {
+                        animation.isDefaultAnimation = animation == evt.newValue;
+                    }
+                });
+                serializedObject.Update();
+                //no other refreshing to do
+            });
+            visualElement.Q<VisualElement>(name: "defaultAnimationPopup").Add(defaultAnimationPopup);
+
             //not a big fan of initialization, and there's a bit of a circular reference thing going on here
             //would like a design that doesn't do this, but it's somewhat difficult with uielements without other
             //crazy stuff, like moving all event handling into this class and out of their respective controls
@@ -47,10 +65,14 @@ namespace EZFXLayer.UIElements
             //
             //this is also still better than previous designs, where this circular dependency was hidden and this class
             //littered with methods
-            configOperations.Initialize(referenceField, animations);
+            configOperations.Initialize(referenceField, animations, defaultAnimationPopup);
             animations.Refresh();
 
-
+            Toggle hideUnchangedItemsToggle = visualElement.Q<Toggle>(name: "hideUnchangedItems");
+            _ = hideUnchangedItemsToggle.RegisterValueChangedCallback(
+                evt => visualElement.EnableInClassList("hide-unchanged-items", evt.newValue));
+            visualElement.EnableInClassList(
+                "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
             visualElement.Q<UnityEngine.UIElements.Button>(name: "addNewAnimation").clicked += () =>
             {
@@ -61,16 +83,11 @@ namespace EZFXLayer.UIElements
                     newAnimation.blendShapes.AddRange(target.referenceAnimation.blendShapes.Select(bs => bs.Clone()));
                     newAnimation.gameObjects.AddRange(target.referenceAnimation.gameObjects.Select(go => go.Clone()));
                     layer.animations.Add(newAnimation);
+                    defaultAnimationPopup.AllAnimations.Add(newAnimation);
                 });
                 serializedObject.Update();
                 animations.RefreshExternalChanges();
             };
-
-            Toggle hideUnchangedItemsToggle = visualElement.Q<Toggle>(name: "hideUnchangedItems");
-            _ = hideUnchangedItemsToggle.RegisterValueChangedCallback(
-                evt => visualElement.EnableInClassList("hide-unchanged-items", evt.newValue));
-            visualElement.EnableInClassList(
-                "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
             return visualElement;
         }

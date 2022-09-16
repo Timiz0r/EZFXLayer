@@ -100,5 +100,7 @@ namespace EZFXLayer.UIElements
 
         public void AddGameObject(AnimatableGameObject gameObject)
             => gameObjects.Add(sp => ConfigSerialization.SerializeGameObject(sp, gameObject), apply: false);
+
+        public bool IsMatch(AnimationConfiguration animation) => animation.key == animationConfigurationKey;
     }
 }

@@ -11,6 +11,7 @@ namespace EZFXLayer.UIElements
     {
         private AnimationConfigurationField referenceField;
         private SerializedPropertyContainer animations;
+        private DefaultAnimationPopupField defaultAnimationPopup;
         private readonly SerializedObject serializedObject;
         private readonly Scene scene;
 
@@ -22,16 +23,33 @@ namespace EZFXLayer.UIElements
 
         public void Initialize(
             AnimationConfigurationField referenceField,
-            SerializedPropertyContainer animations)
+            SerializedPropertyContainer animations,
+            DefaultAnimationPopupField defaultAnimationPopup)
         {
             this.referenceField = referenceField;
             this.animations = animations;
+            this.defaultAnimationPopup = defaultAnimationPopup;
         }
 
         //while other things use their deserialized objects, we just use key here because it's all we need
         //and deserialization of serializedproperty is obnoxious
-        public void RemoveAnimation(string animationConfigurationKey) => animations.Remove(
-            sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
+        public void RemoveAnimation(string animationConfigurationKey)
+        {
+            animations.Remove(
+                sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
+
+            //ideally, we would also propagate a change to make the reference animation default if the deleted animation
+            //was default, but that's unfortunately hard to do without putting it into a separate undo.
+            //luckily, we can treat no configured default animation as the reference being default
+            //so we're pretty okay with this
+            AnimationConfiguration animationToRemove =
+                defaultAnimationPopup.AllAnimations.Single(a => a.key == animationConfigurationKey);
+            _ = defaultAnimationPopup.AllAnimations.Remove(animationToRemove);
+            if (animationToRemove.isDefaultAnimation)
+            {
+                defaultAnimationPopup.SetValueWithoutNotify(defaultAnimationPopup.AllAnimations[0]);
+            }
+        }
 
         public bool HasBlendShape(SkinnedMeshRenderer skinnedMeshRenderer, string name)
             => referenceField.BlendShapes

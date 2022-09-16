@@ -18,6 +18,7 @@
     <Toggle class="left-toggle" label="Manage expressions menus and parameters" binding-path="manageExpressionMenuAndParameters" />
 
     <VisualElement class="animation-container">
+      <VisualElement name="defaultAnimationPopup" />
       <Label class="heading-label" text="Reference animation" />
       <VisualElement name="reference-animation-container" />
 

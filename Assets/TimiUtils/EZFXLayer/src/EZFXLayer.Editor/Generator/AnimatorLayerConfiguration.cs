@@ -33,7 +33,23 @@ namespace EZFXLayer
             this.menuPath = menuPath;
             this.manageAnimatorControllerStates = manageAnimatorControllerStates;
             this.manageExpressionMenuAndParameters = manageExpressionMenuAndParameters;
-            int defaultValue = animations.Select((a, i) => (a.isDefaultAnimation, i)).Single(t => t.isDefaultAnimation).i;
+            //so if default, i will be 0 -- which corresponds to the reference animation and is what we want
+            int referenceAnimationIndex = -1;
+            int defaultAnimationIndex = -1;
+            for (int i = 0; i < animations.Count; i++)
+            {
+                AnimationConfiguration animation = animations[i];
+                if (animation.isDefaultAnimation)
+                {
+                    defaultAnimationIndex = i;
+                }
+                if (animation.isReferenceAnimation)
+                {
+                    referenceAnimationIndex = i;
+                }
+            }
+            if (referenceAnimationIndex == -1) throw new ArgumentOutOfRangeException(nameof(animations), "There is no reference animation.");
+            int defaultValue = defaultAnimationIndex >= 0 ? defaultAnimationIndex : referenceAnimationIndex;
 
             parameter = animations.Count > 2
                 ? (IProcessedParameter)new IntProcessedParameter(name, defaultValue)

@@ -154,6 +154,21 @@ namespace EZFXLayer.Test
         }
 
         [Test]
+        public void ParameterDefaultValue_IsForReferenceAnimation_IfNoAnimationIsDefault()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .ConfigureReferenceAnimation(a => a.Mutate(a2 => a2.isDefaultAnimation = false))
+                        .AddAnimation("foo", a => { }));
+            testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.FXController.parameters[0].defaultBool, Is.False);
+        }
+
+        [Test]
         public void UsesRootMenu_IfMenuPathIsNullOrEmptyOrSlash()
         {
             TestSetup testSetup = new TestSetup();

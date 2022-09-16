@@ -6,6 +6,8 @@ namespace EZFXLayer.UIElements
     using UnityEngine;
     using UnityEngine.UIElements;
 
+    //TODO: each renderer could probably actually be its own custom control, which would be a smoother design
+    //not that the current design is bad, so not a priority
     internal class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
     {
         private readonly bool isFromReferenceAnimation;

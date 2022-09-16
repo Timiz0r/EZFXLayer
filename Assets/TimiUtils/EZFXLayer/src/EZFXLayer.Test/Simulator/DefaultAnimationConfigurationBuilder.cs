@@ -61,5 +61,11 @@ namespace EZFXLayer.Test
 
             return this;
         }
+
+        public ReferenceAnimationConfigurationBuilder Mutate(Action<AnimationConfiguration> mutator)
+        {
+            mutator(layer.referenceAnimation);
+            return this;
+        }
     }
 }
