@@ -20,7 +20,7 @@ namespace EZFXLayer.Test
         public void StandardGenerate()
         {
             EZFXLayerGenerator generator = new EZFXLayerGenerator(ConfigurationBuilder.Generate());
-            generator.Generate(Avatars, Assets);
+            generator.Generate(Assets);
         }
 
         public static void StandardTestSetUp()

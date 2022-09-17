@@ -1,9 +1,11 @@
 namespace EZFXLayer.UIElements
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using UnityEditor;
+    using UnityEditor.Animations;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
@@ -14,6 +16,8 @@ namespace EZFXLayer.UIElements
     public class ReferenceComponentEditor : Editor
     {
         private ReferenceComponent Target => (ReferenceComponent)target;
+
+        public Scene TargetScene => Target.gameObject.scene;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -102,9 +106,7 @@ namespace EZFXLayer.UIElements
                 //though could allow dragging and dropping into an object field to popupate
                 //TODO: would also want the button to be disabled if any of the 3 object fields have a value
                 //but am rushing
-                VRCAvatarDescriptor firstAvatar = Target.gameObject.scene.GetRootGameObjects()
-                    .Select(g => g.GetComponentInChildren<VRCAvatarDescriptor>())
-                    .First(d => d != null);
+                VRCAvatarDescriptor firstAvatar = GetComponentsInScene<VRCAvatarDescriptor>().First();
 
                 Utilities.RecordChange(Target, "Populate reference configuration from first avatar", target =>
                 {
@@ -130,6 +132,14 @@ namespace EZFXLayer.UIElements
                 serializedObject.Update();
             };
 
+            element.Q<Button>(name: "generate").clicked += () =>
+            {
+                IEnumerable<AnimatorLayerComponent> layers = GetComponentsInScene<AnimatorLayerComponent>();
+                IEnumerable<VRCAvatarDescriptor> avatars = GetComponentsInScene<VRCAvatarDescriptor>();
+                GeneratorRunner runner = new GeneratorRunner(Target, layers, avatars);
+                runner.Generate();
+            };
+
             return element;
         }
 
@@ -151,5 +161,8 @@ namespace EZFXLayer.UIElements
             asset = result ? AssetDatabase.LoadAssetAtPath<T>(destPath) : null;
             return result;
         }
+
+        private IEnumerable<T> GetComponentsInScene<T>(bool includeInactive = false)
+            => TargetScene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: false));
     }
 }

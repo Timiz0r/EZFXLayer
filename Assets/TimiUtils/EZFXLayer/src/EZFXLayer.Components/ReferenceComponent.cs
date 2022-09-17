@@ -8,6 +8,8 @@
     [AddComponentMenu("EZFXLayer/EZFXLayer reference configuration")]
     public class ReferenceComponent : MonoBehaviour
     {
+        //this has to be a RuntimeAnimatorController because the AnimatorController we really want is in UnityEditor
+        //which we can't reference or else we cant build (well, not without annoying conditional compilation)
         public RuntimeAnimatorController fxLayerController;
         public VRCExpressionsMenu vrcRootExpressionsMenu;
         public VRCExpressionParameters vrcExpressionParameters;

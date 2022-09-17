@@ -16,24 +16,12 @@ namespace EZFXLayer.Test
         public void SetUp() => TestSetup.StandardTestSetUp();
 
         [Test]
-        public void Throws_WhenAvatarHasNoDescriptor()
-        {
-            TestSetup testSetup = new TestSetup();
-            UnityEngine.Object.DestroyImmediate(testSetup.Avatar.GetComponent<VRCAvatarDescriptor>());
-            EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
-
-            Assert.That(
-                () => generator.Generate(testSetup.Avatars, testSetup.Assets),
-                Throws.InvalidOperationException);
-        }
-
-        [Test]
         public void NoChanges_WhenNoLayerConfigs()
         {
             TestSetup testSetup = new TestSetup();
             EZFXLayerGenerator generator = new EZFXLayerGenerator(testSetup.ConfigurationBuilder.Generate());
 
-            generator.Generate(testSetup.Avatars, testSetup.Assets);
+            generator.Generate(testSetup.Assets);
 
             Assert.That(
                 testSetup.Assets.FXController.layers,
@@ -61,5 +49,8 @@ namespace EZFXLayer.Test
 
             Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
         }
+
+        //TODO: tests and design for if existing menus and parameters are encountered
+        //TODO: tests and design for if a parameter type will change and there's a layer in the reference with a different name that uses it
     }
 }

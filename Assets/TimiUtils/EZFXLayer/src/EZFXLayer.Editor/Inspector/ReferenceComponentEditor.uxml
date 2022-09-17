@@ -26,6 +26,6 @@
 
     <ezfx:HelpBox label="Auto-generation not yet working" message-type="Info" />
     <Toggle class="left-toggle" label="Generate on upload" binding-path="generateOnUpload" />
-    <Button text="Generate" />
+    <Button name="generate" text="Generate" />
   </ezfx:CommonContainer>
 </UXML>

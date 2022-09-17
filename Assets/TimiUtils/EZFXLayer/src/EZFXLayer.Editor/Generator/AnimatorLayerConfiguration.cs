@@ -58,6 +58,14 @@ namespace EZFXLayer
             IsMarkerLayer = animations.All(a => a.gameObjects.Count == 0 && a.blendShapes.Count == 0);
         }
 
+
+        public static AnimatorLayerConfiguration FromComponent(AnimatorLayerComponent layer) => new AnimatorLayerConfiguration(
+            layer.name,
+            layer.animations.Prepend(layer.referenceAnimation).ToArray(),
+            layer.menuPath,
+            manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
+            manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters);
+
         internal void EnsureLayerExistsInController(
             AnimatorController controller,
             string previousLayerName,

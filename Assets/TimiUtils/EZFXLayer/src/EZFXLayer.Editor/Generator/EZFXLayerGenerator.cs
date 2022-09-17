@@ -46,12 +46,12 @@
         //be interesting to somehow track the asset id of the folder.
 
         public void Generate(
-            IEnumerable<GameObject> avatars,
             AnimatorController fxLayerAnimatorController,
             VRCExpressionsMenu vrcRootExpressionsMenu,
             VRCExpressionParameters vrcExpressionParameters)
         {
-            PreValidate(avatars);
+            PreValidate();
+
             if (fxLayerAnimatorController == null) throw new ArgumentNullException(nameof(fxLayerAnimatorController));
             if (vrcExpressionParameters == null) throw new ArgumentNullException(nameof(vrcExpressionParameters));
             if (vrcRootExpressionsMenu == null) throw new ArgumentNullException(nameof(vrcRootExpressionsMenu));
@@ -76,20 +76,8 @@
             }
         }
 
-        private void PreValidate(IEnumerable<GameObject> avatars)
+        private void PreValidate()
         {
-            //null and empty are allowed
-            if (avatars == null) return;
-
-            foreach (GameObject avatar in avatars)
-            {
-                if (avatar.GetComponentInChildren<VRCAvatarDescriptor>() == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Avatar '{avatar.name}' has no {nameof(VRCAvatarDescriptor)}.");
-                }
-            }
-
             string[] duplicateLayers = configuration.Layers
                 .Where(l => !l.IsMarkerLayer)
                 .GroupBy(l => l.Name, (name, group) => (Name: name, Count: group.Count()))

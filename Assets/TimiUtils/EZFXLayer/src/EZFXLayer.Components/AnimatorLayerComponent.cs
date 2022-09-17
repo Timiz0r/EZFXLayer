@@ -20,6 +20,7 @@ namespace EZFXLayer
 
         public bool manageAnimatorControllerStates = true;
         public bool manageExpressionMenuAndParameters = true;
+
         //no reasonable scenario in which we won't want to generate animations (for non-empty AnimationConfiguration)
         //TODO: well maybe if bringing own clips, but shall eventually support that maybe? low pri and needs thought
         //  but really just manually create the layer. if a mix of ezfxlayer and custom clips are needed, then put own
@@ -29,7 +30,6 @@ namespace EZFXLayer
         public bool hideUnchangedItemsInAnimationConfigurations = false;
 
         //for the initial value of the component
-        //but we dont exclusively go with it because we dont disallow multiple components per GameObject
         public void Reset() => name = name ?? this.gameObject.name;
 
     }

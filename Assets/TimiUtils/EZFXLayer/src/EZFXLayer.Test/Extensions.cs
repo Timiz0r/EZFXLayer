@@ -7,9 +7,8 @@ namespace EZFXLayer.Test
     internal static class Extension
     {
         internal static void Generate(
-            this EZFXLayerGenerator generator, IEnumerable<GameObject> avatars, VrcAssets vrcAssets)
+            this EZFXLayerGenerator generator, VrcAssets vrcAssets)
             => generator.Generate(
-                avatars,
                 vrcAssets.FXController,
                 vrcAssets.Menu,
                 vrcAssets.Parameters);

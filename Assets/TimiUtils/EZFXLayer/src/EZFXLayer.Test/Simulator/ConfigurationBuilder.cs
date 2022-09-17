@@ -24,7 +24,7 @@ namespace EZFXLayer.Test
 
         public EZFXLayerConfiguration Generate()
             => new EZFXLayerConfiguration(
-                layers.Select(l => ProcessLayer(l)).ToArray(),
+                layers.Select(l => AnimatorLayerConfiguration.FromComponent(l)).ToArray(),
                 assetRepository);
 
         public ConfigurationBuilder AddLayer(string name) => AddLayer(name, l => { });
@@ -38,13 +38,5 @@ namespace EZFXLayer.Test
 
             return this;
         }
-
-        private static AnimatorLayerConfiguration ProcessLayer(AnimatorLayerComponent layer)
-            => new AnimatorLayerConfiguration(
-                layer.name,
-                layer.animations.Prepend(layer.referenceAnimation).ToArray(),
-                layer.menuPath,
-                manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
-                manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters);
     }
 }
