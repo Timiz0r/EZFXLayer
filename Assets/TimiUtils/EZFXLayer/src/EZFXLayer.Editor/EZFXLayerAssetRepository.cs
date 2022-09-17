@@ -41,13 +41,16 @@ namespace EZFXLayer
 
         public (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) PrepareWorkingAssets()
         {
+            _ = AssetDatabase.DeleteAsset(workingPath);
+
             _ = EnsureFolderCreated(workingPath);
             _ = EnsureFolderCreated(generatedPath);
 
             return
             (
                 //it's actually rather hard to duplicate an animator controller without copying the asset
-                //but if we want to, it's relatively easyt to
+                //but if we want to, it's relatively easy to just copy in-memory for others
+                //also note that we can't StartEditingAssets yet
                 workingController = GetWorkingAssetCopy(referenceController),
                 workingMenu = GetWorkingAssetCopy(referenceMenu),
                 workingParameters = GetWorkingAssetCopy(referenceParameters)
@@ -59,8 +62,18 @@ namespace EZFXLayer
         //currently, we mostly give up on this
         public (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) FinalizeAssets()
         {
-            AnimatorController generatedController = SwapOldGeneratedAssetWithWorkingAsset(workingController);
-            return (generatedController, null, null);
+
+            AssetDatabase.StartAssetEditing();
+            try
+            {
+                AnimatorController generatedController = SwapOldGeneratedAssetWithWorkingAsset(workingController);
+                return (generatedController, null, null);
+            }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+                AssetDatabase.Refresh();
+            }
         }
 
         private void RewriteAnimations() => throw new NotImplementedException();
@@ -69,40 +82,23 @@ namespace EZFXLayer
         //as there is no cross-referencing between assets for which this method is invoked
         private T SwapOldGeneratedAssetWithWorkingAsset<T>(T asset) where T : UnityEngine.Object
         {
-            string assetWorkingPath = AssetDatabase.GetAssetPath(asset);
-            string assetGeneratedPath = Path.Combine(generatedPath, Path.GetFileName(assetWorkingPath));
+            string workingAssetPath = AssetDatabase.GetAssetPath(asset);
+            string generatedAssetPath = Path.Combine(generatedPath, Path.GetFileName(workingAssetPath));
 
-            string oldGuid = AssetDatabase.AssetPathToGUID(assetGeneratedPath);
-            _ = AssetDatabase.DeleteAsset(assetGeneratedPath);
+            string generatedAssetGuid = AssetDatabase.AssetPathToGUID(generatedAssetPath);
+            _ = AssetDatabase.DeleteAsset(generatedAssetPath);
 
             //would expect both to be null or both to be non-null, but we'll check both anyway
-            string generatedMetaFilePath = AssetDatabase.GetTextMetaFilePathFromAssetPath(generatedPath);
-            if (!string.IsNullOrEmpty(oldGuid) && !string.IsNullOrEmpty(generatedMetaFilePath))
+            string workingAssetMetaFilePath = AssetDatabase.GetTextMetaFilePathFromAssetPath(workingAssetPath);
+            if (!string.IsNullOrEmpty(generatedAssetGuid) && !string.IsNullOrEmpty(workingAssetMetaFilePath))
             {
-                string guidToReplace = AssetDatabase.AssetPathToGUID(assetWorkingPath);
-                using (FileStream fs = new FileStream(assetWorkingPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    using (StreamReader sr = new StreamReader(
-                        fs, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
-                    using (StreamWriter sw = new StreamWriter(
-                        fs, Encoding.UTF8, bufferSize: 1024, leaveOpen: true))
-                    {
-                        string fileFormat = sr.ReadLine();
-                        if (fileFormat != "fileFormatVersion: 2") throw new InvalidOperationException(
-                            $"Wrong file format read: {fileFormat}");
-
-                        char[] guidConfirmationBuffer = new char["guid: ".Length];
-                        sr.ReadBlock(guidConfirmationBuffer, 0, guidConfirmationBuffer.Length);
-                        string guidConfirmationString = new string(guidConfirmationBuffer);
-                        if (guidConfirmationString != "guid: ") throw new InvalidOperationException(
-                            $"Expected to read 'guid: '. Got '{guidConfirmationString}'.");
-
-                        sw.Write(guidToReplace);
-                    }
-                }
+                string workingAssetGuid = AssetDatabase.AssetPathToGUID(workingAssetPath);
+                string metaFileContents = File.ReadAllText(workingAssetMetaFilePath);
+                string newMetaFileContents = metaFileContents.Replace(workingAssetGuid, generatedAssetGuid);
+                File.WriteAllText(workingAssetMetaFilePath, newMetaFileContents);
             }
 
-            _ = AssetDatabase.MoveAsset(assetWorkingPath, assetGeneratedPath);
+            _ = AssetDatabase.MoveAsset(workingAssetPath, generatedAssetPath);
 
             return asset;
         }

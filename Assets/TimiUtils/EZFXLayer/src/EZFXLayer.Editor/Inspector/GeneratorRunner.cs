@@ -30,18 +30,36 @@ namespace EZFXLayer
 
         public void Generate()
         {
-            AssetDatabase.StartAssetEditing();
-            try
+            AnimatorController generatedController;
+            VRCExpressionsMenu generatedMenu;
+            VRCExpressionParameters generatedParameters;
+
+            (
+                generatedController,
+                generatedMenu,
+                generatedParameters
+            ) = GenerateImpl();
+
+            foreach (VRCAvatarDescriptor avatar in avatars)
             {
-                GenerateImpl();
-            }
-            finally
-            {
-                AssetDatabase.StopAssetEditing();
+                //TODO: undo. can we generate a mega cross-target undo?
+                avatar.customExpressions = true;
+                avatar.expressionsMenu = generatedMenu;
+                avatar.expressionParameters = generatedParameters;
+
+                avatar.customizeAnimationLayers = true;
+                avatar.baseAnimationLayers[4] = new VRCAvatarDescriptor.CustomAnimLayer()
+                {
+                    isDefault = false,
+                    type = VRCAvatarDescriptor.AnimLayerType.FX,
+                    animatorController = generatedController
+                };
+
+                PrefabUtility.RecordPrefabInstancePropertyModifications(avatar);
             }
         }
 
-        private void GenerateImpl()
+        private (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) GenerateImpl()
         {
             IEnumerable<AnimatorLayerConfiguration> layers =
                 layerComponents.Select(l => AnimatorLayerConfiguration.FromComponent(l));
@@ -62,29 +80,8 @@ namespace EZFXLayer
             ) = assetRepository.PrepareWorkingAssets();
             generator.Generate(workingController, workingMenu, workingParameters);
 
-            (
-                AnimatorController generatedController,
-                VRCExpressionsMenu generatedMenu,
-                VRCExpressionParameters generatedParameters
-            ) = assetRepository.FinalizeAssets();
-
-            foreach (VRCAvatarDescriptor avatar in avatars)
-            {
-                //TODO: undo. can we generate a mega cross-target undo?
-                avatar.customExpressions = true;
-                avatar.expressionsMenu = generatedMenu;
-                avatar.expressionParameters = generatedParameters;
-
-                avatar.customizeAnimationLayers = true;
-                avatar.baseAnimationLayers[4] = new VRCAvatarDescriptor.CustomAnimLayer()
-                {
-                    isDefault = false,
-                    type = VRCAvatarDescriptor.AnimLayerType.FX,
-                    animatorController = generatedController
-                };
-
-                PrefabUtility.RecordPrefabInstancePropertyModifications(avatar);
-            }
+            (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) result = assetRepository.FinalizeAssets();
+            return result;
         }
     }
 }
