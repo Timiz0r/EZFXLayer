@@ -13,7 +13,6 @@ namespace EZFXLayer
 
     internal class EZFXLayerAssetRepository : IAssetRepository
     {
-        private readonly string workingPath;
         private readonly string generatedPath;
 
         private readonly AnimatorController referenceController;
@@ -21,6 +20,7 @@ namespace EZFXLayer
         private readonly VRCExpressionParameters referenceParameters;
         private readonly List<GeneratedClip> generatedClips = new List<GeneratedClip>();
         private readonly List<GeneratedMenu> generatedMenus = new List<GeneratedMenu>();
+        private readonly List<UnityEngine.Object> generatedControllerSubassets = new List<UnityEngine.Object>();
 
         private AnimatorController workingController;
         private VRCExpressionsMenu workingMenu;
@@ -32,7 +32,6 @@ namespace EZFXLayer
             VRCExpressionsMenu referenceMenu,
             VRCExpressionParameters referenceParameters)
         {
-            workingPath = Path.Combine(outputPath, "working");
             generatedPath = Path.Combine(outputPath, "generated");
             this.referenceController = referenceController;
             this.referenceMenu = referenceMenu;
@@ -41,19 +40,20 @@ namespace EZFXLayer
 
         public (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) PrepareWorkingAssets()
         {
-            _ = AssetDatabase.DeleteAsset(workingPath);
-
-            _ = EnsureFolderCreated(workingPath);
             _ = EnsureFolderCreated(generatedPath);
+
+            workingController = new AnimatorController();
+            EditorUtility.CopySerialized(referenceController, workingController);
+            workingMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+            EditorUtility.CopySerialized(referenceMenu, workingMenu);
+            workingParameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
+            EditorUtility.CopySerialized(referenceParameters, workingParameters);
 
             return
             (
-                //it's actually rather hard to duplicate an animator controller without copying the asset
-                //but if we want to, it's relatively easy to just copy in-memory for others
-                //also note that we can't StartEditingAssets yet
-                workingController = GetWorkingAssetCopy(referenceController),
-                workingMenu = GetWorkingAssetCopy(referenceMenu),
-                workingParameters = GetWorkingAssetCopy(referenceParameters)
+                workingController,
+                workingMenu,
+                workingParameters
             );
     }
 
@@ -66,7 +66,12 @@ namespace EZFXLayer
             AssetDatabase.StartAssetEditing();
             try
             {
-                AnimatorController generatedController = SwapOldGeneratedAssetWithWorkingAsset(workingController);
+                AnimatorController generatedController =
+                    SwapOldGeneratedAssetWithWorkingAsset(workingController, referenceController);
+                foreach (UnityEngine.Object subAsset in generatedControllerSubassets)
+                {
+                    AssetDatabase.AddObjectToAsset(subAsset, generatedController);
+                }
                 return (generatedController, null, null);
             }
             finally
@@ -80,41 +85,26 @@ namespace EZFXLayer
 
         //our guid rewriting is easier, since we only care about the meta file
         //as there is no cross-referencing between assets for which this method is invoked
-        private T SwapOldGeneratedAssetWithWorkingAsset<T>(T asset) where T : UnityEngine.Object
+        private T SwapOldGeneratedAssetWithWorkingAsset<T>(T asset, T referenceAsset) where T : UnityEngine.Object
         {
-            string workingAssetPath = AssetDatabase.GetAssetPath(asset);
-            string generatedAssetPath = Path.Combine(generatedPath, Path.GetFileName(workingAssetPath));
+            string generatedAssetPath = Path.Combine(
+                generatedPath,
+                $"EZFXLayer_{Path.GetFileName(AssetDatabase.GetAssetPath(referenceAsset))}");
 
-            string generatedAssetGuid = AssetDatabase.AssetPathToGUID(generatedAssetPath);
-            _ = AssetDatabase.DeleteAsset(generatedAssetPath);
-
-            //would expect both to be null or both to be non-null, but we'll check both anyway
-            string workingAssetMetaFilePath = AssetDatabase.GetTextMetaFilePathFromAssetPath(workingAssetPath);
-            if (!string.IsNullOrEmpty(generatedAssetGuid) && !string.IsNullOrEmpty(workingAssetMetaFilePath))
+            T generatedAsset = AssetDatabase.LoadAssetAtPath<T>(generatedAssetPath);
+            if (generatedAsset != null)
             {
-                string workingAssetGuid = AssetDatabase.AssetPathToGUID(workingAssetPath);
-                string metaFileContents = File.ReadAllText(workingAssetMetaFilePath);
-                string newMetaFileContents = metaFileContents.Replace(workingAssetGuid, generatedAssetGuid);
-                File.WriteAllText(workingAssetMetaFilePath, newMetaFileContents);
+                EditorUtility.CopySerialized(asset, generatedAsset);
+                //without reimporting, the name shows up a bit wrong (perhaps fixes on restart didnt check)
+                //no big deal, but we'll fix it anyway
+                AssetDatabase.ImportAsset(generatedAssetPath);
+                return generatedAsset;
             }
-
-            _ = AssetDatabase.MoveAsset(workingAssetPath, generatedAssetPath);
-
-            return asset;
-        }
-
-        private T GetWorkingAssetCopy<T>(T original) where T : UnityEngine.Object
-        {
-            string originalPath = AssetDatabase.GetAssetPath(original);
-
-            string newPath = $"{workingPath}/EZFXLayer_{Path.GetFileName(originalPath)}";
-            if (!AssetDatabase.CopyAsset(originalPath, newPath))
+            else
             {
-                throw new Exception($"Error copying base '{typeof(T)}' at '{originalPath}' to '{newPath}'.");
+                AssetDatabase.CreateAsset(asset, generatedAssetPath);
+                return asset;
             }
-
-            T newAsset = AssetDatabase.LoadAssetAtPath<T>(newPath);
-            return newAsset;
         }
 
         private static string EnsureFolderCreated(string path)
@@ -141,12 +131,14 @@ namespace EZFXLayer
         void IAssetRepository.AnimationClipAdded(GeneratedClip clip) => generatedClips.Add(clip);
         void IAssetRepository.VRCSubMenuAdded(GeneratedMenu menu) => generatedMenus.Add(menu);
         void IAssetRepository.FXAnimatorControllerStateAdded(AnimatorState animatorState)
-            => AssetDatabase.AddObjectToAsset(animatorState, workingController);
-        void IAssetRepository.FXAnimatorControllerStateRemoved(AnimatorState animatorState)
-            => AssetDatabase.RemoveObjectFromAsset(animatorState);
+            => generatedControllerSubassets.Add(animatorState);
+        //no need to remove anything, since the working controller is in-memory, and we add subassets at the end
+        //TODO: verify this is actually to, because it's probably not
+        //though it's really not a big deal to leave what will likely be few subassets around
+        void IAssetRepository.FXAnimatorControllerStateRemoved(AnimatorState animatorState) { }
         void IAssetRepository.FXAnimatorStateMachineAdded(AnimatorStateMachine stateMachine)
-            => AssetDatabase.AddObjectToAsset(stateMachine, workingController);
+            => generatedControllerSubassets.Add(stateMachine);
         void IAssetRepository.FXAnimatorTransitionAdded(AnimatorStateTransition transition)
-            => AssetDatabase.AddObjectToAsset(transition, workingController);
+            => generatedControllerSubassets.Add(transition);
     }
 }
