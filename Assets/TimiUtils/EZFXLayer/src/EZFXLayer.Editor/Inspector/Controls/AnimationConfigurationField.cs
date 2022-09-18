@@ -46,7 +46,7 @@ namespace EZFXLayer.UIElements
             {
                 if (isDefaultAnimation)
                 {
-                    configOperations.PropagateDefaultAnimationNameChangeToDefaultAnimationField(evt.newValue);
+                    configOperations.PropagateDefaultAnimationNameChangeToDefaultAnimationField();
                 }
             });
         }
