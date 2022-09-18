@@ -1,5 +1,6 @@
 namespace EZFXLayer
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -30,36 +31,28 @@ namespace EZFXLayer
 
         public void Generate()
         {
-            AnimatorController generatedController;
-            VRCExpressionsMenu generatedMenu;
-            VRCExpressionParameters generatedParameters;
-
-            (
-                generatedController,
-                generatedMenu,
-                generatedParameters
-            ) = GenerateImpl();
-
-            foreach (VRCAvatarDescriptor avatar in avatars)
+            bool exceptionCaught = false;
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+            try
             {
-                //TODO: undo. can we generate a mega cross-target undo?
-                avatar.customExpressions = true;
-                avatar.expressionsMenu = generatedMenu;
-                avatar.expressionParameters = generatedParameters;
-
-                avatar.customizeAnimationLayers = true;
-                avatar.baseAnimationLayers[4] = new VRCAvatarDescriptor.CustomAnimLayer()
-                {
-                    isDefault = false,
-                    type = VRCAvatarDescriptor.AnimLayerType.FX,
-                    animatorController = generatedController
-                };
-
-                PrefabUtility.RecordPrefabInstancePropertyModifications(avatar);
+                GenerateImpl();
+            }
+            catch when ((exceptionCaught = true) != true) //maintain stack
+            {
+                //we could revert the undo group, but it may be useful for debugging to leave it
+                //and the user has options, including undoing manually or fixing the issue if user-generated
+                //though for finalizing assets we prefer user-generated issues to be impossible
+                throw new InvalidOperationException("literally impossible but gets rid of a warning");
+            }
+            finally
+            {
+                Undo.SetCurrentGroupName(exceptionCaught ? "Failed EZFXLayer generation" : "EZFXLayer generation");
+                Undo.CollapseUndoOperations(undoGroup);
             }
         }
 
-        private (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) GenerateImpl()
+        private void GenerateImpl()
         {
             IEnumerable<AnimatorLayerConfiguration> layers =
                 layerComponents.Select(l => AnimatorLayerConfiguration.FromComponent(l));
@@ -80,8 +73,29 @@ namespace EZFXLayer
             ) = assetRepository.PrepareWorkingAssets();
             generator.Generate(workingController, workingMenu, workingParameters);
 
-            (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) result = assetRepository.FinalizeAssets();
-            return result;
+            (
+                AnimatorController generatedController,
+                VRCExpressionsMenu generatedMenu,
+                VRCExpressionParameters generatedParameters
+            ) = assetRepository.FinalizeAssets();
+
+            foreach (VRCAvatarDescriptor avatar in avatars)
+            {
+                Undo.RecordObject(avatar, "Applying generation to avatar");
+                avatar.customExpressions = true;
+                avatar.expressionsMenu = generatedMenu;
+                avatar.expressionParameters = generatedParameters;
+
+                avatar.customizeAnimationLayers = true;
+                avatar.baseAnimationLayers[4] = new VRCAvatarDescriptor.CustomAnimLayer()
+                {
+                    isDefault = false,
+                    type = VRCAvatarDescriptor.AnimLayerType.FX,
+                    animatorController = generatedController
+                };
+
+                PrefabUtility.RecordPrefabInstancePropertyModifications(avatar);
+            }
         }
     }
 }

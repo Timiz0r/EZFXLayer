@@ -82,7 +82,6 @@ namespace EZFXLayer
         //currently, we mostly give up on this
         public (AnimatorController, VRCExpressionsMenu, VRCExpressionParameters) FinalizeAssets()
         {
-
             AssetDatabase.StartAssetEditing();
             try
             {
@@ -173,24 +172,21 @@ namespace EZFXLayer
         }
         //this particular trick maintains the asset (guid). it saves on asset importing time versus copying,
         //reduces git changes, and reduces prefab changes
-        //
-        //here, at least for now, we'll favor not having undo entries for these, versus having many undo entries for these
         private static T ReplaceOldGeneratedAssetWithWorkingAsset<T>(T asset, string generatedAssetPath) where T : UnityEngine.Object
         {
             T generatedAsset = AssetDatabase.LoadAssetAtPath<T>(generatedAssetPath);
             if (generatedAsset != null)
             {
+                Undo.RecordObject(generatedAsset, "Overwrite EZFXLayer generated asset");
                 EditorUtility.CopySerialized(asset, generatedAsset);
                 //without reimporting, the name shows up a bit wrong (perhaps fixes on restart didnt check)
-                //no big deal, but we'll fix it anyway
+                //no big deal, but we'll fix it anyway. also didn't check if the undo renders this unnecessary; prob doesnt
                 AssetDatabase.ImportAsset(generatedAssetPath);
-                EditorUtility.SetDirty(generatedAsset);
                 return generatedAsset;
             }
             else
             {
                 AssetDatabase.CreateAsset(asset, generatedAssetPath);
-                EditorUtility.SetDirty(asset);
                 return asset;
             }
         }
