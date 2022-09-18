@@ -89,14 +89,17 @@ namespace EZUtils.EZFXLayer.UIElements
             ObjectField fxControllerField = element.Q<ObjectField>(name: "fxControllerField");
             _ = fxControllerField.RegisterValueChangedCallback(
                 evt => createBasicFXControllerButton.SetEnabled(evt.newValue == null));
+            createBasicFXControllerButton.SetEnabled(fxControllerField.value != null);
 
             ObjectField menuField = element.Q<ObjectField>(name: "menuField");
             _ = menuField.RegisterValueChangedCallback(
                 evt => createBasicMenuButton.SetEnabled(evt.newValue == null));
+            createBasicMenuButton.SetEnabled(menuField.value != null);
 
             ObjectField parametersField = element.Q<ObjectField>(name: "parametersField");
             _ = parametersField.RegisterValueChangedCallback(
                 evt => createBasicParametersButton.SetEnabled(evt.newValue == null));
+            createBasicParametersButton.SetEnabled(parametersField.value != null);
 
             element.Q<Button>(name: "populateFromFirstAvatar").clicked += () =>
             {
