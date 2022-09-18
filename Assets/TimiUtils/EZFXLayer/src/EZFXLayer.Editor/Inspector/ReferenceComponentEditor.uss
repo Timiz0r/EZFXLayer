@@ -1,6 +1,7 @@
 .artifact-creation-container {
     flex-direction: row;
     flex-grow: 0;
+    margin-bottom: 8px;
 }
 
 .artifact-creation-container > * {
@@ -8,4 +9,9 @@
     flex-shrink: 1;
     white-space: normal;
     -unity-text-align: middle-center;
+}
+
+.generation-options-container {
+    margin-bottom: 8px;
+    margin-top: 8px;
 }

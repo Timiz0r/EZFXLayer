@@ -26,6 +26,11 @@
 
     <ezfx:HelpBox label="Auto-generation not yet working" message-type="Info" />
     <Toggle class="left-toggle" label="Generate on upload" binding-path="generateOnUpload" />
+
+    <BindableElement class="generation-options-container" binding-path="generationOptions">
+      <Toggle class="left-toggle" label="Set write default values on generated states" binding-path="setWriteDefaultValues" />
+    </BindableElement>
+
     <Button name="generate" text="Generate" />
   </ezfx:CommonContainer>
 </UXML>

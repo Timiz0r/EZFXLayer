@@ -15,6 +15,7 @@ namespace EZFXLayer.Test
         //not allowed to instantiate a MonoBehavior like ReferenceConfiguration
         private readonly GameObject gameObject;
         private readonly IAssetRepository assetRepository;
+        private GenerationOptions generationOptions = new GenerationOptions();
 
         public ConfigurationBuilder(GameObject gameObject, IAssetRepository assetRepository)
         {
@@ -24,7 +25,7 @@ namespace EZFXLayer.Test
 
         public EZFXLayerConfiguration Generate()
             => new EZFXLayerConfiguration(
-                layers.Select(l => AnimatorLayerConfiguration.FromComponent(l)).ToArray(),
+                layers.Select(l => AnimatorLayerConfiguration.FromComponent(l, generationOptions)).ToArray(),
                 assetRepository);
 
         public ConfigurationBuilder AddLayer(string name) => AddLayer(name, l => { });
@@ -36,6 +37,12 @@ namespace EZFXLayer.Test
             LayerConfigurationBuilder b = new LayerConfigurationBuilder(gameObject, name, layers);
             builder(b);
 
+            return this;
+        }
+
+        public ConfigurationBuilder WriteDefaultValues(bool enabled)
+        {
+            generationOptions.setWriteDefaultValues = enabled;
             return this;
         }
     }

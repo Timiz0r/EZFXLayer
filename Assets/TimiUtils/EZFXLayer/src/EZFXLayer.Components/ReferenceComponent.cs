@@ -14,6 +14,7 @@
         public VRCExpressionsMenu vrcRootExpressionsMenu;
         public VRCExpressionParameters vrcExpressionParameters;
         public bool generateOnUpload = true;
+        public GenerationOptions generationOptions;
 
         private void Reset()
         {

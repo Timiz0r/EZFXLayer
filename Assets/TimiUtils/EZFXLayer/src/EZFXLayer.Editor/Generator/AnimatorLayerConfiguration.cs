@@ -8,6 +8,8 @@ namespace EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    //the reason AnimationConfigurationHelper exists and AnimatorLayerConfigurationHelper doesnt is because
+    //this class is a public driver port of the app, and the other is an internal implementation detail of the app
     public class AnimatorLayerConfiguration
     {
         private readonly IReadOnlyList<AnimationConfigurationHelper> animations;
@@ -25,10 +27,13 @@ namespace EZFXLayer
             IReadOnlyList<AnimationConfiguration> animations,
             string menuPath,
             bool manageAnimatorControllerStates,
-            bool manageExpressionMenuAndParameters)
+            bool manageExpressionMenuAndParameters,
+            GenerationOptions generationOptions)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            this.animations = animations?.Select(a => new AnimationConfigurationHelper(a))?.ToArray()
+            this.animations = animations?
+                .Select(a => new AnimationConfigurationHelper(a, generationOptions))?
+                .ToArray()
                 ?? throw new ArgumentNullException(nameof(animations));
             this.menuPath = menuPath;
             this.manageAnimatorControllerStates = manageAnimatorControllerStates;
@@ -59,12 +64,14 @@ namespace EZFXLayer
         }
 
 
-        public static AnimatorLayerConfiguration FromComponent(AnimatorLayerComponent layer) => new AnimatorLayerConfiguration(
-            layer.name,
-            layer.animations.Prepend(layer.referenceAnimation).ToArray(),
-            layer.menuPath,
-            manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
-            manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters);
+        public static AnimatorLayerConfiguration FromComponent(AnimatorLayerComponent layer, GenerationOptions generationOptions)
+            => new AnimatorLayerConfiguration(
+                name: layer.name,
+                animations: layer.animations.Prepend(layer.referenceAnimation).ToArray(),
+                menuPath: layer.menuPath,
+                manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
+                manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters,
+                generationOptions: generationOptions);
 
         internal void EnsureLayerExistsInController(
             AnimatorController controller,

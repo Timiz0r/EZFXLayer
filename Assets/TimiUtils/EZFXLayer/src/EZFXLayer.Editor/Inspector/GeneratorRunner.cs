@@ -55,7 +55,7 @@ namespace EZFXLayer
         private void GenerateImpl()
         {
             IEnumerable<AnimatorLayerConfiguration> layers =
-                layerComponents.Select(l => AnimatorLayerConfiguration.FromComponent(l));
+                layerComponents.Select(l => AnimatorLayerConfiguration.FromComponent(l, referenceComponent.generationOptions));
             string outputPath = Path.Combine(Path.GetDirectoryName(scene.path), "EZFXLayer");
 
             EZFXLayerAssetRepository assetRepository = new EZFXLayerAssetRepository(

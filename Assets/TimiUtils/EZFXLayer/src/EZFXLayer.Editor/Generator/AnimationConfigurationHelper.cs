@@ -7,13 +7,20 @@ namespace EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
-    public class AnimationConfigurationHelper
+    //this class exists because we decided to keep AnimationConfiguration in the components library, which means
+    //no referencing UnityEditor. this gives us a data-only class and a basically behavior-only class
+    //the alternative to this antipattern is to duplicate the class's structure and copy values over,
+    //but that just adds obnoxiousness with no value.
+    internal class AnimationConfigurationHelper
     {
         private readonly AnimationConfiguration animation;
+        private readonly GenerationOptions generationOptions;
 
-        public AnimationConfigurationHelper(AnimationConfiguration animation)
+        //if by chance we grow the list of parameters here that come from the layer configuration, then just pass it
+        public AnimationConfigurationHelper(AnimationConfiguration animation, GenerationOptions generationOptions)
         {
             this.animation = animation;
+            this.generationOptions = generationOptions;
         }
 
         internal bool MatchesState(AnimatorState state)
@@ -27,7 +34,8 @@ namespace EZFXLayer
             correspondingState = new AnimatorState()
             {
                 hideFlags = HideFlags.HideInHierarchy,
-                name = EffectiveStateName
+                name = EffectiveStateName,
+                writeDefaultValues = generationOptions.setWriteDefaultValues
             };
             assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);

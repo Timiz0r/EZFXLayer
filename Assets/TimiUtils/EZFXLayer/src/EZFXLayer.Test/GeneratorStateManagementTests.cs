@@ -192,5 +192,29 @@ namespace EZFXLayer.Test
             Assert.That(states[0].name, Is.EqualTo("default2"));
             Assert.That(states[1].name, Is.EqualTo("foo"));
         }
+
+        [Test]
+        public void DisablesWriteDefaultValues_WhenOff()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .WriteDefaultValues(enabled: false)
+                .AddLayer("layer");
+            testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.FXController.layers[0].stateMachine.states[0].state.writeDefaultValues, Is.False);
+        }
+
+        [Test]
+        public void EnablesWriteDefaults_WhenOn()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .WriteDefaultValues(enabled: true)
+                .AddLayer("layer");
+            testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.FXController.layers[0].stateMachine.states[0].state.writeDefaultValues, Is.True);
+        }
     }
 }
