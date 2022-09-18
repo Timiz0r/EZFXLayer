@@ -8,7 +8,7 @@ namespace EZFXLayer.UIElements
 
         public override VisualElement contentContainer => container;
 
-        public new class UxmlFactory : UxmlFactory<CommonContainer> { }
+        private new class UxmlFactory : UxmlFactory<CommonContainer> { }
 
         public CommonContainer()
         {

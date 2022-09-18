@@ -1,9 +1,7 @@
 namespace EZFXLayer.UIElements
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using UnityEditor;
     using UnityEngine;
     using UnityEngine.SceneManagement;
@@ -15,7 +13,7 @@ namespace EZFXLayer.UIElements
         private ConfigurationOperations configurationOperations;
         private Scene scene;
 
-        private void CreateGUI()
+        public void CreateGUI()
         {
             //TODO: honestly might not use uxml here, since we won't use binding, so consider deleting this
             // VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
@@ -77,7 +75,7 @@ namespace EZFXLayer.UIElements
 
         public static void Show(Rect buttonBox, ConfigurationOperations configurationOperations, Scene scene)
         {
-            BlendShapeSelectorPopup window = ScriptableObject.CreateInstance<BlendShapeSelectorPopup>();
+            BlendShapeSelectorPopup window = CreateInstance<BlendShapeSelectorPopup>();
             window.configurationOperations = configurationOperations;
             window.scene = scene;
 

@@ -1,14 +1,6 @@
 namespace EZFXLayer.Test
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using NUnit.Framework;
-    using NUnit.Framework.Constraints;
-    using UnityEditor;
-    using UnityEditor.Animations;
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
-    using VRC.SDK3.Avatars.Components;
 
     public class ConfigurationBuilderTests
     {

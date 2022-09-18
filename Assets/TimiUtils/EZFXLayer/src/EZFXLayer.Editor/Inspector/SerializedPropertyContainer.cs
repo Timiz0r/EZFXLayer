@@ -4,7 +4,6 @@ namespace EZFXLayer.UIElements
     using System.Collections.Generic;
     using System.Linq;
     using UnityEditor;
-    using UnityEditor.UIElements;
     using UnityEngine.UIElements;
 
     internal class SerializedPropertyContainer
@@ -40,10 +39,7 @@ namespace EZFXLayer.UIElements
         //a bit of a leaky implementation detail
         //ideally would do something like  MarkComplete or Finalize, but then we'd want to make the rest of the instance
         //unusable when that happens, and don't feel like putting in the work yet
-        public void StopUndoRedoHandling()
-        {
-            Undo.undoRedoPerformed -= HandleUndo;
-        }
+        public void StopUndoRedoHandling() => Undo.undoRedoPerformed -= HandleUndo;
 
         private void HandleUndo()
         {
@@ -71,10 +67,7 @@ namespace EZFXLayer.UIElements
 
             renderer.InitializeRefresh();
 
-            ForEachProperty((i, current) =>
-            {
-                renderer.ProcessRefresh(current, index: i);
-            });
+            ForEachProperty((i, current) => renderer.ProcessRefresh(current, index: i));
 
             renderer.FinalizeRefresh(array);
 

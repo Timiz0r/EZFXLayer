@@ -35,8 +35,8 @@
     <!-- <Nullable>enable</Nullable> -->
     <BaseIntermediateOutputPath>.obj\</BaseIntermediateOutputPath>
 
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <CodeAnalysisTreatWarningsAsErrors Condition="'$(BuildKind)' == 'Local'">false</CodeAnalysisTreatWarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -83,6 +83,7 @@
     -->
     <UseGitVersioning Condition="'$(MSBuildProjectFullPath)' == '$(ProjectRoot)\.build\Tasks\BuildTasks.csproj'">false</UseGitVersioning>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference
       Condition="'$(UseGitVersioning)' == 'true'"

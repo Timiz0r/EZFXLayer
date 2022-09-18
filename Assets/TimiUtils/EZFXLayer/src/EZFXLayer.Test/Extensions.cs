@@ -1,8 +1,5 @@
 namespace EZFXLayer.Test
 {
-    using System.Collections.Generic;
-    using UnityEngine;
-
     //TODO: for ports and adapters reasons, dont make everything public
     internal static class Extension
     {

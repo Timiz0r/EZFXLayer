@@ -7,10 +7,8 @@ namespace EZFXLayer
     public class AnimatableBlendShape
     {
         public string key = Guid.NewGuid().ToString(); //shared across reference animation and other animations
-        //serializes just fine
-#pragma warning disable CA2235
+
         public SkinnedMeshRenderer skinnedMeshRenderer;
-#pragma warning restore CA2235
         public string name;
         public float value;
 

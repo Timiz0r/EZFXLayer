@@ -5,7 +5,6 @@ namespace EZFXLayer.UIElements
     using EZFXLayer;
     using UnityEditor;
     using UnityEditor.UIElements;
-    using UnityEngine;
     using UnityEngine.UIElements;
 
     internal class AnimatableBlendShapeField : BindableElement
@@ -34,7 +33,7 @@ namespace EZFXLayer.UIElements
 
             if (isFromReferenceAnimation)
             {
-                this.Q<UnityEngine.UIElements.Button>().clicked += () => this.configOperations.RemoveBlendShape(BlendShape);
+                this.Q<Button>().clicked += () => this.configOperations.RemoveBlendShape(BlendShape);
             }
 
             _ = this.Q<Slider>().RegisterValueChangedCallback(evt =>

@@ -4,7 +4,6 @@ namespace EZFXLayer
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Text.RegularExpressions;
     using UnityEditor;
     using UnityEditor.Animations;
@@ -116,10 +115,10 @@ namespace EZFXLayer
             }
 
             VRCExpressionsMenu generatedRootMenu = null;
-            foreach ((VRCExpressionsMenu referenceMenu, VRCExpressionsMenu workingMenu) menuPair in workingMenus)
+            foreach ((VRCExpressionsMenu referenceMenu, VRCExpressionsMenu workingMenu) in workingMenus)
             {
                 VRCExpressionsMenu currentGeneratedMenu =
-                    ReplaceOldGeneratedAssetWithWorkingAsset(menuPair.workingMenu, menuPair.referenceMenu);
+                    ReplaceOldGeneratedAssetWithWorkingAsset(workingMenu, referenceMenu);
                 if (generatedRootMenu == null)
                 {
                     generatedRootMenu = currentGeneratedMenu;

@@ -5,7 +5,6 @@ namespace EZFXLayer.UIElements
     using EZFXLayer;
     using UnityEditor;
     using UnityEditor.UIElements;
-    using UnityEngine;
     using UnityEngine.UIElements;
 
     internal class AnimatableGameObjectField : BindableElement, ISerializedPropertyContainerItem
@@ -28,7 +27,7 @@ namespace EZFXLayer.UIElements
 
             if (isFromReferenceAnimation)
             {
-                this.Q<UnityEngine.UIElements.Button>().clicked += () => this.configOperations.RemoveGameObject(GameObject);
+                this.Q<Button>().clicked += () => this.configOperations.RemoveGameObject(GameObject);
             }
 
             _ = this.Q<Toggle>().RegisterValueChangedCallback(evt =>

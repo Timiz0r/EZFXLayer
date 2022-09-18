@@ -5,9 +5,9 @@ namespace EZFXLayer.UIElements
     {
         private string containerName = null;
         private VisualElement separateContainer = null;
-        public new class UxmlFactory : UxmlFactory<FoldoutWithContainer, UxmlTraits> { }
+        private new class UxmlFactory : UxmlFactory<FoldoutWithContainer, UxmlTraits> { }
 
-        public new class UxmlTraits : Foldout.UxmlTraits
+        private new class UxmlTraits : Foldout.UxmlTraits
         {
             private readonly UxmlStringAttributeDescription containerNameAttribute = new UxmlStringAttributeDescription
             {
@@ -26,11 +26,11 @@ namespace EZFXLayer.UIElements
         public FoldoutWithContainer()
         {
             //for unknown reasons, this causes the foldout to not open/close correctly initially
-            this.RegisterCallback<AttachToPanelEvent>(evt =>
+            RegisterCallback<AttachToPanelEvent>(evt =>
             {
                 if (string.IsNullOrEmpty(containerName)) return;
 
-                VisualElement container = this.panel.visualTree.Q<VisualElement>(name: containerName);
+                VisualElement container = panel.visualTree.Q<VisualElement>(name: containerName);
                 ConfigureSeparateContainer(container);
             });
         }

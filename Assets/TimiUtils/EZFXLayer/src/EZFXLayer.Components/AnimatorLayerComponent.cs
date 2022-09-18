@@ -1,8 +1,6 @@
 namespace EZFXLayer
 {
-    using System;
     using System.Collections.Generic;
-    using UnityEditor.Animations;
     using UnityEngine;
 
     [AddComponentMenu("EZFXLayer/EZFXLayer animator layer configuration")]
@@ -30,7 +28,7 @@ namespace EZFXLayer
         public bool hideUnchangedItemsInAnimationConfigurations = false;
 
         //for the initial value of the component
-        public void Reset() => name = name ?? this.gameObject.name;
+        public void Reset() => name = name ?? gameObject.name;
 
     }
 }

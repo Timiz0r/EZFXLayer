@@ -3,7 +3,6 @@ namespace EZFXLayer
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using UnityEditor;
     using UnityEditor.Animations;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
@@ -65,13 +64,15 @@ namespace EZFXLayer
 
 
         public static AnimatorLayerConfiguration FromComponent(AnimatorLayerComponent layer, GenerationOptions generationOptions)
-            => new AnimatorLayerConfiguration(
-                name: layer.name,
-                animations: layer.animations.Prepend(layer.referenceAnimation).ToArray(),
-                menuPath: layer.menuPath,
-                manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
-                manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters,
-                generationOptions: generationOptions);
+            => layer != null
+                ? new AnimatorLayerConfiguration(
+                    name: layer.name,
+                    animations: layer.animations.Prepend(layer.referenceAnimation).ToArray(),
+                    menuPath: layer.menuPath,
+                    manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
+                    manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters,
+                    generationOptions: generationOptions ?? throw new ArgumentNullException(nameof(generationOptions)))
+                : throw new ArgumentNullException(nameof(layer));
 
         internal void EnsureLayerExistsInController(
             AnimatorController controller,

@@ -1,6 +1,5 @@
 namespace EZFXLayer
 {
-    using System;
     using UnityEditor;
     using UnityEngine;
 

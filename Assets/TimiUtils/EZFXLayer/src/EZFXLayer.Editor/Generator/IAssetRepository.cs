@@ -1,8 +1,6 @@
 namespace EZFXLayer
 {
     using UnityEditor.Animations;
-    using UnityEngine;
-    using VRC.SDK3.Avatars.ScriptableObjects;
 
     public interface IAssetRepository
     {

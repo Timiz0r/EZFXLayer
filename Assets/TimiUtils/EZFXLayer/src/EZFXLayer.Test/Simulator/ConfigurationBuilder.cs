@@ -3,9 +3,7 @@ namespace EZFXLayer.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using UnityEditor.Animations;
     using UnityEngine;
-    using VRC.SDK3.Avatars.ScriptableObjects;
 
     //TODO: this could hypothetically go into the editor assembly, allowing those to author these configs as code isntead of components
     //with decent redesign to interact with a scene, anyway. wonder if tests will try to do that :thinking:
@@ -15,7 +13,7 @@ namespace EZFXLayer.Test
         //not allowed to instantiate a MonoBehavior like ReferenceConfiguration
         private readonly GameObject gameObject;
         private readonly IAssetRepository assetRepository;
-        private GenerationOptions generationOptions = new GenerationOptions();
+        private readonly GenerationOptions generationOptions = new GenerationOptions();
 
         public ConfigurationBuilder(GameObject gameObject, IAssetRepository assetRepository)
         {

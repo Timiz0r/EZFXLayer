@@ -2,7 +2,6 @@ namespace EZFXLayer.Test
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using UnityEditor.Animations;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;

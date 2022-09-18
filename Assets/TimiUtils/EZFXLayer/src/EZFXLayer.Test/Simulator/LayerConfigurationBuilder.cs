@@ -12,9 +12,9 @@ namespace EZFXLayer.Test
         {
             if (layers == null) throw new ArgumentNullException(nameof(layers));
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            if (gameObject == null) throw new ArgumentNullException(nameof(gameObject));
 
-            layer = gameObject?.AddComponent<AnimatorLayerComponent>()
-                ?? throw new ArgumentNullException(nameof(gameObject));
+            layer = gameObject.AddComponent<AnimatorLayerComponent>();
             layer.name = name;
             layers.Add(layer);
         }

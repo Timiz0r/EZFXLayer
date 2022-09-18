@@ -1,15 +1,9 @@
 namespace EZFXLayer.UIElements
 {
-    using System.IO;
     using UnityEditor;
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
     using UnityEditor.UIElements;
-    using VRC.SDK3.Avatars.ScriptableObjects;
     using System.Linq;
-    using System;
-    using System.Collections.Generic;
 
     [CustomEditor(typeof(AnimatorLayerComponent))]
     public class AnimatorLayerComponentEditor : Editor
@@ -74,7 +68,7 @@ namespace EZFXLayer.UIElements
             visualElement.EnableInClassList(
                 "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
-            visualElement.Q<UnityEngine.UIElements.Button>(name: "addNewAnimation").clicked += () =>
+            visualElement.Q<Button>(name: "addNewAnimation").clicked += () =>
             {
                 Utilities.RecordChange(target, "Add new animation", layer =>
                 {

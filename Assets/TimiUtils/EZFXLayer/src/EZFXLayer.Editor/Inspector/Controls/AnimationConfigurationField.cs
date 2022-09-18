@@ -1,6 +1,5 @@
 namespace EZFXLayer.UIElements
 {
-    using System;
     using System.Collections.Generic;
     using UnityEditor;
     using UnityEditor.UIElements;
@@ -36,10 +35,10 @@ namespace EZFXLayer.UIElements
                 AddToClassList("reference-animation");
             }
 
-            this.Q<UnityEngine.UIElements.Button>(name: "addBlendShape").clickable.clickedWithEventInfo += evt
-                => configOperations.SelectBlendShapes(buttonBox: ((UnityEngine.UIElements.Button)evt.target).worldBound);
+            this.Q<Button>(name: "addBlendShape").clickable.clickedWithEventInfo += evt
+                => configOperations.SelectBlendShapes(buttonBox: ((Button)evt.target).worldBound);
 
-            this.Q<UnityEngine.UIElements.Button>(name: "removeAnimationConfiguration").clicked += ()
+            this.Q<Button>(name: "removeAnimationConfiguration").clicked += ()
                 => this.configOperations.RemoveAnimation(animationConfigurationKey);
 
             _ = this.Q<TextField>(name: "animationName").RegisterValueChangedCallback(evt =>
@@ -85,10 +84,14 @@ namespace EZFXLayer.UIElements
                 () => new AnimatableGameObjectField(configOperations, isReferenceAnimation));
             gameObjects.Refresh();
 
+#pragma warning disable IDE0001 //purposely spelling out the full object field name because unity has one as well
             _ = foldoutContent.Q<EZFXLayer.UIElements.ObjectField>(name: "addGameObject").RegisterValueChangedCallback(evt =>
+#pragma warning restore IDE0001
             {
                 GameObject value = (GameObject)evt.newValue;
+#pragma warning disable IDE0001 //purposely spelling out the full object field name because unity has one as well
                 ((EZFXLayer.UIElements.ObjectField)evt.target).SetValueWithoutNotify(null);
+#pragma warning restore IDE0001
 
                 configOperations.AddGameObject(new AnimatableGameObject()
                 {

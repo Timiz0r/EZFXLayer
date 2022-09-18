@@ -5,9 +5,9 @@ namespace EZFXLayer.UIElements
     using OriginalObjectField = UnityEditor.UIElements.ObjectField;
     public class ObjectField : OriginalObjectField
     {
-        public new class UxmlFactory : UxmlFactory<ObjectField, UxmlTraits> { }
+        private new class UxmlFactory : UxmlFactory<ObjectField, UxmlTraits> { }
 
-        public new class UxmlTraits : OriginalObjectField.UxmlTraits
+        private new class UxmlTraits : OriginalObjectField.UxmlTraits
         {
             private readonly UxmlStringAttributeDescription objectTypeAttribute = new UxmlStringAttributeDescription
             {

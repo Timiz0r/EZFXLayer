@@ -64,7 +64,7 @@ namespace EZFXLayer.Test
             {
                 animation.isDefaultAnimation = false;
             }
-            this.animation.isDefaultAnimation = true;
+            animation.isDefaultAnimation = true;
 
             return this;
         }

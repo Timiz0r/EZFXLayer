@@ -62,11 +62,14 @@ namespace EZFXLayer.Test
                 EditorCurveBinding binding = AnimationUtility.GetCurveBindings(clip).Single();
                 AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, binding);
                 float value = curve.keys[0].value;
-                if (value == 0) return false;
-#pragma warning disable IDE0046
-                if (value == 1) return true;
-#pragma warning restore IDE0046
-                throw new ArgumentOutOfRangeException(nameof(clip), $"Clip has unexpected curve value of '{value}'.");
+                switch (value)
+                {
+                    case 0: return false;
+                    case 1: return true;
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            nameof(clip), $"Clip has unexpected curve value of '{value}'.");
+                }
             }
         }
 

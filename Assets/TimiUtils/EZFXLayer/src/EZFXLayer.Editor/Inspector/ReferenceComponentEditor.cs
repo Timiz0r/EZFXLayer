@@ -5,7 +5,6 @@ namespace EZFXLayer.UIElements
     using System.IO;
     using System.Linq;
     using UnityEditor;
-    using UnityEditor.Animations;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
@@ -162,7 +161,7 @@ namespace EZFXLayer.UIElements
             return result;
         }
 
-        private IEnumerable<T> GetComponentsInScene<T>(bool includeInactive = false)
+        private IEnumerable<T> GetComponentsInScene<T>(bool includeInactive = false) where T : Component
             => TargetScene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: includeInactive));
     }
 }
