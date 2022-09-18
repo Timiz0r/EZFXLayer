@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
+    xsi:schemaLocation="
+      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+>
+  <ezfx:CommonContainer>
+    <Style src="AnimatorLayerComponentEditor.uss" />
+
+    <TextField label="Name" binding-path="name" />
+    <TextField label="Menu path" binding-path="menuPath" />
+    <Toggle class="left-toggle" label="Manage states, conditions, and parameters" binding-path="manageAnimatorControllerStates" />
+    <Toggle class="left-toggle" label="Manage expressions menus and parameters" binding-path="manageExpressionMenuAndParameters" />
+
+    <VisualElement class="animation-container">
+      <VisualElement name="defaultAnimationPopup" />
+      <Label class="heading-label" text="Reference animation" />
+      <VisualElement name="reference-animation-container" />
+
+      <Label class="heading-label" text="Animations" />
+      <Toggle name="hideUnchangedItems" class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
+      <Button name="addNewAnimation" text="Add new animation" />
+      <VisualElement name="other-animation-container" />
+    </VisualElement>
+  </ezfx:CommonContainer>
+</UXML>

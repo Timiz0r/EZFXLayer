@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
+    xsi:schemaLocation="
+      UnityEngine.UIElements ../../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+>
+  <VisualElement style="flex-direction: row;">
+    <Style src="AnimatableBlendShapeField.uss" />
+
+    <Label binding-path="name" />
+    <Slider low-value="0" high-value="100" binding-path="value" />
+    <editor:FloatField binding-path="value" />
+    <Button class="reference-animation-edit" text="X" />
+  </VisualElement>
+</UXML>
