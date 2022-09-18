@@ -163,6 +163,6 @@ namespace EZFXLayer.UIElements
         }
 
         private IEnumerable<T> GetComponentsInScene<T>(bool includeInactive = false)
-            => TargetScene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: false));
+            => TargetScene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: includeInactive));
     }
 }
