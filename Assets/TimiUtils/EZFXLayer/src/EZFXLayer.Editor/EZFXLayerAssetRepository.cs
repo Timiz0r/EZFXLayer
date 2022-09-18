@@ -77,7 +77,6 @@ namespace EZFXLayer
             }
         }
 
-        //TODO: do a quick test and see if we can delete everything but still get the behavior we ewant
         //there are two goals with regards to how we do this: performance/time and git
         //the most difficult one is the animator controller, since it has many sub assets
         //currently, we mostly give up on this
@@ -139,24 +138,31 @@ namespace EZFXLayer
                     //such as a path=foo_bar and path=foo/bar couple of submenus
                     subMenuFolder = Path.Combine(
                         subMenuFolder,
-                        Regex.Replace(
-                            pathComponent,
-                            $"[{Regex.Escape(new string(Path.GetInvalidPathChars()))}]", "_"));
+                        EscapeFolderName(pathComponent));
                 }
                 _ = EnsureFolderCreated(subMenuFolder);
 
                 string subMenuFullPath = Path.Combine(
                     subMenuFolder,
-                    Regex.Replace(
-                        $"{subMenu.PathComponents[subMenu.PathComponents.Count - 1]}.asset",
-                        $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]", "_"));
+                    EscapeFileName($"{subMenu.PathComponents[subMenu.PathComponents.Count - 1]}.asset"));
                 _ = ReplaceOldGeneratedAssetWithWorkingAsset(subMenu.Menu, subMenuFullPath);
             }
         }
 
-        private void FinalizeAnimations() { }
-        //our guid rewriting is easier, since we only care about the meta file
-        //as there is no cross-referencing between assets for which this method is invoked
+        private void FinalizeAnimations()
+        {
+            foreach (GeneratedClip clip in generatedClips)
+            {
+                string animationFolder = EnsureFolderCreated(
+                    Path.Combine(
+                        generatedPath,
+                        "GeneratedClips",
+                        EscapeFolderName(clip.LayerName)));
+                string animationPath = Path.Combine(animationFolder, $"{EscapeFileName(clip.AnimationName)}.anim");
+                _ = ReplaceOldGeneratedAssetWithWorkingAsset(clip.Clip, animationPath);
+            }
+        }
+
         private T ReplaceOldGeneratedAssetWithWorkingAsset<T>(T asset, T referenceAsset) where T : UnityEngine.Object
         {
             string generatedAssetPath = Path.Combine(
@@ -165,6 +171,10 @@ namespace EZFXLayer
 
             return ReplaceOldGeneratedAssetWithWorkingAsset(asset, generatedAssetPath);
         }
+        //this particular trick maintains the asset (guid). it saves on asset importing time versus copying,
+        //reduces git changes, and reduces prefab changes
+        //
+        //here, at least for now, we'll favor not having undo entries for these, versus having many undo entries for these
         private static T ReplaceOldGeneratedAssetWithWorkingAsset<T>(T asset, string generatedAssetPath) where T : UnityEngine.Object
         {
             T generatedAsset = AssetDatabase.LoadAssetAtPath<T>(generatedAssetPath);
@@ -174,11 +184,13 @@ namespace EZFXLayer
                 //without reimporting, the name shows up a bit wrong (perhaps fixes on restart didnt check)
                 //no big deal, but we'll fix it anyway
                 AssetDatabase.ImportAsset(generatedAssetPath);
+                EditorUtility.SetDirty(generatedAsset);
                 return generatedAsset;
             }
             else
             {
                 AssetDatabase.CreateAsset(asset, generatedAssetPath);
+                EditorUtility.SetDirty(asset);
                 return asset;
             }
         }
@@ -203,6 +215,12 @@ namespace EZFXLayer
             }
             return currentPath;
         }
+
+        private static string EscapeFileName(string name)
+            => Regex.Replace(name, $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]", "_");
+
+        private static string EscapeFolderName(string name)
+            => Regex.Replace(name, $"[{Regex.Escape(new string(Path.GetInvalidPathChars()))}]", "_");
 
         void IAssetRepository.AnimationClipAdded(GeneratedClip clip) => generatedClips.Add(clip);
         void IAssetRepository.VRCSubMenuAdded(GeneratedMenu menu) => generatedMenus.Add(menu);
