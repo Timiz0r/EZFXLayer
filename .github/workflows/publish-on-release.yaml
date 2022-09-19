@@ -17,12 +17,21 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 12
-          registry-url: https://npm.pkg.github.com/
+          node-version: 18
+      - run: |
+          cat <<EOF > ~/.npmrc
+          //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:username=timiz0r
+          //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:_password=\${AZURE_ARTIFACTS_PAT}
+          //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:email=foo@foo.foo
+          registry=https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/
+          always-auth=true
+          EOF
+          echo Generated .npmrc:
+          cat ~/.npmrc
       - run: npm --no-git-tag-version version ${{github.ref_name}}
         working-directory: ./Assets/EZUtils/EZFXLayer
-      - run: npm publish --loglevel=silly --registry https://npm.pkg.github.com/@timiz0r
+      - run: npm publish --loglevel=silly
         working-directory: ./Assets/EZUtils/EZFXLayer
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          AZURE_ARTIFACTS_PAT: ${{secrets.AZURE_ARTIFACTS_PAT}}
       
