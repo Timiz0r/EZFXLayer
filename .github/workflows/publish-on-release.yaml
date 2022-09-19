@@ -17,10 +17,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 12
+          node-version: 18
       - run: |
           cat <<EOF > ~/.npmrc
-          #todo: kinda want this generated in the pipeline, but don't feel lik
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:username=timiz0r
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:_password=\${AZURE_ARTIFACTS_PAT}
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:email=foo@foo.foo
