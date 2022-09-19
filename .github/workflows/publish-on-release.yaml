@@ -15,10 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 12
-          registry-url: https://npm.pkg.github.com/
       - run: npm --no-git-tag-version version ${{github.ref_name}}
         working-directory: ./Assets/EZUtils/EZFXLayer
       - run: npm publish
