@@ -9,5 +9,10 @@
         "displayName": "Timiz0r/まむ",
         "url": "https://github.com/Timiz0r/EZFXLayer"
     },
-    "license": "LICENSE"
+    "license": "LICENSE",
+    "publishConfig": { "registry": "https://npm.pkg.github.com/@timiz0r" },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Timiz0r/EZFXLayer.git"
+    }
 }
