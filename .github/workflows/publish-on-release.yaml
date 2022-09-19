@@ -32,5 +32,5 @@ jobs:
       - run: npm publish --loglevel=silly --registry https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/ 
         working-directory: ./Assets/EZUtils/EZFXLayer
         env:
-          NODE_AUTH_TOKEN: ${{secrets.AZURE_ARTIFACTS_PAT}}
+          AZURE_ARTIFACTS_PAT: ${{secrets.AZURE_ARTIFACTS_PAT}}
       
