@@ -18,11 +18,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 12
-          registry-url: https://npm.pkg.github.com/
+          registry-url: https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/ 
       - run: npm --no-git-tag-version version ${{github.ref_name}}
         working-directory: ./Assets/EZUtils/EZFXLayer
-      - run: npm publish --loglevel=silly --registry https://npm.pkg.github.com/@timiz0r
+      - run: npm publish --loglevel=silly --registry https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/ 
         working-directory: ./Assets/EZUtils/EZFXLayer
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.AZURE_ARTIFACTS_PAT}}
       
