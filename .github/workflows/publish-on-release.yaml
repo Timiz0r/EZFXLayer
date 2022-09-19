@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 12
       - run: |
-          cat <<EOF > .npmrc
+          cat <<EOF > ~/.npmrc
           #todo: kinda want this generated in the pipeline, but don't feel lik
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:username=timiz0r
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:_password=${AZURE_ARTIFACTS_PAT}
@@ -27,7 +27,6 @@ jobs:
           registry=https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/
           always-auth=true
           EOF
-        working-directory: ./Assets/EZUtils/EZFXLayer
       - run: npm --no-git-tag-version version ${{github.ref_name}}
         working-directory: ./Assets/EZUtils/EZFXLayer
       - run: npm publish --loglevel=silly --registry https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/ 
