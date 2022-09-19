@@ -1,7 +1,7 @@
 {
     "$schema":"emptyschema.json",
     "name": "com.timiz0r.ezutils.ezfxlayer",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Tool providing an easy way to configure VRChat's FX playable animator controller layer",
     "displayName": "EZFXLayer",
     "unity": "2019.4",
@@ -10,7 +10,6 @@
         "url": "https://github.com/Timiz0r/EZFXLayer"
     },
     "license": "LICENSE",
-    "publishConfig": { "registry": "https://npm.pkg.github.com/@timiz0r" },
     "repository": {
       "type": "git",
       "url": "https://github.com/Timiz0r/EZFXLayer.git"
