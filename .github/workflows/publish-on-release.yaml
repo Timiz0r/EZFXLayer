@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
-      - run: npm --no-git-tag-version version from-git
+      - run: npm --no-git-tag-version version ${{github.ref_name}}
         working-directory: ./Assets/EZUtils/EZFXLayer
       - run: npm publish
         working-directory: ./Assets/EZUtils/EZFXLayer
