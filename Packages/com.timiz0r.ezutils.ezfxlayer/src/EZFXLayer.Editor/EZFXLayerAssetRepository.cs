@@ -109,11 +109,11 @@ namespace EZUtils.EZFXLayer
 
         private void FinalizeAnimations(AnimatorController generatedController)
         {
-            Dictionary<Motion, IEnumerable<AnimatorState>> workingClipsToGeneratedAnimatorStates = generatedController.layers
+            Dictionary<Motion, AnimatorState[]> workingClipsToGeneratedAnimatorStates = generatedController.layers
                 .SelectMany(l => l.stateMachine.states.Select(cs => cs.state))
                 .GroupBy(s => s.motion, (motion, states) => (motion, states))
                 .Where(g => g.motion != null)
-                .ToDictionary(g => g.motion, g => g.states);
+                .ToDictionary(g => g.motion, g => g.states.ToArray());
             foreach (GeneratedClip workingClip in generatedClips)
             {
                 string animationFolder = EnsureFolderCreated(
