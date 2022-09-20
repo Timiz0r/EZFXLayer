@@ -7,6 +7,7 @@ and expressions parameters creation and modification into simple configurations.
 
 ## Quick links
 [Manual](https://github.com/Timiz0r/EZFXLayer/wiki/Manual)
+
 [説明書](https://github.com/Timiz0r/EZFXLayer/wiki/%E8%AA%AC%E6%98%8E%E6%9B%B8)
 
 ## Overview
