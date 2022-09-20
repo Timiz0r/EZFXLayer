@@ -107,27 +107,48 @@ namespace EZUtils.EZFXLayer
             }
         }
 
+        private void FinalizeAnimations()
+        {
+            foreach (GeneratedClip clip in generatedClips)
+            {
+                string animationFolder = EnsureFolderCreated(
+                    Path.Combine(
+                        generatedPath,
+                        "GeneratedClips",
+                        EscapeFolderName(clip.LayerName)));
+                string animationPath = Path.Combine(animationFolder, $"{EscapeFileName(clip.AnimationName)}.anim");
+                _ = ReplaceOldGeneratedAssetWithWorkingAsset(clip.Clip, animationPath);
+            }
+        }
+
         private VRCExpressionsMenu FinalizeMenus()
         {
-            foreach (GeneratedMenu subMenu in generatedMenus)
-            {
-                SaveGeneratedSubMenu(subMenu);
-            }
+            (VRCExpressionsMenu referenceRootMenu, VRCExpressionsMenu workingRootMenu) = workingMenus.First();
+            VRCExpressionsMenu generatedRootMenu =
+                ReplaceOldGeneratedAssetWithWorkingAsset(workingRootMenu, referenceRootMenu);
 
-            VRCExpressionsMenu generatedRootMenu = null;
-            foreach ((VRCExpressionsMenu referenceMenu, VRCExpressionsMenu workingMenu) in workingMenus)
+            Dictionary<VRCExpressionsMenu, VRCExpressionsMenu> workingToGeneratedSubMenus =
+                generatedMenus
+                    .Select(m => SaveGeneratedSubMenu(m))
+                    .Union(
+                        workingMenus.Skip(1).Select(menu =>
+                        (
+                            menu.workingMenu,
+                            generatedMenu: ReplaceOldGeneratedAssetWithWorkingAsset(menu.workingMenu, menu.referenceMenu)
+                        )))
+                    .ToDictionary(menu => menu.workingMenu, menu => menu.generatedMenu);
+            workingToGeneratedSubMenus[workingRootMenu] = generatedRootMenu;
+
+            IReadOnlyList<SubMenuReplacementRecord> subMenuReplacementRecords =
+                SubMenuReplacementRecord.Create(workingRootMenu);
+            foreach (SubMenuReplacementRecord subMenu in subMenuReplacementRecords)
             {
-                VRCExpressionsMenu currentGeneratedMenu =
-                    ReplaceOldGeneratedAssetWithWorkingAsset(workingMenu, referenceMenu);
-                if (generatedRootMenu == null)
-                {
-                    generatedRootMenu = currentGeneratedMenu;
-                }
+                subMenu.ReplaceWithGenerated(workingToGeneratedSubMenus);
             }
 
             return generatedRootMenu;
 
-            void SaveGeneratedSubMenu(GeneratedMenu subMenu)
+            (VRCExpressionsMenu workingMenu, VRCExpressionsMenu generatedMenu) SaveGeneratedSubMenu(GeneratedMenu subMenu)
             {
                 string subMenuFolder = Path.Combine(generatedPath, "GeneratedSubMenus");
                 foreach (string pathComponent in subMenu.PathComponents)
@@ -143,21 +164,11 @@ namespace EZUtils.EZFXLayer
                 string subMenuFullPath = Path.Combine(
                     subMenuFolder,
                     EscapeFileName($"{subMenu.PathComponents[subMenu.PathComponents.Count - 1]}.asset"));
-                _ = ReplaceOldGeneratedAssetWithWorkingAsset(subMenu.Menu, subMenuFullPath);
-            }
-        }
-
-        private void FinalizeAnimations()
-        {
-            foreach (GeneratedClip clip in generatedClips)
-            {
-                string animationFolder = EnsureFolderCreated(
-                    Path.Combine(
-                        generatedPath,
-                        "GeneratedClips",
-                        EscapeFolderName(clip.LayerName)));
-                string animationPath = Path.Combine(animationFolder, $"{EscapeFileName(clip.AnimationName)}.anim");
-                _ = ReplaceOldGeneratedAssetWithWorkingAsset(clip.Clip, animationPath);
+                VRCExpressionsMenu workingMenu = subMenu.Menu;
+                VRCExpressionsMenu generatedMenu = ReplaceOldGeneratedAssetWithWorkingAsset(subMenu.Menu, subMenuFullPath);
+#pragma warning disable IDE0037 //simplify tuple name. want to make sure we get it in right order
+                return (workingMenu: workingMenu, generatedMenu: generatedMenu);
+#pragma warning restore IDE0037
             }
         }
 
@@ -227,5 +238,63 @@ namespace EZUtils.EZFXLayer
             => generatedControllerSubassets.Add(stateMachine);
         void IAssetRepository.FXAnimatorTransitionAdded(AnimatorStateTransition transition)
             => generatedControllerSubassets.Add(transition);
+
+        private class SubMenuReplacementRecord
+        {
+            private readonly int controlIndex;
+            private readonly VRCExpressionsMenu workingSubMenu;
+            private readonly VRCExpressionsMenu workingParentMenu;
+
+            public SubMenuReplacementRecord(
+                int controlIndex, VRCExpressionsMenu workingSubMenu, VRCExpressionsMenu workingParentMenu)
+            {
+                this.controlIndex = controlIndex;
+                this.workingSubMenu = workingSubMenu;
+                this.workingParentMenu = workingParentMenu;
+            }
+
+            //the hard part is that we have a tree of working copies to replace with generated copies
+            //the original implementation of this carefully controlled the order in which we process items
+            //so that we don't lose data by modifying the working-version of a menu and not the generated version.
+            //however, now we ensure ReplaceWithGenerated only ever manipulates generated menus!
+            public static IReadOnlyList<SubMenuReplacementRecord> Create(VRCExpressionsMenu rootMenu)
+            {
+                List<SubMenuReplacementRecord> records = new List<SubMenuReplacementRecord>();
+                TraverseMenuTree(rootMenu, records);
+                return records;
+            }
+
+            public void ReplaceWithGenerated(
+                IReadOnlyDictionary<VRCExpressionsMenu, VRCExpressionsMenu> workingToGeneratedSubMenus)
+            {
+                //a bit lacking on details, but it's a bit hard to get them
+                //by design should not happen, at least, as a key implementation detail is that the reference menu
+                //tree is copied beforehand in this very class, and the generator tells us all of the menus
+                //that were created by it, leaving no other submenus left unaccounted for.
+                if (!workingToGeneratedSubMenus.TryGetValue(workingSubMenu, out VRCExpressionsMenu generatedSubMenu))
+                {
+                    throw new InvalidOperationException($"Could not find replacement sub menu.");
+                }
+                if (!workingToGeneratedSubMenus.TryGetValue(workingParentMenu, out VRCExpressionsMenu generatedParentMenu))
+                {
+                    throw new InvalidOperationException($"Could not find replacement sub menu.");
+                }
+
+                generatedParentMenu.controls[controlIndex].subMenu = generatedSubMenu;
+            }
+
+            private static void TraverseMenuTree(VRCExpressionsMenu parentMenu, List<SubMenuReplacementRecord> records)
+            {
+                for (int i = 0; i < parentMenu.controls.Count; i++)
+                {
+                    VRCExpressionsMenu.Control control = parentMenu.controls[i];
+                    if (control.type != VRCExpressionsMenu.Control.ControlType.SubMenu) continue;
+
+                    //order of these should not matter
+                    TraverseMenuTree(control.subMenu, records);
+                    records.Add(new SubMenuReplacementRecord(i, control.subMenu, parentMenu));
+                }
+            }
+        }
     }
 }

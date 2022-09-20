@@ -5,9 +5,9 @@
     xmlns:editor="UnityEditor.UIElements"
     xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
     xsi:schemaLocation="
-      UnityEngine.UIElements ../../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
-      UnityEditor.UIElements ../../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
-      EZUtils.EZFXLayer.UIElements ../../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
   <VisualElement style="flex-direction: row;">
     <Style src="AnimatableBlendShapeField.uss" />
