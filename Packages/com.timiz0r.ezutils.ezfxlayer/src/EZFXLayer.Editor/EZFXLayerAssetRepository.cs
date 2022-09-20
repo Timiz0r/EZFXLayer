@@ -96,7 +96,7 @@ namespace EZUtils.EZFXLayer
                 VRCExpressionParameters generatedParameters =
                     ReplaceOldGeneratedAssetWithWorkingAsset(workingParameters, referenceParameters);
 
-                FinalizeAnimations();
+                FinalizeAnimations(generatedController);
 
                 return (generatedController, generatedMenu, generatedParameters);
             }
@@ -107,17 +107,28 @@ namespace EZUtils.EZFXLayer
             }
         }
 
-        private void FinalizeAnimations()
+        private void FinalizeAnimations(AnimatorController generatedController)
         {
-            foreach (GeneratedClip clip in generatedClips)
+            Dictionary<Motion, IEnumerable<AnimatorState>> workingClipsToGeneratedAnimatorStates = generatedController.layers
+                .SelectMany(l => l.stateMachine.states.Select(cs => cs.state))
+                .GroupBy(s => s.motion, (motion, states) => (motion, states))
+                .ToDictionary(s => s.motion, s => s.states);
+            foreach (GeneratedClip workingClip in generatedClips)
             {
                 string animationFolder = EnsureFolderCreated(
                     Path.Combine(
                         generatedPath,
                         "GeneratedClips",
-                        EscapeFolderName(clip.LayerName)));
-                string animationPath = Path.Combine(animationFolder, $"{EscapeFileName(clip.AnimationName)}.anim");
-                _ = ReplaceOldGeneratedAssetWithWorkingAsset(clip.Clip, animationPath);
+                        EscapeFolderName(workingClip.LayerName)));
+                string animationPath = Path.Combine(animationFolder, $"{EscapeFileName(workingClip.AnimationName)}.anim");
+                AnimationClip generatedClip = ReplaceOldGeneratedAssetWithWorkingAsset(workingClip.Clip, animationPath);
+
+                IEnumerable<AnimatorState> generatedAnimatorStates = workingClipsToGeneratedAnimatorStates[workingClip.Clip];
+
+                foreach (AnimatorState generatedAnimatorState in generatedAnimatorStates)
+                {
+                    generatedAnimatorState.motion = generatedClip;
+                }
             }
         }
 
@@ -172,19 +183,8 @@ namespace EZUtils.EZFXLayer
                     //order of this should not matter; can come before or after the swap
                     ReplaceWorkingMenusWithGeneratedMenus(control.subMenu);
 
-                    //exceptions a bit lacking on details, but it's a bit hard to get the details
-                    //by design should not happen, at least, as a key implementation detail is that the reference menu
-                    //tree is copied beforehand in this very class, and the generator tells us all of the menus
-                    //that were created by it, leaving no other submenus left unaccounted for.
-                    if (!workingToGeneratedSubMenus.TryGetValue(control.subMenu, out VRCExpressionsMenu generatedSubMenu))
-                    {
-                        throw new InvalidOperationException($"Could not find replacement sub menu.");
-                    }
-                    if (!workingToGeneratedSubMenus.TryGetValue(workingParentMenu, out VRCExpressionsMenu generatedParentMenu))
-                    {
-                        throw new InvalidOperationException($"Could not find replacement sub menu.");
-                    }
-
+                    VRCExpressionsMenu generatedSubMenu = workingToGeneratedSubMenus[control.subMenu];
+                    VRCExpressionsMenu generatedParentMenu = workingToGeneratedSubMenus[workingParentMenu];
                     generatedParentMenu.controls[i].subMenu = generatedSubMenu;
                 }
             }
