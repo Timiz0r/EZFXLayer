@@ -19,7 +19,7 @@ namespace EZUtils.EZFXLayer.UIElements
             bool isFromReferenceAnimation)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/EZUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
+                "Packages/com.timiz0r.ezutils.ezfxlayer/src/EZFXLayer.Editor/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
             this.configOperations = configOperations;

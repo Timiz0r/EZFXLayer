@@ -28,7 +28,7 @@ namespace EZUtils.EZFXLayer.UIElements
             this.configOperations = configOperations;
 
             groupVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/EZUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/BlendShapeContainer.uxml");
+                "Packages/com.timiz0r.ezutils.ezfxlayer/src/EZFXLayer.Editor/Inspector/BlendShapeContainer.uxml");
         }
 
         public VisualElement RootContainer { get; }
