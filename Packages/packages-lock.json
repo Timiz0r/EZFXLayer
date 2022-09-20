@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.timiz0r.ezutils.ezfxlayer": {
-      "version": "file:EZFXLayer",
+      "version": "file:com.timiz0r.ezutils.ezfxlayer",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
