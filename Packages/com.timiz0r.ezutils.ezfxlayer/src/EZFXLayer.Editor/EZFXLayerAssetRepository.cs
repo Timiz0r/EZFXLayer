@@ -112,7 +112,8 @@ namespace EZUtils.EZFXLayer
             Dictionary<Motion, IEnumerable<AnimatorState>> workingClipsToGeneratedAnimatorStates = generatedController.layers
                 .SelectMany(l => l.stateMachine.states.Select(cs => cs.state))
                 .GroupBy(s => s.motion, (motion, states) => (motion, states))
-                .ToDictionary(s => s.motion, s => s.states);
+                .Where(g => g.motion != null)
+                .ToDictionary(g => g.motion, g => g.states);
             foreach (GeneratedClip workingClip in generatedClips)
             {
                 string animationFolder = EnsureFolderCreated(
