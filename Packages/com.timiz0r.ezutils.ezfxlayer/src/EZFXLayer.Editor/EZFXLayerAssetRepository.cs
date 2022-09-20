@@ -145,15 +145,11 @@ namespace EZUtils.EZFXLayer
 
             (VRCExpressionsMenu workingMenu, VRCExpressionsMenu generatedMenu) SaveGeneratedSubMenu(GeneratedMenu subMenu)
             {
-                string subMenuFolder = Path.Combine(generatedPath, "GeneratedSubMenus");
-                foreach (string pathComponent in subMenu.PathComponents)
-                {
-                    //we create folders mainly to avoid unlikely but possible name collisions
-                    //such as a path=foo_bar and path=foo/bar couple of submenus
-                    subMenuFolder = Path.Combine(
-                        subMenuFolder,
-                        EscapeFolderName(pathComponent));
-                }
+                //we create folders mainly to avoid unlikely but possible name collisions
+                //such as a path=foo_bar and path=foo/bar couple of submenus
+                string subMenuFolder = subMenu.PathComponents.Aggregate(
+                    Path.Combine(generatedPath, "GeneratedSubMenus"),
+                    (acc, next) => Path.Combine(acc, EscapeFolderName(next)));
                 _ = EnsureFolderCreated(subMenuFolder);
 
                 string subMenuFullPath = Path.Combine(
