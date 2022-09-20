@@ -27,7 +27,7 @@ namespace EZUtils.EZFXLayer.UIElements
             //TODO: on second thought, go with serialized fields since we dont have to hard code paths
             //prob not this, but other controls may move to a common area
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/EZUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/AnimationConfigurationField.uxml");
+                "Packages/com.timiz0r.ezutils.ezfxlayer/src/EZFXLayer.Editor/Inspector/Controls/AnimationConfigurationField.uxml");
             visualTree.CloneTree(this);
 
             if (isReferenceAnimation)

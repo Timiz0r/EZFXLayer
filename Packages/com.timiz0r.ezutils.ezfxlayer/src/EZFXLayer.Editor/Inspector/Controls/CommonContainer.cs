@@ -13,7 +13,7 @@ namespace EZUtils.EZFXLayer.UIElements
         public CommonContainer()
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/EZUtils/EZFXLayer/src/EZFXLayer.Editor/Inspector/Controls/CommonContainer.uxml");
+                "Packages/com.timiz0r.ezutils.ezfxlayer/src/EZFXLayer.Editor/Inspector/Controls/CommonContainer.uxml");
             visualTree.CloneTree(this);
 
             container = this.Q<VisualElement>(name: "root-container");
