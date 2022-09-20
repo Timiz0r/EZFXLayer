@@ -29,9 +29,9 @@ jobs:
           echo Generated .npmrc:
           cat ~/.npmrc
       - run: npm --no-git-tag-version version ${{github.ref_name}}
-        working-directory: ./Assets/EZUtils/EZFXLayer
+        working-directory: ./Packages/com.timiz0r.ezutils.ezfxlayer
       - run: npm publish --loglevel=silly
-        working-directory: ./Assets/EZUtils/EZFXLayer
+        working-directory: ./Packages/com.timiz0r.ezutils.ezfxlayer
         env:
           AZURE_ARTIFACTS_PAT: ${{secrets.AZURE_ARTIFACTS_PAT}}
       
