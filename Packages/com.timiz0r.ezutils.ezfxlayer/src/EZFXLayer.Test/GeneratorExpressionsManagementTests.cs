@@ -404,5 +404,41 @@ namespace EZUtils.EZFXLayer.Test
             Assert.That(testSetup.Assets.SubMenusAdded[2].Menu.controls[0].name, Is.EqualTo(@"anim"));
             Assert.That(testSetup.Assets.SubMenusAdded[2].PathComponents, Is.EqualTo(new[] { @"foo", @"/bar", @"\baz" }));
         }
+
+        [Test]
+        public void Throw_IfAttemptingToToggleToFullMenu()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer("1", l => l.AddAnimation("anim1", a => { }))
+                .AddLayer("2", l => l.AddAnimation("anim2", a => { }))
+                .AddLayer("3", l => l.AddAnimation("anim3", a => { }))
+                .AddLayer("4", l => l.AddAnimation("anim4", a => { }))
+                .AddLayer("5", l => l.AddAnimation("anim5", a => { }))
+                .AddLayer("6", l => l.AddAnimation("anim6", a => { }))
+                .AddLayer("7", l => l.AddAnimation("anim7", a => { }))
+                .AddLayer("8", l => l.AddAnimation("anim8", a => { }))
+                .AddLayer("9", l => l.AddAnimation("anim9", a => { }));
+
+            Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void Throw_IfAttemptingToAddSubmenuToFullMenu()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer("1", l => l.WithMenuPath("1").AddAnimation("anim", a => { }))
+                .AddLayer("2", l => l.WithMenuPath("2").AddAnimation("anim", a => { }))
+                .AddLayer("3", l => l.WithMenuPath("3").AddAnimation("anim", a => { }))
+                .AddLayer("4", l => l.WithMenuPath("4").AddAnimation("anim", a => { }))
+                .AddLayer("5", l => l.WithMenuPath("5").AddAnimation("anim", a => { }))
+                .AddLayer("6", l => l.WithMenuPath("6").AddAnimation("anim", a => { }))
+                .AddLayer("7", l => l.WithMenuPath("7").AddAnimation("anim", a => { }))
+                .AddLayer("8", l => l.WithMenuPath("8").AddAnimation("anim", a => { }))
+                .AddLayer("9", l => l.WithMenuPath("9").AddAnimation("anim", a => { }));
+
+            Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
+        }
     }
 }

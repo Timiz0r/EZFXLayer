@@ -57,7 +57,7 @@ namespace EZUtils.EZFXLayer
                     c => c.type == VRCExpressionsMenu.Control.ControlType.SubMenu && c.name == pathPart)?.subMenu;
                 if (nextMenu == null)
                 {
-                    if (currentMenu.controls.Count > 8) throw new InvalidOperationException(
+                    if (currentMenu.controls.Count >= 8) throw new InvalidOperationException(
                         "Cannot add a new sub menu because there are already 8 items in its parent." +
                         $"Menu: {string.Join(" -> ", accumulatedMenuPaths)}");
 

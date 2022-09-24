@@ -207,6 +207,9 @@ namespace EZUtils.EZFXLayer
                 AnimationConfigurationHelper animation = animations[i];
                 VRCExpressionsMenu.Control toggle = animation.GetMenuToggle(expressionParameter.name, i);
                 if (toggle == null) continue;
+                if (targetMenu.controls.Count >= 8) throw new InvalidOperationException(
+                        "Cannot add a new toggle because there are already 8 items in the menu." +
+                        $"Menu: {menuPath}");
                 targetMenu.controls.Add(toggle);
             }
         }
