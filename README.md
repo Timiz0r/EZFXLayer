@@ -3,7 +3,8 @@ EZFXLayer is a tool used in the authoring of VRChat avatars. It simplifies the a
 customizing VRChat avatars' FX playable layer, distilling animator controller, animation, expression menu,
 and expressions parameters creation and modification into simple configurations.
 
-
+EZFXLayerは、アバター創作と改変するためのツールです。このツールでトグルとシンプルなアニメーションを簡単に作れます。
+EZFXLayerの簡単な設定で、VRChatのFXレイヤー、メニュー、パラメータを、自動的に生成することができます。
 
 ## Quick links
 [Manual](https://github.com/Timiz0r/EZFXLayer/wiki/Manual)
