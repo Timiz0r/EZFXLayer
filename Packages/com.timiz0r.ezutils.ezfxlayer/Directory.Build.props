@@ -7,8 +7,8 @@
     <SrcRoot>$(ProjectRoot)\src</SrcRoot>
     <OutRoot>$(ProjectRoot)\.out</OutRoot>
     <PublishRoot>$(ProjectRoot)\.out</PublishRoot>
-    <AssetRoot>$(ProjectRoot)\..\..</AssetRoot>
-    <RepoRoot>$(ProjectRoot)\..\..\..</RepoRoot>
+    <RepoRoot>$(ProjectRoot)\..\..</RepoRoot>
+    <AssetRoot>$(RepoRoot)\Assets</AssetRoot>
 
     <!--
       meant to be overriden via command-line, such as in azure pipelines.
