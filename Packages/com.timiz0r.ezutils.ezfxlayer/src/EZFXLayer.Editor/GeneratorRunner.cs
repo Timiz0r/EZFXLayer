@@ -53,6 +53,11 @@ namespace EZUtils.EZFXLayer
 
         private void GenerateImpl()
         {
+            if (string.IsNullOrEmpty(scene.path))
+            {
+                throw new InvalidOperationException("Please save the scene before attempting to generate.");
+            }
+
             IEnumerable<AnimatorLayerConfiguration> layers =
                 layerComponents.Select(l => AnimatorLayerConfiguration.FromComponent(l, referenceComponent.generationOptions));
             string outputPath = Path.Combine(Path.GetDirectoryName(scene.path), "EZFXLayer");
