@@ -9,6 +9,8 @@ namespace EZUtils.EZFXLayer.Test
 
     public class GeneratorAnimationGenerationTests
     {
+        [SetUp]
+        public void SetUp() => TestSetup.StandardTestSetUp();
 
         //unlikely to be done on purpose, since it's pointless, but better than failing weirdly
         //or we can decide to throw a useful exception

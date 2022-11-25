@@ -6,6 +6,9 @@ namespace EZUtils.EZFXLayer.Test
 
     public class GeneratorStateManagementTests
     {
+        [SetUp]
+        public void SetUp() => TestSetup.StandardTestSetUp();
+
         [Test]
         public void AddsBasicallyEmptyAnimatorLayer_WithEmptyLayerConfig()
         {

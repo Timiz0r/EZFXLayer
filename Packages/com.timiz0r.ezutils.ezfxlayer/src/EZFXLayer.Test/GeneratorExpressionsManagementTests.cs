@@ -7,6 +7,8 @@ namespace EZUtils.EZFXLayer.Test
     //we'll also throw controller parameter stuff in here just because
     public class GeneratorExpressionsManagementTests
     {
+        [SetUp]
+        public void SetUp() => TestSetup.StandardTestSetUp();
 
         [Test]
         public void ChoosesAppropriateParameterType_BasedOnAnimationCount()
