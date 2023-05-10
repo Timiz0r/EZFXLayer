@@ -1,10 +1,18 @@
 {
   "dependencies": {
     "com.timiz0r.ezutils.ezfxlayer": {
-      "version": "file:com.timiz0r.ezutils.ezfxlayer",
+      "version": "file:../src/EZFXLayer",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
+    },
+    "com.timiz0r.ezutils.ezfxlayer.tests": {
+      "version": "file:../src/EZFXLayer.Tests",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.timiz0r.ezutils.ezfxlayer": "1.0.1"
+      }
     },
     "com.unity.burst": {
       "version": "1.4.11",

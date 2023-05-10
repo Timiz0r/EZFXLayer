@@ -1,0 +1,12 @@
+J:\Unity\EZFXLayer\.build\Tasks\bin\Debug\net6.0\BuildTasks.deps.json
+J:\Unity\EZFXLayer\.build\Tasks\bin\Debug\net6.0\BuildTasks.dll
+J:\Unity\EZFXLayer\.build\Tasks\bin\Debug\net6.0\BuildTasks.pdb
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.csproj.AssemblyReference.cache
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.GeneratedMSBuildEditorConfig.editorconfig
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.AssemblyInfoInputs.cache
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.AssemblyInfo.cs
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.csproj.CoreCompileInputs.cache
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.dll
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\refint\BuildTasks.dll
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\BuildTasks.pdb
+J:\Unity\EZFXLayer\.build\Tasks\obj\Debug\net6.0\ref\BuildTasks.dll

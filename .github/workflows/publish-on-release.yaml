@@ -1,24 +1,35 @@
-name: Publish package on release
+name: Create releases for updated packages
 
 on:
-  release:
-    types: [created]
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   publish:
+    name: Publish ${{ matrix.package.name }}
     runs-on: ubuntu-latest
     permissions:
       packages: write
-      contents: read
-
+      contents: write
+    strategy:
+      # an awkward consequence is that dependencies might not get published
+      # but nothing to do about that in a workflow
+      fail-fast: false
+      matrix:
+        package:
+          - name: com.timiz0r.ezutils.ezfxlayer
+            path: ./src/EZFXLayer
     steps:
       - uses: actions/checkout@v3
+        with:
+          lfs: 'true'
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: |
+      - name: Setup npmrc
+        run: |
           cat <<EOF > ~/.npmrc
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:username=timiz0r
           //pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/:_password=\${AZURE_ARTIFACTS_PAT}
@@ -26,12 +37,9 @@ jobs:
           registry=https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry/
           always-auth=true
           EOF
-          echo Generated .npmrc:
-          cat ~/.npmrc
-      - run: npm --no-git-tag-version version ${{github.ref_name}}
-        working-directory: ./Packages/com.timiz0r.ezutils.ezfxlayer
-      - run: npm publish --loglevel=silly
-        working-directory: ./Packages/com.timiz0r.ezutils.ezfxlayer
+      - name: Publish package
+        uses: ./.github/actions/publish-package
+        with:
+          package-path: ${{ matrix.package.path }}
         env:
-          AZURE_ARTIFACTS_PAT: ${{secrets.AZURE_ARTIFACTS_PAT}}
-      
+            AZURE_ARTIFACTS_PAT: ${{secrets.AZURE_ARTIFACTS_PAT}}
