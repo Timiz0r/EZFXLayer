@@ -11,6 +11,8 @@ namespace EZUtils.EZFXLayer.UIElements
     using VRC.SDK3.Avatars.Components;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     [CustomEditor(typeof(ReferenceComponent))]
     public class ReferenceComponentEditor : Editor
     {
@@ -23,6 +25,7 @@ namespace EZUtils.EZFXLayer.UIElements
         public override VisualElement CreateInspectorGUI()
         {
             VisualElement element = uxml.CloneTree();
+            TranslateElementTree(element);
 
             Button createBasicFXControllerButton = element.Q<Button>(name: "createBasicFXLayerController");
             createBasicFXControllerButton.clicked += () =>

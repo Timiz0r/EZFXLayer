@@ -33,7 +33,7 @@
       "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"
     },
     "com.timiz0r.ezutils.localization.extraction": {
-      "version": "1.0.4",
+      "version": "1.0.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {

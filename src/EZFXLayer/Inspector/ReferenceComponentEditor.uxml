@@ -16,21 +16,21 @@
     <ezfx:ObjectField name="menuField" objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />
     <ezfx:ObjectField name="parametersField" objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters, VRCSDK3A" binding-path="vrcExpressionParameters" />
 
-    <Button name="populateFromFirstAvatar" text="Populate from first avatar" />
+    <Button name="populateFromFirstAvatar" text="loc:Populate from first avatar" />
 
     <VisualElement class="artifact-creation-container">
-      <Button name="createBasicFXLayerController" text="Create basic FX layer animator controller" />
-      <Button name="createBasicVRCRootExpressionsMenu" text="Create basic root expressions menu" />
-      <Button name="createBasicVRCExpressionParameters" text="Create basic expression parameters" />
+      <Button name="createBasicFXLayerController" text="loc:Create basic FX layer animator controller" />
+      <Button name="createBasicVRCRootExpressionsMenu" text="loc:Create basic root expressions menu" />
+      <Button name="createBasicVRCExpressionParameters" text="loc:Create basic expression parameters" />
     </VisualElement>
 
-    <ezfx:HelpBox label="Auto-generation not yet working" message-type="Info" />
-    <Toggle class="left-toggle" label="Generate on upload" binding-path="generateOnUpload" />
+    <ezfx:HelpBox label="loc:Auto-generation not yet working" message-type="Info" />
+    <Toggle class="left-toggle" label="loc:Generate on upload" binding-path="generateOnUpload" />
 
     <BindableElement class="generation-options-container" binding-path="generationOptions">
-      <Toggle class="left-toggle" label="Set write default values on generated states" binding-path="setWriteDefaultValues" />
+      <Toggle class="left-toggle" label="loc:Set write default values on generated states" binding-path="setWriteDefaultValues" />
     </BindableElement>
 
-    <Button name="generate" text="Generate" />
+    <Button name="generate" text="loc:Generate" />
   </ezfx:CommonContainer>
 </UXML>

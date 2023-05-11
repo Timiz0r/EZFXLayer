@@ -12,19 +12,19 @@
   <ezfx:CommonContainer>
     <Style src="AnimatorLayerComponentEditor.uss" />
 
-    <TextField label="Name" binding-path="name" />
-    <TextField label="Menu path" binding-path="menuPath" />
-    <Toggle class="left-toggle" label="Manage states, conditions, and parameters" binding-path="manageAnimatorControllerStates" />
-    <Toggle class="left-toggle" label="Manage expressions menus and parameters" binding-path="manageExpressionMenuAndParameters" />
+    <TextField label="loc:Name" binding-path="name" />
+    <TextField label="loc:Menu path" binding-path="menuPath" />
+    <Toggle class="left-toggle" label="loc:Manage states, conditions, and parameters" binding-path="manageAnimatorControllerStates" />
+    <Toggle class="left-toggle" label="loc:Manage expressions menus and parameters" binding-path="manageExpressionMenuAndParameters" />
 
     <VisualElement class="animation-container">
       <VisualElement name="defaultAnimationPopup" />
-      <Label class="heading-label" text="Reference animation" />
+      <Label class="heading-label" text="loc:Reference animation" />
       <VisualElement name="reference-animation-container" />
 
-      <Label class="heading-label" text="Animations" />
-      <Toggle name="hideUnchangedItems" class="left-toggle" label="Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
-      <Button name="addNewAnimation" text="Add new animation" />
+      <Label class="heading-label" text="loc:Animations" />
+      <Toggle name="hideUnchangedItems" class="left-toggle" label="loc:Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
+      <Button name="addNewAnimation" text="loc:Add new animation" />
       <VisualElement name="other-animation-container" />
     </VisualElement>
   </ezfx:CommonContainer>

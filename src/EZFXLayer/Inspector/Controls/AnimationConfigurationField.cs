@@ -6,6 +6,8 @@ namespace EZUtils.EZFXLayer.UIElements
     using UnityEngine;
     using UnityEngine.UIElements;
 
+    using static Localization;
+
     internal class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
     {
         private readonly ConfigurationOperations configOperations;
@@ -29,6 +31,7 @@ namespace EZUtils.EZFXLayer.UIElements
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml");
             visualTree.CloneTree(this);
+            TranslateElementTree(this);
 
             if (isReferenceAnimation)
             {

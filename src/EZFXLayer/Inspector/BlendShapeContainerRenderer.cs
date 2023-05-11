@@ -6,6 +6,8 @@ namespace EZUtils.EZFXLayer.UIElements
     using UnityEngine;
     using UnityEngine.UIElements;
 
+    using static Localization;
+
     //TODO: each renderer could probably actually be its own custom control, which would be a smoother design
     //not that the current design is bad, so not a priority
     internal class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
@@ -97,6 +99,7 @@ namespace EZUtils.EZFXLayer.UIElements
             }
 
             VisualElement blendShapeGroup = groupVisualTree.CloneTree();
+            TranslateElementTree(blendShapeGroup);
             blendShapeGroup.Q<EZFXLayer.UIElements.ObjectField>().value = blendShape.skinnedMeshRenderer;
             blendShapeGroups.Add(blendShape.skinnedMeshRenderer, blendShapeGroup);
             RootContainer.Add(blendShapeGroup);

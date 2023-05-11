@@ -44,7 +44,7 @@ msgid "There is no reference animation."
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:143
-# id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set. 
+# id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
 msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
 msgstr ""
 
@@ -75,6 +75,94 @@ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:91
 msgid "Applying generation to avatar"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:15
+msgid "Name"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:16
+msgid "Menu path"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:17
+msgid "Manage states, conditions, and parameters"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:18
+msgid "Manage expressions menus and parameters"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:22
+msgid "Reference animation"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:25
+msgid "Animations"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:26
+msgid "Hide unchanged items"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:27
+msgid "Add new animation"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:26
+msgid "Custom toggle name"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:27
+msgid "Custom state name"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:31
+msgid "Blend shapes"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:33
+msgid "Add blend shapes"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:37
+msgid "GameObjects"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
+msgid "Add GameObject"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:19
+msgid "Populate from first avatar"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:22
+msgid "Create basic FX layer animator controller"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:23
+msgid "Create basic root expressions menu"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:24
+msgid "Create basic expression parameters"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:27
+msgid "Auto-generation not yet working"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:28
+msgid "Generate on upload"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:31
+msgid "Set write default values on generated states"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:34
+msgid "Generate"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:62
