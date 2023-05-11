@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "com.timiz0r.ezutils.common": "1.0.5",
+    "com.timiz0r.ezutils.ezfxlayer": "file:../src/EZFXLayer",
+    "com.timiz0r.ezutils.ezfxlayer.tests": "file:../src/EZFXLayer.Tests",
+    "com.timiz0r.ezutils.localization.extraction": "1.0.6",
+    "com.timiz0r.ezutils.packagemanager": "1.0.3",
     "com.unity.collab-proxy": "1.10.2",
     "com.unity.ext.nunit": "2.0.3",
     "com.unity.ide.rider": "1.2.1",
@@ -43,5 +48,17 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+  "testables": [
+    "com.timiz0r.ezutils.ezfxlayer.tests"
+  ],
+  "scopedRegistries": [
+    {
+      "name": "EZUtils",
+      "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry",
+      "scopes": [
+        "com.timiz0r.ezutils"
+      ]
+    }
+  ]
 }
