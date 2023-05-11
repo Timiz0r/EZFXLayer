@@ -5,6 +5,8 @@
     using UnityEditor.Animations;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     public partial class EZFXLayerGenerator
     {
         private readonly EZFXLayerConfiguration configuration;
@@ -58,7 +60,7 @@
                 .ToArray();
 
             if (duplicateLayers.Length > 0) throw new InvalidOperationException(
-                $"Duplicate non-empty layers found in configuration: {string.Join(", ", duplicateLayers)}.");
+                T($"Duplicate non-empty layers found in configuration: {string.Join(", ", duplicateLayers)}."));
         }
     }
 }

@@ -10,6 +10,8 @@ namespace EZUtils.EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     internal class EZFXLayerAssetRepository : IAssetRepository
     {
         private readonly string generatedPath;
@@ -223,7 +225,7 @@ namespace EZUtils.EZFXLayer
         private static string EnsureFolderCreated(string path)
         {
             if (!Regex.IsMatch(path, @"^Assets[/\\]")) throw new ArgumentOutOfRangeException(
-                nameof(path), $"Path '{path}' is not rooted in Assets.");
+                nameof(path), T($"Path '{path}' is not rooted in Assets."));
             if (AssetDatabase.IsValidFolder(path)) return path;
 
             string[] splitPath = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);

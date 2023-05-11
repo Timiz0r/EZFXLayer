@@ -9,6 +9,8 @@ namespace EZUtils.EZFXLayer
     using VRC.SDK3.Avatars.Components;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     internal static class Utilities
     {
         public static string GetRelativePath(this GameObject gameObject)
@@ -58,8 +60,8 @@ namespace EZUtils.EZFXLayer
                 if (nextMenu == null)
                 {
                     if (currentMenu.controls.Count >= 8) throw new InvalidOperationException(
-                        "Cannot add a new sub menu because there are already 8 items in its parent." +
-                        $"Menu: {string.Join(" -> ", accumulatedMenuPaths)}");
+                        T("Cannot add a new sub menu because there are already 8 items in its parent.") +
+                        T($"Menu: {string.Join(" -> ", accumulatedMenuPaths)}"));
 
                     nextMenu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
                     currentMenu.controls.Add(new VRCExpressionsMenu.Control()

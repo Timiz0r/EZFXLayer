@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.timiz0r.ezutils.common": {
+      "version": "1.0.6",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"
+    },
     "com.timiz0r.ezutils.ezfxlayer": {
       "version": "file:../src/EZFXLayer",
       "depth": 0,
@@ -13,6 +20,34 @@
       "dependencies": {
         "com.timiz0r.ezutils.ezfxlayer": "1.0.1"
       }
+    },
+    "com.timiz0r.ezutils.localization": {
+      "version": "1.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.timiz0r.ezutils.common": "1.0.6"
+      },
+      "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"
+    },
+    "com.timiz0r.ezutils.localization.extraction": {
+      "version": "1.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.timiz0r.ezutils.localization": "1.0.1",
+        "com.timiz0r.ezutils.common": "1.0.6"
+      },
+      "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"
+    },
+    "com.timiz0r.ezutils.packagemanager": {
+      "version": "1.0.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.2"
+      },
+      "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"
     },
     "com.unity.burst": {
       "version": "1.4.11",

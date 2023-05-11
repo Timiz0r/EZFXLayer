@@ -7,6 +7,8 @@ namespace EZUtils.EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     //the reason AnimationConfigurationHelper exists and AnimatorLayerConfigurationHelper doesnt is because
     //this class is a public driver port of the app, and the other is an internal implementation detail of the app
     public class AnimatorLayerConfiguration
@@ -52,7 +54,8 @@ namespace EZUtils.EZFXLayer
                     referenceAnimationIndex = i;
                 }
             }
-            if (referenceAnimationIndex == -1) throw new ArgumentOutOfRangeException(nameof(animations), "There is no reference animation.");
+            if (referenceAnimationIndex == -1) throw new ArgumentOutOfRangeException(
+                nameof(animations), T("There is no reference animation."));
             int defaultValue = defaultAnimationIndex >= 0 ? defaultAnimationIndex : referenceAnimationIndex;
 
             parameter = animations.Count > 2
@@ -208,8 +211,8 @@ namespace EZUtils.EZFXLayer
                 VRCExpressionsMenu.Control toggle = animation.GetMenuToggle(expressionParameter.name, i);
                 if (toggle == null) continue;
                 if (targetMenu.controls.Count >= 8) throw new InvalidOperationException(
-                        "Cannot add a new toggle because there are already 8 items in the menu." +
-                        $"Menu: {menuPath}");
+                        T("Cannot add a new toggle because there are already 8 items in the menu.") +
+                        T($"Menu: {menuPath}"));
                 targetMenu.controls.Add(toggle);
             }
         }

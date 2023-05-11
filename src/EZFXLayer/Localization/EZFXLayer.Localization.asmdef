@@ -1,9 +1,7 @@
 {
-    "name": "EZFXLayer",
+    "name": "EZFXLayer.Localization",
     "references": [
-        "EZUtils.Localization",
-        "EZFXLayer.Components",
-        "EZFXLayer.Localization"
+        "EZUtils.Localization"
     ],
     "includePlatforms": [
         "Editor"

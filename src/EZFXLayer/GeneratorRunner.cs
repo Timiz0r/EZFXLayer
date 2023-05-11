@@ -10,6 +10,8 @@ namespace EZUtils.EZFXLayer
     using VRC.SDK3.Avatars.Components;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     internal class GeneratorRunner
     {
         private readonly ReferenceComponent referenceComponent;
@@ -55,7 +57,7 @@ namespace EZUtils.EZFXLayer
         {
             if (string.IsNullOrEmpty(scene.path))
             {
-                throw new InvalidOperationException("Please save the scene before attempting to generate.");
+                throw new InvalidOperationException(T("Please save the scene before attempting to generate."));
             }
 
             IEnumerable<AnimatorLayerConfiguration> layers =

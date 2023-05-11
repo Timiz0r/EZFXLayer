@@ -1,6 +1,9 @@
 {
     "name": "EZFXLayer.Components",
-    "references": [],
+    "references": [
+        "EZUtils.Localization",
+        "EZFXLayer.Localization"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [
         "Android",
