@@ -5,12 +5,14 @@
     xmlns:editor="UnityEditor.UIElements"
     xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
     xsi:schemaLocation="
-      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
-      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
-      EZUtils.EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+      UnityEngine.UIElements ../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
   <ezfx:CommonContainer>
     <Style src="AnimatorLayerComponentEditor.uss" />
+
+    <editor:Toolbar />
 
     <TextField label="loc:Name" binding-path="name" />
     <TextField label="loc:Menu path" binding-path="menuPath" />

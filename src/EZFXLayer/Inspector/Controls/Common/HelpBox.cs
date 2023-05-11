@@ -27,5 +27,10 @@ namespace EZUtils.EZFXLayer.UIElements
 #pragma warning restore IDE0079
             }
         }
+
+        public HelpBox()
+        {
+            generateVisualContent = null;
+        }
     }
 }

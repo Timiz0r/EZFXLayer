@@ -5,12 +5,14 @@
     xmlns:editor="UnityEditor.UIElements"
     xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
     xsi:schemaLocation="
-      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
-      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
-      EZUtils.EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+      UnityEngine.UIElements ../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
   <ezfx:CommonContainer>
     <Style src="ReferenceComponentEditor.uss" />
+
+    <editor:Toolbar />
 
     <ezfx:ObjectField name="fxControllerField" objectType="UnityEngine.RuntimeAnimatorController, UnityEngine" binding-path="fxLayerController" />
     <ezfx:ObjectField name="menuField" objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />
@@ -24,7 +26,7 @@
       <Button name="createBasicVRCExpressionParameters" text="loc:Create basic expression parameters" />
     </VisualElement>
 
-    <ezfx:HelpBox label="loc:Auto-generation not yet working" message-type="Info" />
+    <ezfx:HelpBox text="loc:Auto-generation not yet working" message-type="Info" />
     <Toggle class="left-toggle" label="loc:Generate on upload" binding-path="generateOnUpload" />
 
     <BindableElement class="generation-options-container" binding-path="generationOptions">

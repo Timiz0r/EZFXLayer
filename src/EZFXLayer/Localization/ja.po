@@ -1,11 +1,11 @@
-msgid ""
+﻿msgid ""
 msgstr ""
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-PluralRules-Other: \n"
+"X-PluralRules-Other:  @integer 0~15, 100, 1000, 10000, 100000, 1000000, … @decimal 0.0~1.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …\n"
 "X-Crowdin-Project: ezfxlayer\n"
 "X-Crowdin-Project-ID: 587153\n"
 "X-Crowdin-Language: ja\n"
@@ -86,35 +86,35 @@ msgstr "生成する前にシーンを保存してください。"
 msgid "Applying generation to avatar"
 msgstr "アバターに生成されたアセットを適用する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:15
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:17
 msgid "Name"
 msgstr "名前"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:16
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:18
 msgid "Menu path"
 msgstr "メニューのパス"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:17
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:19
 msgid "Manage states, conditions, and parameters"
 msgstr "ステート、遷移の条件、パラメーターを管理する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:18
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:20
 msgid "Manage expressions menus and parameters"
 msgstr "エクスプレッションメニューとパラメーターを管理する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:22
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:24
 msgid "Reference animation"
 msgstr "参照アニメーション"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:25
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:27
 msgid "Animations"
 msgstr "アニメーション"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:26
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:28
 msgid "Hide unchanged items"
 msgstr "変更していないものを隠す"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:27
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:29
 msgid "Add new animation"
 msgstr "アニメーションを追加"
 
@@ -142,35 +142,35 @@ msgstr "ゲームオブジェクト"
 msgid "Add GameObject"
 msgstr "ゲームオブジェクトを追加"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:19
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:21
 msgid "Populate from first avatar"
 msgstr "最初のアバターから設定の生成"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:22
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:24
 msgid "Create basic FX layer animator controller"
 msgstr "シンプルなFXレイヤーを生成する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:23
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:25
 msgid "Create basic root expressions menu"
 msgstr "シンプルなルートのエクスプレッションメニューを生成する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:24
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:26
 msgid "Create basic expression parameters"
 msgstr "シンプルなエクスプレッションパラメーターを生成する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:27
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:29
 msgid "Auto-generation not yet working"
 msgstr "自動生成はまだ動作していません"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:28
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:30
 msgid "Generate on upload"
 msgstr "アップロードする時に生成"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:31
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:33
 msgid "Set write default values on generated states"
 msgstr "生成されるステートに、Write Defaultsにオンにする"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:34
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:36
 msgid "Generate"
 msgstr "生成"
 

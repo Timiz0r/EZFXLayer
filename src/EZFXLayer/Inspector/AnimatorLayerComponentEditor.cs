@@ -6,6 +6,7 @@ namespace EZUtils.EZFXLayer.UIElements
     using System.Linq;
 
     using static Localization;
+    using EZUtils.Localization.UIElements;
 
     [CustomEditor(typeof(AnimatorLayerComponent))]
     public class AnimatorLayerComponentEditor : Editor
@@ -17,6 +18,8 @@ namespace EZUtils.EZFXLayer.UIElements
             TranslateElementTree(visualElement);
             //is more convenient to do this immediately, in our case
             visualElement.Bind(serializedObject);
+
+            visualElement.Q<Toolbar>().AddLocaleSelector();
 
             AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
 

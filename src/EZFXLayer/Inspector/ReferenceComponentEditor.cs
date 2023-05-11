@@ -4,7 +4,9 @@ namespace EZUtils.EZFXLayer.UIElements
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using EZUtils.Localization.UIElements;
     using UnityEditor;
+    using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
@@ -26,6 +28,8 @@ namespace EZUtils.EZFXLayer.UIElements
         {
             VisualElement element = uxml.CloneTree();
             TranslateElementTree(element);
+
+            element.Q<Toolbar>().AddLocaleSelector();
 
             Button createBasicFXControllerButton = element.Q<Button>(name: "createBasicFXLayerController");
             createBasicFXControllerButton.clicked += () =>
