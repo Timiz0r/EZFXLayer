@@ -13,168 +13,168 @@ msgstr ""
 "X-Crowdin-File-ID: 25\n"
 "Project-Id-Version: ezfxlayer\n"
 "Language-Team: Japanese\n"
-"PO-Revision-Date: 2023-05-11 16:10\n"
+"PO-Revision-Date: 2023-05-11 16:52\n"
 
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:213
 msgid "Menu: {0}"
-msgstr ""
+msgstr "メニュー: {0}"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Components/AnimatorLayerComponent.cs:13
 msgid "EZFXLayer/EZFXLayer animator layer configuration"
-msgstr ""
+msgstr "EZFXLayer/EZFXLayerアニメーターレイヤー設定"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:22
 msgid "EZFXLayer/EZFXLayer reference configuration"
-msgstr ""
+msgstr "EZFXLayer/EZFXLayer参照設定"
 
 # id format: Only one {nameof(ReferenceComponent)} should exist per scene.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:32
 msgid "Only one {0} should exist per scene."
-msgstr ""
+msgstr "シーンごとに 1つの{0}だけが存在する必要があります。"
 
 # id format: Game objects with the component: {parentNames}.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:33
 msgid "Game objects with the component: {0}."
-msgstr ""
+msgstr "このコンポーネントを持っているゲームオブジェクト: {0}"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/EZFXLayerAssetRepository.cs:210
 msgid "Overwrite EZFXLayer generated asset"
-msgstr ""
+msgstr "EZFXLayerが生成したアセットを上書きする"
 
 # id format: Path '{path}' is not rooted in Assets.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/EZFXLayerAssetRepository.cs:227
 msgid "Path '{0}' is not rooted in Assets."
-msgstr ""
+msgstr "パス「{0}」のルートは「Assets」ではありません。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:57
 msgid "There is no reference animation."
-msgstr ""
+msgstr "参照アニメーションがありません。"
 
 # id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:143
 msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
-msgstr ""
+msgstr "参照のアニメーターコントローラー「{2}」に、コントローラーレイヤー「{1}」のアニメーターステート「{0}」がすでに存在していますが、対応するアニメーションはありません。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:144
 msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
-msgstr ""
+msgstr "コントローラからステートを削除することを検討してください。生成されたコントローラーから自動的に削除されましたが、参照のコントローラーからは削除されていません。 すべての遷移の条件を切り替えて、未知のステートに対してどのように切り替えるかを知る方法がありませんので。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:212
 msgid "Cannot add a new toggle because there are already 8 items in the menu."
-msgstr ""
+msgstr "すでに親メニューに8つのアイテムがあるため、新しいトグルを追加することができません。"
 
 # id format: Duplicate non-empty layers found in configuration: {string.Join(", ", duplicateLayers)}.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:62
 msgid "Duplicate non-empty layers found in configuration: {0}."
-msgstr ""
+msgstr "空でない同じ様なレイヤーが設定で見つかりました: {0}。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
 msgid "Failed EZFXLayer generation"
-msgstr ""
+msgstr "EZFXLayer生成失敗"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
 msgid "EZFXLayer generation"
-msgstr ""
+msgstr "EZFXLayer生成"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59
 msgid "Please save the scene before attempting to generate."
-msgstr ""
+msgstr "生成する前にシーンを保存してください。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:91
 msgid "Applying generation to avatar"
-msgstr ""
+msgstr "アバターに生成されたアセットを適用する"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:15
 msgid "Name"
-msgstr ""
+msgstr "名前"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:16
 msgid "Menu path"
-msgstr ""
+msgstr "メニューのパス"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:17
 msgid "Manage states, conditions, and parameters"
-msgstr ""
+msgstr "ステート、遷移の条件、パラメーターを管理する"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:18
 msgid "Manage expressions menus and parameters"
-msgstr ""
+msgstr "エクスプレッションメニューとパラメーターを管理する"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:22
 msgid "Reference animation"
-msgstr ""
+msgstr "参照アニメーション"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:25
 msgid "Animations"
-msgstr ""
+msgstr "アニメーション"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:26
 msgid "Hide unchanged items"
-msgstr ""
+msgstr "変更していないものを隠す"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:27
 msgid "Add new animation"
-msgstr ""
+msgstr "アニメーションを追加"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:26
 msgid "Custom toggle name"
-msgstr ""
+msgstr "カスタムのトグル名"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:27
 msgid "Custom state name"
-msgstr ""
+msgstr "カスタムのステート名"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:31
 msgid "Blend shapes"
-msgstr ""
+msgstr "ブレンドシェイプ"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:33
 msgid "Add blend shapes"
-msgstr ""
+msgstr "ブレンドシェイプを追加"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:37
 msgid "GameObjects"
-msgstr ""
+msgstr "ゲームオブジェクト"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
 msgid "Add GameObject"
-msgstr ""
+msgstr "ゲームオブジェクトを追加"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:19
 msgid "Populate from first avatar"
-msgstr ""
+msgstr "最初のアバターから設定の生成"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:22
 msgid "Create basic FX layer animator controller"
-msgstr ""
+msgstr "シンプルなFXレイヤーを生成する"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:23
 msgid "Create basic root expressions menu"
-msgstr ""
+msgstr "シンプルなルートのエクスプレッションメニューを生成する"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:24
 msgid "Create basic expression parameters"
-msgstr ""
+msgstr "シンプルなエクスプレッションパラメーターを生成する"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:27
 msgid "Auto-generation not yet working"
-msgstr ""
+msgstr "自動生成はまだ動作していません"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:28
 msgid "Generate on upload"
-msgstr ""
+msgstr "アップロードする時に生成"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:31
 msgid "Set write default values on generated states"
-msgstr ""
+msgstr "生成されるステートに、Write Defaultsにオンにする"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:34
 msgid "Generate"
-msgstr ""
+msgstr "生成"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:62
 msgid "Cannot add a new sub menu because there are already 8 items in its parent."
-msgstr ""
+msgstr "すでに親メニューに8つのアイテムがあるため、新しいサブメニューを追加することができません。"
 
