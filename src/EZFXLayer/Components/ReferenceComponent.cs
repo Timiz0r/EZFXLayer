@@ -1,13 +1,13 @@
-﻿namespace EZUtils.EZFXLayer
+namespace EZUtils.EZFXLayer
 {
     using System;
     using System.Linq;
+    using UnityEditor;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
     using static Localization;
 
-    [AddComponentMenu("EZFXLayer/EZFXLayer reference configuration")]
     public class ReferenceComponent : MonoBehaviour
     {
         //this has to be a RuntimeAnimatorController because the AnimatorController we really want is in UnityEditor
@@ -17,6 +17,10 @@
         public VRCExpressionParameters vrcExpressionParameters;
         public bool generateOnUpload = true;
         public GenerationOptions generationOptions;
+
+        [InitializeOnLoadMethod]
+        private static void UnityInitialize()
+            => AddComponentMenu<ReferenceComponent>("EZFXLayer/EZFXLayer reference configuration", priority: 0);
 
         private void Reset()
         {

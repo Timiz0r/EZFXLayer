@@ -141,11 +141,10 @@ namespace EZUtils.EZFXLayer
                 //this doesnt seem to need to be checked for being a sub asset or not, based on passing unit test
                 assetRepository.FXAnimatorControllerStateRemoved(state);
                 Debug.LogWarning(
-                    $"The animator state '{state.name}' of controller layer '{Name}' exists in the " +
-                    $"base animator controller '{controller.name}' but has no corresponding animation set. " +
-                    "Consider removing the state from the controller. It has been removed from the generated " +
+                    T($"The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set. ") +
+                    T("Consider removing the state from the controller. It has been removed from the generated " +
                     "controller automatically, but not the base one. This has been done because we replace all " +
-                    "of the transitions' conditions and have no way to know how to create them for unknown states.");
+                    "of the transitions' conditions and have no way to know how to create them for unknown states."));
                 //not sure if we should remove transitions from asset, but it's not the end of the world to not
                 //even if they get left behind
             }

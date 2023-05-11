@@ -208,7 +208,7 @@ namespace EZUtils.EZFXLayer
             T generatedAsset = AssetDatabase.LoadAssetAtPath<T>(generatedAssetPath);
             if (generatedAsset != null)
             {
-                Undo.RecordObject(generatedAsset, "Overwrite EZFXLayer generated asset");
+                Undo.RecordObject(generatedAsset, Localization.T("Overwrite EZFXLayer generated asset"));
                 EditorUtility.CopySerialized(asset, generatedAsset);
                 //without reimporting, the name shows up a bit wrong (perhaps fixes on restart didnt check)
                 //no big deal, but we'll fix it anyway. also didn't check if the undo renders this unnecessary; prob doesnt

@@ -1,11 +1,18 @@
 namespace EZUtils.EZFXLayer
 {
     using System.Collections.Generic;
+    using UnityEditor;
     using UnityEngine;
 
-    [AddComponentMenu("EZFXLayer/EZFXLayer animator layer configuration")]
+    using static Localization;
+
     public class AnimatorLayerComponent : MonoBehaviour
     {
+
+        [InitializeOnLoadMethod]
+        private static void UnityInitialize()
+            => AddComponentMenu<AnimatorLayerComponent>("EZFXLayer/EZFXLayer animator layer configuration", priority: 0);
+
         public new string name;
 
         public AnimationConfiguration referenceAnimation = new AnimationConfiguration()

@@ -49,8 +49,23 @@ namespace EZUtils.EZFXLayer
         public static void TranslateWindowTitle(
             EditorWindow window,
             [LocalizationParameter(LocalizationParameter.Id)] string titleText) => loc.TranslateWindowTitle(window: window, titleText: titleText);
+        //LocalizedMenuContainer supports adding menus before initialization is done
+        //and initialization add them later
+        //so no need to Initialize here
         [LocalizationMethod]
-        public static void AddMenu([LocalizationParameter(LocalizationParameter.Id)] string name, int priority, Action action) => loc.AddMenu(name: name, priority: priority, action: action);
+        public static void AddMenu(
+            [LocalizationParameter(LocalizationParameter.Id)] string name,
+            int priority,
+            Action action) => loc.AddMenu(name: name, priority: priority, action: action);
+        [LocalizationMethod]
+        public static void AddMenu(
+            [LocalizationParameter(LocalizationParameter.Id)] string name,
+            int priority,
+            Action action,
+            Func<bool> validate) => loc.AddMenu(name: name, priority: priority, action: action, validate: validate);
+        [LocalizationMethod]
+        public static void AddComponentMenu<T>([LocalizationParameter(LocalizationParameter.Id)] string name, int priority)             where T : UnityEngine.Component
+=> loc.AddComponentMenu<T>(name: name, priority: priority);
 
         [LocalizationMethod]
         public static string T(RawString id) => loc.T(id: id);

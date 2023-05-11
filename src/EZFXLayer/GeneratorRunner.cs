@@ -48,7 +48,7 @@ namespace EZUtils.EZFXLayer
             }
             finally
             {
-                Undo.SetCurrentGroupName(exceptionCaught ? "Failed EZFXLayer generation" : "EZFXLayer generation");
+                Undo.SetCurrentGroupName(exceptionCaught ? T("Failed EZFXLayer generation") : T("EZFXLayer generation"));
                 Undo.CollapseUndoOperations(undoGroup);
             }
         }
@@ -89,7 +89,7 @@ namespace EZUtils.EZFXLayer
             {
                 //TODO: because the object reference isn't the same, even if the asset id *is* the same,
                 //we still get a change -- undo, dirty scene. so let's fix this!
-                Undo.RecordObject(avatar, "Applying generation to avatar");
+                Undo.RecordObject(avatar, T("Applying generation to avatar"));
                 avatar.customExpressions = true;
                 avatar.expressionsMenu = generatedMenu;
                 avatar.expressionParameters = generatedParameters;
