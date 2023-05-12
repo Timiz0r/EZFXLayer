@@ -9,3 +9,7 @@ AnimationConfigurationField {
 #objectName {
     display: none;
 }
+
+.expressions-additionaloptions {
+    margin-left: 16px;
+}

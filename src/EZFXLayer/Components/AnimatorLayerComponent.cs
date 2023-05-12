@@ -25,6 +25,7 @@ namespace EZUtils.EZFXLayer
 
         public bool manageAnimatorControllerStates = true;
         public bool manageExpressionMenuAndParameters = true;
+        public bool saveExpressionParameters = true;
 
         //no reasonable scenario in which we won't want to generate animations (for non-empty AnimationConfiguration)
         //TODO: well maybe if bringing own clips, but shall eventually support that maybe? low pri and needs thought

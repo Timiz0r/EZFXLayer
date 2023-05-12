@@ -22,6 +22,9 @@
     <TextField label="loc:Menu path" binding-path="menuPath" />
     <Toggle class="left-toggle" label="loc:Manage states, conditions, and parameters" binding-path="manageAnimatorControllerStates" />
     <Toggle class="left-toggle" label="loc:Manage expressions menus and parameters" binding-path="manageExpressionMenuAndParameters" />
+    <VisualElement class="expressions-additionaloptions">
+      <Toggle class="left-toggle" label="loc:Expression parameters save values" binding-path="saveExpressionParameters" />
+    </VisualElement>
 
     <VisualElement class="animation-container">
       <VisualElement name="defaultAnimationPopup" />

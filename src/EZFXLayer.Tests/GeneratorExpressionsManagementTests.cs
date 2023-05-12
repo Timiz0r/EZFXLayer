@@ -1,5 +1,6 @@
 namespace EZUtils.EZFXLayer.Test
 {
+    using System.Linq;
     using NUnit.Framework;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
@@ -166,6 +167,29 @@ namespace EZUtils.EZFXLayer.Test
             testSetup.StandardGenerate();
 
             Assert.That(testSetup.Assets.FXController.parameters[0].defaultBool, Is.False);
+        }
+
+        [Test]
+        public void ParameterSaved_BasedOnLayerSetting()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "1",
+                    l => l
+                        .ConfigureReferenceAnimation(a => { })
+                        .AddAnimation("foo", a => a.MakeDefaultAnimation())
+                        .DisableSavedParameters())
+                .AddLayer(
+                    "2",
+                    l => l
+                        .ConfigureReferenceAnimation(a => a.MakeDefaultAnimation())
+                        .AddAnimation("foo", a => { }));
+
+            testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Parameters.parameters.Single(p => p.name == "1").saved, Is.False);
+            Assert.That(testSetup.Assets.Parameters.parameters.Single(p => p.name == "2").saved, Is.True);
         }
 
         [Test]

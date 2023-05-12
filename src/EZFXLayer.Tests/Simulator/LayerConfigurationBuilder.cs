@@ -48,6 +48,13 @@ namespace EZUtils.EZFXLayer.Test
             return this;
         }
 
+        public LayerConfigurationBuilder DisableSavedParameters()
+        {
+            layer.saveExpressionParameters = false;
+
+            return this;
+        }
+
         public LayerConfigurationBuilder WithMenuPath(string menuPath)
         {
             layer.menuPath = menuPath;

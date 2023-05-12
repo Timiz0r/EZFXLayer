@@ -10,11 +10,13 @@ namespace EZUtils.EZFXLayer
     {
         private readonly string name;
         private readonly bool defaultValue;
+        private readonly bool saved;
 
-        public BooleanProcessedParameter(string name, bool defaultValue)
+        public BooleanProcessedParameter(string name, bool defaultValue, bool saved)
         {
             this.name = name;
             this.defaultValue = defaultValue;
+            this.saved = saved;
         }
 
         public void ApplyToControllerParameters(AnimatorController controller)
@@ -35,7 +37,7 @@ namespace EZUtils.EZFXLayer
                     name = name,
                     valueType = VRCExpressionParameters.ValueType.Bool,
                     defaultValue = Convert.ToSingle(defaultValue),
-                    saved = true
+                    saved = saved
                 });
 
         public AnimatorCondition GetAnimatorCondition(int animationIndex) => new AnimatorCondition()

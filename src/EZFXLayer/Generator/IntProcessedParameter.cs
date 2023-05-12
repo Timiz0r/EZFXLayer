@@ -9,11 +9,13 @@ namespace EZUtils.EZFXLayer
     {
         private readonly string name;
         private readonly int defaultValue;
+        private readonly bool saved;
 
-        public IntProcessedParameter(string name, int defaultValue)
+        public IntProcessedParameter(string name, int defaultValue, bool saved)
         {
             this.name = name;
             this.defaultValue = defaultValue;
+            this.saved = saved;
         }
 
         public void ApplyToControllerParameters(AnimatorController controller)
@@ -34,7 +36,7 @@ namespace EZUtils.EZFXLayer
                     name = name,
                     valueType = VRCExpressionParameters.ValueType.Int,
                     defaultValue = defaultValue,
-                    saved = true
+                    saved = saved
                 });
 
         public AnimatorCondition GetAnimatorCondition(int animationIndex) => new AnimatorCondition()

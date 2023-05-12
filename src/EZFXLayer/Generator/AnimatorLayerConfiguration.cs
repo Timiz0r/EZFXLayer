@@ -29,6 +29,7 @@ namespace EZUtils.EZFXLayer
             string menuPath,
             bool manageAnimatorControllerStates,
             bool manageExpressionMenuAndParameters,
+            bool saveExpressionParameters,
             GenerationOptions generationOptions)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -59,8 +60,8 @@ namespace EZUtils.EZFXLayer
             int defaultValue = defaultAnimationIndex >= 0 ? defaultAnimationIndex : referenceAnimationIndex;
 
             parameter = animations.Count > 2
-                ? (IProcessedParameter)new IntProcessedParameter(name, defaultValue)
-                : new BooleanProcessedParameter(name, defaultValue != 0);
+                ? (IProcessedParameter)new IntProcessedParameter(name, defaultValue, saveExpressionParameters)
+                : new BooleanProcessedParameter(name, defaultValue != 0, saveExpressionParameters);
 
             IsMarkerLayer = animations.All(a => a.gameObjects.Count == 0 && a.blendShapes.Count == 0);
         }
@@ -74,6 +75,7 @@ namespace EZUtils.EZFXLayer
                     menuPath: layer.menuPath,
                     manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
                     manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters,
+                    saveExpressionParameters: layer.saveExpressionParameters,
                     generationOptions: generationOptions ?? throw new ArgumentNullException(nameof(generationOptions)))
                 : throw new ArgumentNullException(nameof(layer));
 
