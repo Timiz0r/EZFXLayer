@@ -71,12 +71,12 @@ msgid "Duplicate non-empty layers found in configuration: {0}."
 msgstr "空でない同じ様なレイヤーが設定で見つかりました: {0}。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "EZFXLayer generation"
-msgstr "EZFXLayer生成"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
 msgid "Failed EZFXLayer generation"
 msgstr "EZFXLayer生成失敗"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
+msgid "EZFXLayer generation"
+msgstr "EZFXLayer生成"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59
 msgid "Please save the scene before attempting to generate."

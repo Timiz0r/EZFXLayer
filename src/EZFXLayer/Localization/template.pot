@@ -62,11 +62,11 @@ msgid "Duplicate non-empty layers found in configuration: {0}."
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "EZFXLayer generation"
+msgid "Failed EZFXLayer generation"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "Failed EZFXLayer generation"
+msgid "EZFXLayer generation"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59

@@ -95,7 +95,11 @@ namespace EZUtils.EZFXLayer
                 avatar.expressionParameters = generatedParameters;
 
                 avatar.customizeAnimationLayers = true;
-                avatar.baseAnimationLayers[4] = new VRCAvatarDescriptor.CustomAnimLayer()
+
+                int layerIndex = Array.FindIndex(
+                    avatar.baseAnimationLayers,
+                    l => l.type == VRCAvatarDescriptor.AnimLayerType.FX);
+                avatar.baseAnimationLayers[layerIndex] = new VRCAvatarDescriptor.CustomAnimLayer()
                 {
                     isDefault = false,
                     type = VRCAvatarDescriptor.AnimLayerType.FX,
