@@ -6,7 +6,6 @@ namespace EZUtils.EZFXLayer.UIElements
     using System.Linq;
     using EZUtils.Localization.UIElements;
     using UnityEditor;
-    using UnityEditor.SceneManagement;
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.SceneManagement;
@@ -27,10 +26,34 @@ namespace EZUtils.EZFXLayer.UIElements
 
         public override VisualElement CreateInspectorGUI()
         {
-            VisualElement element = uxml.CloneTree();
+            VisualElement element = uxml.CommonUIClone();
             TranslateElementTree(element);
 
             element.Q<Toolbar>().AddLocaleSelector();
+
+            VisualElement layerCreationSection = element.Q<VisualElement>(className: "layer-creation-container");
+            TextField layerNameField = layerCreationSection.Q<TextField>();
+
+            Button topButton = layerCreationSection.Q<Button>(name: "top");
+            topButton.clicked += () =>
+            {
+                GameObject newObject = AddLayer(layerNameField.value);
+                newObject.transform.SetAsFirstSibling();
+                layerNameField.value = string.Empty;
+            };
+
+            Button bottomButton = layerCreationSection.Q<Button>(name: "bottom");
+            bottomButton.clicked += () =>
+            {
+                _ = AddLayer(layerNameField.value);
+                layerNameField.value = string.Empty;
+            };
+
+            UIValidator buttonValidation = new UIValidator();
+            buttonValidation.AddValueValidation(layerNameField, passCondition: v => !string.IsNullOrWhiteSpace(v));
+            buttonValidation.DisableIfInvalid(topButton);
+            buttonValidation.DisableIfInvalid(bottomButton);
+
 
             Button createBasicFXControllerButton = element.Q<Button>(name: "createBasicFXLayerController");
             createBasicFXControllerButton.clicked += () =>
@@ -99,6 +122,19 @@ namespace EZUtils.EZFXLayer.UIElements
             return element;
         }
 
+        private GameObject AddLayer(string name)
+        {
+            string newObjectName = GameObjectUtility.GetUniqueNameForSibling(
+                Target.gameObject.transform, name);
+            GameObject newObject = new GameObject(newObjectName);
+            Undo.RegisterCreatedObjectUndo(newObject, T($"Add layer '{newObjectName}'"));
+            newObject.transform.SetParent(Target.transform);
+
+            _ = newObject.AddComponent<AnimatorLayerComponent>();
+
+            return newObject;
+        }
+
         [MenuItem("GameObject/Enable EZFXLayer in Scene", isValidateFunction: false, 20)]
         private static void EnableInScene()
         {
@@ -109,13 +145,13 @@ namespace EZUtils.EZFXLayer.UIElements
                 return;
             }
 
-            using (UndoGroup undoGroup = new UndoGroup("Enable EZFXLayer in Scene"))
+            using (UndoGroup undoGroup = new UndoGroup(T("Enable EZFXLayer in Scene")))
             {
                 GameObject referenceObject = GameObject.Find("EZFXLayer");
                 if (referenceObject == null)
                 {
                     referenceObject = new GameObject("EZFXLayer");
-                    Undo.RegisterCreatedObjectUndo(referenceObject, "Add new EZFXLayer object");
+                    Undo.RegisterCreatedObjectUndo(referenceObject, T("Add new EZFXLayer object"));
                 }
 
                 ReferenceComponent referenceComponent = referenceObject.AddComponent<ReferenceComponent>();
@@ -145,26 +181,26 @@ namespace EZUtils.EZFXLayer.UIElements
             //though could allow dragging and dropping into an object field to popupate
             VRCAvatarDescriptor firstAvatar = GetComponentsInScene<VRCAvatarDescriptor>(scene).First();
 
-            Utilities.RecordChange(referenceComponent, "Populate reference configuration from first avatar", target =>
+            Utilities.RecordChange(referenceComponent, T("Populate reference configuration from first avatar"), target =>
             {
                 target.fxLayerController = firstAvatar.baseAnimationLayers
                     .FirstOrDefault(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX)
                     .animatorController;
                 if (target.fxLayerController == null)
                 {
-                    Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
+                    Debug.LogWarning(T($"The avatar '{firstAvatar.gameObject.name}' has no FX layer."));
                 }
 
                 target.vrcExpressionParameters = firstAvatar.expressionParameters;
                 if (target.vrcExpressionParameters == null)
                 {
-                    Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expression parameters.");
+                    Debug.LogWarning(T($"The avatar '{firstAvatar.gameObject.name}' has no expression parameters."));
                 }
 
                 target.vrcRootExpressionsMenu = firstAvatar.expressionsMenu;
                 if (target.vrcRootExpressionsMenu == null)
                 {
-                    Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expressions menu.");
+                    Debug.LogWarning(T($"The avatar '{firstAvatar.gameObject.name}' has no expressions menu."));
                 }
             });
         }
@@ -177,7 +213,7 @@ namespace EZUtils.EZFXLayer.UIElements
 
             Utilities.RecordChange(
                 referenceComponent,
-                "Configure default VRC root expressions menu",
+                T("Configure default VRC root expressions menu"),
                 t => t.vrcRootExpressionsMenu = menu);
         }
 
@@ -214,14 +250,14 @@ namespace EZUtils.EZFXLayer.UIElements
 
             Utilities.RecordChange(
                 referenceComponent,
-                "Configure default VRC expression parameters",
+                T("Configure default VRC expression parameters"),
                 t => t.vrcExpressionParameters = parameters);
         }
 
         private static void CreateBasicFXLayerController(ReferenceComponent referenceComponent, Scene scene)
             => Utilities.RecordChange(
                 referenceComponent,
-                "Configure default FX layer animator controller",
+                T("Configure default FX layer animator controller"),
                 t =>
                 {
                     VrcDefaultAnimatorControllers controllers = new VrcDefaultAnimatorControllers();

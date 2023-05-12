@@ -133,40 +133,96 @@ msgstr ""
 msgid "Add GameObject"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:107
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:129
+# id format: Add layer '{newObjectName}'
+msgid "Add layer '{0}'"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:143
 # id format: EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'.
 msgid "EZFXLayer is already enabled through GameObject '{0}'."
 msgstr ""
 
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:147
+msgid "Enable EZFXLayer in Scene"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:153
+msgid "Add new EZFXLayer object"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:183
+msgid "Populate reference configuration from first avatar"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:190
+# id format: The avatar '{firstAvatar.gameObject.name}' has no FX layer.
+msgid "The avatar '{0}' has no FX layer."
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:196
+# id format: The avatar '{firstAvatar.gameObject.name}' has no expression parameters.
+msgid "The avatar '{0}' has no expression parameters."
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:202
+# id format: The avatar '{firstAvatar.gameObject.name}' has no expressions menu.
+msgid "The avatar '{0}' has no expressions menu."
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:215
+msgid "Configure default VRC root expressions menu"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:252
+msgid "Configure default VRC expression parameters"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:259
+msgid "Configure default FX layer animator controller"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:18
+msgid "Add layer"
+msgstr ""
+
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:21
-msgid "Populate from first avatar"
+msgid "Top"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:24
-msgid "Create basic FX layer animator controller"
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:25
-msgid "Create basic root expressions menu"
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:26
-msgid "Create basic expression parameters"
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:29
-msgid "Auto-generation not yet working"
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:22
+msgid "Bottom"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:30
-msgid "Generate on upload"
+msgid "Populate from first avatar"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:33
+msgid "Create basic FX layer animator controller"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:34
+msgid "Create basic root expressions menu"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:35
+msgid "Create basic expression parameters"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:38
+msgid "Auto-generation not yet working"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:39
+msgid "Generate on upload"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:42
 msgid "Set write default values on generated states"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:36
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:45
 msgid "Generate"
 msgstr ""
 
