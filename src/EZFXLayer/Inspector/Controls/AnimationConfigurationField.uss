@@ -8,7 +8,6 @@
 
 .animation-foldout-header > TextField {
     flex-grow: 1;
-    margin-left: -12px; /* foldout is shifted to the left, so let's use that space */
 }
 
 .foldout-content-hidden {

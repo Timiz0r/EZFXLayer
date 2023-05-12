@@ -5,9 +5,9 @@
     xmlns:editor="UnityEditor.UIElements"
     xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
     xsi:schemaLocation="
-      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
-      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
-      EZUtils.EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+      UnityEngine.UIElements ../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
   <VisualElement>
     <Style src="AnimationConfigurationField.uss" />
@@ -20,7 +20,7 @@
       <Button name="removeAnimationConfiguration" class="animation-edit" text="X" />
     </VisualElement>
 
-    <VisualElement class="animation-foldout-content">
+    <VisualElement name="animationFoldoutContent" class="animation-foldout-content">
       <VisualElement class="general-animation-content">
         <!-- reference animation doesnt have a toggle, so only show this for normal animations -->
         <TextField class="animation-edit" label="loc:Custom toggle name" binding-path="customToggleName" />

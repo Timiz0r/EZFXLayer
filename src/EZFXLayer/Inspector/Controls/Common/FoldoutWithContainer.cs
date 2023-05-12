@@ -1,41 +1,39 @@
 namespace EZUtils.EZFXLayer.UIElements
 {
     using UnityEngine.UIElements;
-    public class FoldoutWithContainer : Foldout
+
+    //used to be a foldout, but it turns out the foldout, though being bindable, doesnt bind to the underlying toggle
+    public class FoldoutWithContainer : Toggle
     {
-        private string containerName = null;
-        private VisualElement separateContainer = null;
-        private new class UxmlFactory : UxmlFactory<FoldoutWithContainer, UxmlTraits> { }
-
-        private new class UxmlTraits : Foldout.UxmlTraits
+        private new class UxmlFactory : UxmlFactory<FoldoutWithContainer, UxmlTraits>
         {
-            private readonly UxmlStringAttributeDescription containerNameAttribute = new UxmlStringAttributeDescription
-            {
-                name = "containerName",
-            };
-            public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-            {
-                base.Init(ve, bag, cc);
-
-                ((FoldoutWithContainer)ve).containerName = containerNameAttribute.GetValueFromBag(bag, cc);
-            }
         }
 
-        public override VisualElement contentContainer => separateContainer ?? base.contentContainer;
-
-        public FoldoutWithContainer()
+        private new class UxmlTraits : Toggle.UxmlTraits
         {
-            //for unknown reasons, this causes the foldout to not open/close correctly initially
-            RegisterCallback<AttachToPanelEvent>(evt =>
-            {
-                if (string.IsNullOrEmpty(containerName)) return;
+        }
 
-                VisualElement container = panel.visualTree.Q<VisualElement>(name: containerName);
-                ConfigureSeparateContainer(container);
+        private VisualElement targetContainer = null;
+
+        public FoldoutWithContainer() : base()
+        {
+            _ = this.RegisterValueChangedCallback(evt =>
+            {
+                if (targetContainer == null) return;
+                targetContainer.style.display = evt.newValue
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
             });
+
+            AddToClassList("unity-foldout__toggle");
         }
 
-        public void ConfigureSeparateContainer(VisualElement separateContainer)
-            => this.separateContainer = separateContainer;
+        public void ConfigureContainer(VisualElement targetContainer)
+        {
+            this.targetContainer = targetContainer;
+            targetContainer.style.display = value
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+        }
     }
 }
