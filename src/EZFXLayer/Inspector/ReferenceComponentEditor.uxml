@@ -14,14 +14,7 @@
 
     <editor:Toolbar />
 
-    <VisualElement class="section layer-creation-container">
-      <Label class="section-title" text="loc:Add layer" />
-      <TextField />
-      <VisualElement class="layer-creation-container-buttons">
-        <Button name="top" text="loc:Top" />
-        <Button name="bottom" text="loc:Bottom" />
-      </VisualElement>
-    </VisualElement>
+    <ezfx:LayerCreationButtons target="Children" />
 
     <ezfx:ObjectField name="fxControllerField" objectType="UnityEngine.RuntimeAnimatorController, UnityEngine" binding-path="fxLayerController" />
     <ezfx:ObjectField name="menuField" objectType="VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu, VRCSDK3A" binding-path="vrcRootExpressionsMenu" />

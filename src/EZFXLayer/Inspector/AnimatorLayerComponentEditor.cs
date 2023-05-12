@@ -16,12 +16,14 @@ namespace EZUtils.EZFXLayer.UIElements
         [UnityEngine.SerializeField] private VisualTreeAsset uxml;
         public override VisualElement CreateInspectorGUI()
         {
-            VisualElement visualElement = uxml.CloneTree();
+            VisualElement visualElement = uxml.CommonUIClone();
             TranslateElementTree(visualElement);
             //is more convenient to do this immediately, in our case
             visualElement.Bind(serializedObject);
 
             AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
+
+            visualElement.Q<LayerCreationButtons>().SetTarget(target.gameObject);
 
             visualElement.Q<Toolbar>().AddLocaleSelector();
 

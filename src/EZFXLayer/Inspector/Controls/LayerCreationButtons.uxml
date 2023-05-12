@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
+    xsi:schemaLocation="
+      UnityEngine.UIElements ../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+>
+  <VisualElement>
+    <Style src="LayerCreationButtons.uss" />
+
+    <VisualElement class="section layer-creation-container">
+      <Label class="section-title" text="loc:Add layer" />
+      <TextField />
+      <VisualElement class="layer-creation-container-buttons">
+        <Button name="top" text="loc:Top" />
+        <Button name="bottom" text="loc:Bottom" />
+      </VisualElement>
+      <VisualElement class="layer-creation-container-buttons">
+        <Button name="above" text="loc:Above" />
+        <Button name="below" text="loc:Below" />
+      </VisualElement>
+    </VisualElement>
+  </VisualElement>
+</UXML>

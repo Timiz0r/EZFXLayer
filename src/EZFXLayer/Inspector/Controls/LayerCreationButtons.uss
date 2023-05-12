@@ -1,0 +1,16 @@
+.layer-creation-container-buttons {
+    flex-direction: row;
+}
+
+.layer-creation-container-buttons > Button {
+    flex-basis: 100%;
+    flex-grow: 0;
+    flex-shrink: 1;
+}
+
+.layer-creation-target-children #above {
+    display: none;
+}
+.layer-creation-target-children #below {
+    display: none;
+}

@@ -15,12 +15,3 @@
     margin-bottom: 8px;
     margin-top: 8px;
 }
-
-.layer-creation-container-buttons {
-    flex-direction: row;
-}
-
-.layer-creation-container-buttons > Button {
-    flex-grow: 1;
-}
-

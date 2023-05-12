@@ -31,29 +31,7 @@ namespace EZUtils.EZFXLayer.UIElements
 
             element.Q<Toolbar>().AddLocaleSelector();
 
-            VisualElement layerCreationSection = element.Q<VisualElement>(className: "layer-creation-container");
-            TextField layerNameField = layerCreationSection.Q<TextField>();
-
-            Button topButton = layerCreationSection.Q<Button>(name: "top");
-            topButton.clicked += () =>
-            {
-                GameObject newObject = AddLayer(layerNameField.value);
-                newObject.transform.SetAsFirstSibling();
-                layerNameField.value = string.Empty;
-            };
-
-            Button bottomButton = layerCreationSection.Q<Button>(name: "bottom");
-            bottomButton.clicked += () =>
-            {
-                _ = AddLayer(layerNameField.value);
-                layerNameField.value = string.Empty;
-            };
-
-            UIValidator buttonValidation = new UIValidator();
-            buttonValidation.AddValueValidation(layerNameField, passCondition: v => !string.IsNullOrWhiteSpace(v));
-            buttonValidation.DisableIfInvalid(topButton);
-            buttonValidation.DisableIfInvalid(bottomButton);
-
+            element.Q<LayerCreationButtons>().SetTarget(Target.gameObject);
 
             Button createBasicFXControllerButton = element.Q<Button>(name: "createBasicFXLayerController");
             createBasicFXControllerButton.clicked += () =>
@@ -120,19 +98,6 @@ namespace EZUtils.EZFXLayer.UIElements
             };
 
             return element;
-        }
-
-        private GameObject AddLayer(string name)
-        {
-            string newObjectName = GameObjectUtility.GetUniqueNameForSibling(
-                Target.gameObject.transform, name);
-            GameObject newObject = new GameObject(newObjectName);
-            Undo.RegisterCreatedObjectUndo(newObject, T($"Add layer '{newObjectName}'"));
-            newObject.transform.SetParent(Target.transform);
-
-            _ = newObject.AddComponent<AnimatorLayerComponent>();
-
-            return newObject;
         }
 
         [MenuItem("GameObject/Enable EZFXLayer in Scene", isValidateFunction: false, 20)]
