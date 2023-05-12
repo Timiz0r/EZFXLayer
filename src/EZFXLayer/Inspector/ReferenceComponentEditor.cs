@@ -6,6 +6,7 @@ namespace EZUtils.EZFXLayer.UIElements
     using System.Linq;
     using EZUtils.Localization.UIElements;
     using UnityEditor;
+    using UnityEditor.Animations;
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.SceneManagement;
@@ -226,6 +227,11 @@ namespace EZUtils.EZFXLayer.UIElements
                 t =>
                 {
                     VrcDefaultAnimatorControllers controllers = new VrcDefaultAnimatorControllers();
+
+                    AnimatorControllerLayer[] layers = controllers.FX.layers;
+                    layers[0].avatarMask = null;
+                    controllers.FX.layers = layers;
+
                     t.fxLayerController = controllers.FX;
                     AssetDatabase.CreateAsset(controllers.FX, GenerateSceneBasedPath(scene, s => $"FX_{s.name}.controller"));
                 });
