@@ -15,6 +15,6 @@
         "url": "https://github.com/Timiz0r/EZFXLayer.git"
     },
     "dependencies": {
-      "com.timiz0r.ezutils.localization": "1.0.4"
+      "com.timiz0r.ezutils.localization": "1.0.6"
     }
 }

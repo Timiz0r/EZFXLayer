@@ -12,7 +12,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.timiz0r.ezutils.localization": "1.0.4"
+        "com.timiz0r.ezutils.localization": "1.0.6"
       }
     },
     "com.timiz0r.ezutils.ezfxlayer.tests": {
@@ -24,7 +24,7 @@
       }
     },
     "com.timiz0r.ezutils.localization": {
-      "version": "1.0.4",
+      "version": "1.0.6",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -33,11 +33,11 @@
       "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"
     },
     "com.timiz0r.ezutils.localization.extraction": {
-      "version": "1.0.6",
+      "version": "1.0.8",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.timiz0r.ezutils.localization": "1.0.4",
+        "com.timiz0r.ezutils.localization": "1.0.6",
         "com.timiz0r.ezutils.common": "1.0.6"
       },
       "url": "https://pkgs.dev.azure.com/timiz0r/EZUtils/_packaging/EZUtils/npm/registry"

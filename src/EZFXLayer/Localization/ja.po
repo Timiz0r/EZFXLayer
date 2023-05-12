@@ -177,4 +177,3 @@ msgstr "生成"
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:62
 msgid "Cannot add a new sub menu because there are already 8 items in its parent."
 msgstr "すでに親メニューに8つのアイテムがあるため、新しいサブメニューを追加することができません。"
-
