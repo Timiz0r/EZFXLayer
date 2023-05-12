@@ -123,5 +123,9 @@ namespace EZUtils.EZFXLayer.UIElements
         }
 
         private void OnDestroy() => gameObjectSerializedObject?.Dispose();
+
+        [InitializeOnLoadMethod]
+        private static void UnityInitialize()
+            => AddComponentMenu<AnimatorLayerComponent>("EZFXLayer/EZFXLayer animator layer configuration", priority: 0);
     }
 }

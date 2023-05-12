@@ -8,11 +8,6 @@ namespace EZUtils.EZFXLayer
 
     public class AnimatorLayerComponent : MonoBehaviour
     {
-
-        [InitializeOnLoadMethod]
-        private static void UnityInitialize()
-            => AddComponentMenu<AnimatorLayerComponent>("EZFXLayer/EZFXLayer animator layer configuration", priority: 0);
-
         public new string name;
 
         public AnimationConfiguration referenceAnimation = new AnimationConfiguration()

@@ -18,10 +18,6 @@ namespace EZUtils.EZFXLayer
         public bool generateOnUpload = true;
         public GenerationOptions generationOptions;
 
-        [InitializeOnLoadMethod]
-        private static void UnityInitialize()
-            => AddComponentMenu<ReferenceComponent>("EZFXLayer/EZFXLayer reference configuration", priority: 0);
-
         private void Reset()
         {
             ReferenceComponent[] allComponents = FindObjectsOfType<ReferenceComponent>();

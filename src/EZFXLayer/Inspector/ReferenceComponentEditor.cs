@@ -101,7 +101,6 @@ namespace EZUtils.EZFXLayer.UIElements
             return element;
         }
 
-        [MenuItem("GameObject/Enable EZFXLayer in Scene", isValidateFunction: false, 20)]
         private static void EnableInScene()
         {
             ReferenceComponent[] existingComponents = FindObjectsOfType<ReferenceComponent>();
@@ -246,5 +245,13 @@ namespace EZUtils.EZFXLayer.UIElements
             => GetComponentsInScene<T>(TargetScene, includeInactive);
         private static IEnumerable<T> GetComponentsInScene<T>(Scene scene, bool includeInactive = false) where T : Component
             => scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: includeInactive));
+
+
+        [InitializeOnLoadMethod]
+        private static void UnityInitialize()
+        {
+            AddComponentMenu<ReferenceComponent>("EZFXLayer/EZFXLayer reference configuration", priority: 0);
+            AddMenu("GameObject/Enable EZFXLayer in Scene", priority: 20, EnableInScene);
+        }
     }
 }
