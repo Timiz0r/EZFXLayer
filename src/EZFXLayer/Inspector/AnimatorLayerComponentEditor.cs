@@ -19,9 +19,9 @@ namespace EZUtils.EZFXLayer.UIElements
             //is more convenient to do this immediately, in our case
             visualElement.Bind(serializedObject);
 
-            visualElement.Q<Toolbar>().AddLocaleSelector();
-
             AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
+
+            visualElement.Q<Toolbar>().AddLocaleSelector();
 
             ConfigurationOperations configOperations = new ConfigurationOperations(serializedObject, target.gameObject.scene);
 
@@ -78,7 +78,10 @@ namespace EZUtils.EZFXLayer.UIElements
                 Utilities.RecordChange(target, "Add new animation", layer =>
                 {
                     //seems rather difficult to do this duplication with just  serializedproperties
-                    AnimationConfiguration newAnimation = new AnimationConfiguration() { name = $"{target.name}_{animations.Count}" };
+                    string name = animations.Count == 0
+                        ? target.name :
+                        $"{target.name}_{animations.Count}";
+                    AnimationConfiguration newAnimation = new AnimationConfiguration() { name = name };
                     newAnimation.blendShapes.AddRange(target.referenceAnimation.blendShapes.Select(bs => bs.Clone()));
                     newAnimation.gameObjects.AddRange(target.referenceAnimation.gameObjects.Select(go => go.Clone()));
                     layer.animations.Add(newAnimation);
@@ -87,6 +90,18 @@ namespace EZUtils.EZFXLayer.UIElements
                 serializedObject.Update();
                 animations.RefreshExternalChanges();
             };
+
+            //NOTE: if we find a good way to sync from gameobject name, would love to do that
+            //it may be hypothetically possible with some trickery in the component itself
+            TextField nameField = visualElement.Q<TextField>(name: "name");
+            nameField.isDelayed = true;
+            _ = nameField.RegisterValueChangedCallback(evt =>
+            {
+                if (target.gameObject.GetComponents<AnimatorLayerComponent>().Length > 1) return;
+                if (target.gameObject.name != evt.previousValue) return;
+
+                target.gameObject.name = evt.newValue;
+            });
 
             return visualElement;
         }
