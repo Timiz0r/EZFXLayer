@@ -17,11 +17,9 @@
       <TextField />
       <VisualElement class="layer-creation-container-buttons">
         <Button name="top" text="loc:Top" />
-        <Button name="bottom" text="loc:Bottom" />
-      </VisualElement>
-      <VisualElement class="layer-creation-container-buttons">
         <Button name="above" text="loc:Above" />
         <Button name="below" text="loc:Below" />
+        <Button name="bottom" text="loc:Bottom" />
       </VisualElement>
     </VisualElement>
   </VisualElement>

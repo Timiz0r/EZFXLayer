@@ -133,12 +133,12 @@ msgstr ""
 msgid "Add GameObject"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:105
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:106
 # id format: Add layer '{newObjectName}'
 msgid "Add layer '{0}'"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:116
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:117
 msgid "Target was not set for layer creation buttons."
 msgstr ""
 
@@ -151,15 +151,15 @@ msgid "Top"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.uxml:20
-msgid "Bottom"
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.uxml:23
 msgid "Above"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.uxml:24
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.uxml:21
 msgid "Below"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.uxml:22
+msgid "Bottom"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:108

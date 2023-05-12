@@ -10,6 +10,7 @@ namespace EZUtils.EZFXLayer.UIElements
 
     using static Localization;
 
+    //TODO: consider turning this into a toolbar control, since we could save space that way
     internal class LayerCreationButtons : VisualElement
     {
         private LayerCreationButtonTarget buttonTarget;
