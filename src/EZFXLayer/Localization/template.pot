@@ -133,6 +133,11 @@ msgstr ""
 msgid "Add GameObject"
 msgstr ""
 
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:33
+# id format: EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'.
+msgid "EZFXLayer is already enabled through GameObject '{0}'."
+msgstr ""
+
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.uxml:21
 msgid "Populate from first avatar"
 msgstr ""

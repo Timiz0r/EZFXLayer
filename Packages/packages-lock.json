@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.timiz0r.ezutils.common": {
-      "version": "1.0.6",
+      "version": "1.0.7",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -12,7 +12,8 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.timiz0r.ezutils.localization": "1.0.6"
+        "com.timiz0r.ezutils.localization": "1.0.6",
+        "com.timiz0r.ezutils.common": "1.0.7"
       }
     },
     "com.timiz0r.ezutils.ezfxlayer.tests": {

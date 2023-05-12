@@ -4,5 +4,8 @@
     <Reference Include="EZUtils.Localization">
       <HintPath>$(RepoRoot)\Library\ScriptAssemblies\EZUtils.Localization.dll</HintPath>
     </Reference>
+    <Reference Include="EZUtils.Common">
+      <HintPath>$(RepoRoot)\Library\ScriptAssemblies\EZUtils.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

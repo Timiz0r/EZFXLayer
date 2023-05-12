@@ -6,6 +6,7 @@ namespace EZUtils.EZFXLayer.UIElements
     using System.Linq;
     using EZUtils.Localization.UIElements;
     using UnityEditor;
+    using UnityEditor.SceneManagement;
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.SceneManagement;
@@ -34,117 +35,58 @@ namespace EZUtils.EZFXLayer.UIElements
             Button createBasicFXControllerButton = element.Q<Button>(name: "createBasicFXLayerController");
             createBasicFXControllerButton.clicked += () =>
             {
-                if (!CopyAsset(
-                    guid: "404d228aeae421f4590305bc4cdaba16",
-                    destPath: GenerateSceneBasedPath(s => $"FX_{s.name}.controller"),
-                    out RuntimeAnimatorController controller))
-                {
-                    EditorError.Display("vrc_AvatarV3HandsLayer.controller not found.");
-                    return;
-                }
-
-                Utilities.RecordChange(
-                    Target, "Configure default FX layer animator controller", t => t.fxLayerController = controller);
+                CreateBasicFXLayerController(Target, TargetScene);
+                serializedObject.Update();
             };
 
             Button createBasicMenuButton = element.Q<Button>(name: "createBasicVRCRootExpressionsMenu");
             createBasicMenuButton.clicked += () =>
             {
-                VRCExpressionsMenu menu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
-                AssetDatabase.CreateAsset(menu, GenerateSceneBasedPath(s => $"ExpressionsMenu_{s.name}.asset"));
-
-                Utilities.RecordChange(
-                    Target, "Configure default VRC root expressions menu", t => t.vrcRootExpressionsMenu = menu);
+                CreateBasicVRCRootExpressionsMenu(Target, TargetScene);
+                serializedObject.Update();
             };
 
             Button createBasicParametersButton = element.Q<Button>(name: "createBasicVRCExpressionParameters");
             createBasicParametersButton.clicked += () =>
             {
-                VRCExpressionParameters parameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
-                parameters.parameters = new[]
-                {
-                    new VRCExpressionParameters.Parameter()
-                    {
-                        defaultValue = 0,
-                        name = "VRCEmote",
-                        saved = true,
-                        valueType = VRCExpressionParameters.ValueType.Int
-                    },
-                    new VRCExpressionParameters.Parameter()
-                    {
-                        defaultValue = 0,
-                        name = "VRCFaceBlendH",
-                        saved = true,
-                        valueType = VRCExpressionParameters.ValueType.Float
-                    },
-                    new VRCExpressionParameters.Parameter()
-                    {
-                        defaultValue = 0,
-                        name = "VRCFaceBlendH",
-                        saved = true,
-                        valueType = VRCExpressionParameters.ValueType.Float
-                    }
-                };
-
-                AssetDatabase.CreateAsset(parameters, GenerateSceneBasedPath(s => $"ExpressionParameters_{s.name}.asset"));
-
-                Utilities.RecordChange(
-                    Target, "Configure default VRC expression parameters", t => t.vrcExpressionParameters = parameters);
-            };
-
-
-            ObjectField fxControllerField = element.Q<ObjectField>(name: "fxControllerField");
-            _ = fxControllerField.RegisterValueChangedCallback(
-                evt => createBasicFXControllerButton.SetEnabled(evt.newValue == null));
-
-            ObjectField menuField = element.Q<ObjectField>(name: "menuField");
-            _ = menuField.RegisterValueChangedCallback(
-                evt => createBasicMenuButton.SetEnabled(evt.newValue == null));
-
-            ObjectField parametersField = element.Q<ObjectField>(name: "parametersField");
-            _ = parametersField.RegisterValueChangedCallback(
-                evt => createBasicParametersButton.SetEnabled(evt.newValue == null));
-
-            //since the component isnt bound yet, we gotta schedule this ahead a frame
-            _ = element.schedule.Execute(() =>
-            {
-                createBasicFXControllerButton.SetEnabled(fxControllerField.value == null);
-                createBasicMenuButton.SetEnabled(menuField.value == null);
-                createBasicParametersButton.SetEnabled(parametersField.value == null);
-            });
-
-            element.Q<Button>(name: "populateFromFirstAvatar").clicked += () =>
-            {
-                //we do first avatar instead of selected avatar because it's easier for the user
-                //and this is likely just for initial setup. otherwise, would need to lock the inspector
-                //though could allow dragging and dropping into an object field to popupate
-                //TODO: would also want the button to be disabled if any of the 3 object fields have a value
-                //but am rushing
-                VRCAvatarDescriptor firstAvatar = GetComponentsInScene<VRCAvatarDescriptor>().First();
-
-                Utilities.RecordChange(Target, "Populate reference configuration from first avatar", target =>
-                {
-                    target.fxLayerController = firstAvatar.baseAnimationLayers[4].animatorController;
-                    if (target.fxLayerController == null)
-                    {
-                        Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
-                    }
-
-                    target.vrcExpressionParameters = firstAvatar.expressionParameters;
-                    if (target.vrcExpressionParameters == null)
-                    {
-                        Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expression parameters.");
-                    }
-
-                    target.vrcRootExpressionsMenu = firstAvatar.expressionsMenu;
-                    if (target.vrcRootExpressionsMenu == null)
-                    {
-                        Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expressions menu.");
-                    }
-                });
-
+                CreateBasicVRCExpressionParameters(Target, TargetScene);
                 serializedObject.Update();
             };
+
+            Button populateFromFirstAvatarButton = element.Q<Button>(name: "populateFromFirstAvatar");
+            populateFromFirstAvatarButton.clicked += () =>
+            {
+                PopulateFromFirstAvatarInScene(Target, TargetScene);
+                serializedObject.Update();
+            };
+
+            ObjectField fxControllerField = element.Q<ObjectField>(name: "fxControllerField");
+            ObjectField menuField = element.Q<ObjectField>(name: "menuField");
+            ObjectField parametersField = element.Q<ObjectField>(name: "parametersField");
+
+
+            //since the component isnt bound yet, we gotta schedule this ahead a frame
+            //assuming it binds without notify the first time, hence the problem
+            _ = element.schedule.Execute(() =>
+            {
+                UIValidator fxControllerCreateValidator = new UIValidator();
+                fxControllerCreateValidator.AddValueValidation(fxControllerField, passCondition: v => v == null);
+                fxControllerCreateValidator.DisableIfInvalid(createBasicFXControllerButton);
+
+                UIValidator menuCreateValidator = new UIValidator();
+                menuCreateValidator.AddValueValidation(menuField, passCondition: v => v == null);
+                menuCreateValidator.DisableIfInvalid(createBasicMenuButton);
+
+                UIValidator parametersCreateValidator = new UIValidator();
+                parametersCreateValidator.AddValueValidation(parametersField, passCondition: v => v == null);
+                parametersCreateValidator.DisableIfInvalid(createBasicParametersButton);
+
+                UIValidator populateFromFirstAvatarValidator = new UIValidator();
+                populateFromFirstAvatarValidator.AddValueValidation(fxControllerField, passCondition: v => v == null);
+                populateFromFirstAvatarValidator.AddValueValidation(menuField, passCondition: v => v == null);
+                populateFromFirstAvatarValidator.AddValueValidation(parametersField, passCondition: v => v == null);
+                populateFromFirstAvatarValidator.DisableIfInvalid(populateFromFirstAvatarButton);
+            });
 
             element.Q<Button>(name: "generate").clicked += () =>
             {
@@ -157,26 +99,145 @@ namespace EZUtils.EZFXLayer.UIElements
             return element;
         }
 
-        private string GenerateSceneBasedPath(Func<Scene, string> fileNameGenerator)
+        [MenuItem("GameObject/Enable EZFXLayer in Scene", isValidateFunction: false, 20)]
+        private static void EnableInScene()
         {
-            Scene scene = Target.gameObject.scene;
+            ReferenceComponent[] existingComponents = FindObjectsOfType<ReferenceComponent>();
+            if (existingComponents.Length > 0)
+            {
+                EditorError.Display(T($"EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'."));
+                return;
+            }
+
+            using (UndoGroup undoGroup = new UndoGroup("Enable EZFXLayer in Scene"))
+            {
+                GameObject referenceObject = GameObject.Find("EZFXLayer");
+                if (referenceObject == null)
+                {
+                    referenceObject = new GameObject("EZFXLayer");
+                    Undo.RegisterCreatedObjectUndo(referenceObject, "Add new EZFXLayer object");
+                }
+
+                ReferenceComponent referenceComponent = referenceObject.AddComponent<ReferenceComponent>();
+                Scene scene = SceneManager.GetActiveScene();
+
+                PopulateFromFirstAvatarInScene(referenceComponent, scene);
+
+                if (referenceComponent.fxLayerController == null)
+                {
+                    CreateBasicFXLayerController(referenceComponent, scene);
+                }
+                if (referenceComponent.vrcExpressionParameters == null)
+                {
+                    CreateBasicVRCExpressionParameters(referenceComponent, scene);
+                }
+                if (referenceComponent.vrcRootExpressionsMenu == null)
+                {
+                    CreateBasicVRCRootExpressionsMenu(referenceComponent, scene);
+                }
+            }
+        }
+
+        private static void PopulateFromFirstAvatarInScene(ReferenceComponent referenceComponent, Scene scene)
+        {
+            //we do first avatar instead of selected avatar because it's easier for the user
+            //and this is likely just for initial setup. otherwise, would need to lock the inspector
+            //though could allow dragging and dropping into an object field to popupate
+            VRCAvatarDescriptor firstAvatar = GetComponentsInScene<VRCAvatarDescriptor>(scene).First();
+
+            Utilities.RecordChange(referenceComponent, "Populate reference configuration from first avatar", target =>
+            {
+                target.fxLayerController = firstAvatar.baseAnimationLayers
+                    .FirstOrDefault(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX)
+                    .animatorController;
+                if (target.fxLayerController == null)
+                {
+                    Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no FX layer.");
+                }
+
+                target.vrcExpressionParameters = firstAvatar.expressionParameters;
+                if (target.vrcExpressionParameters == null)
+                {
+                    Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expression parameters.");
+                }
+
+                target.vrcRootExpressionsMenu = firstAvatar.expressionsMenu;
+                if (target.vrcRootExpressionsMenu == null)
+                {
+                    Debug.LogWarning($"The avatar '{firstAvatar.gameObject.name}' has no expressions menu.");
+                }
+            });
+        }
+
+        private static void CreateBasicVRCRootExpressionsMenu(ReferenceComponent referenceComponent, Scene scene)
+        {
+            VRCExpressionsMenu menu = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+
+            AssetDatabase.CreateAsset(menu, GenerateSceneBasedPath(scene, s => $"ExpressionsMenu_{s.name}.asset"));
+
+            Utilities.RecordChange(
+                referenceComponent,
+                "Configure default VRC root expressions menu",
+                t => t.vrcRootExpressionsMenu = menu);
+        }
+
+        private static void CreateBasicVRCExpressionParameters(ReferenceComponent referenceComponent, Scene scene)
+        {
+            VRCExpressionParameters parameters = ScriptableObject.CreateInstance<VRCExpressionParameters>();
+            parameters.parameters = new[]
+            {
+                new VRCExpressionParameters.Parameter()
+                {
+                    defaultValue = 0,
+                    name = "VRCEmote",
+                    saved = true,
+                    valueType = VRCExpressionParameters.ValueType.Int
+                },
+                new VRCExpressionParameters.Parameter()
+                {
+                    defaultValue = 0,
+                    name = "VRCFaceBlendH",
+                    saved = true,
+                    valueType = VRCExpressionParameters.ValueType.Float
+                },
+                new VRCExpressionParameters.Parameter()
+                {
+                    defaultValue = 0,
+                    name = "VRCFaceBlendH",
+                    saved = true,
+                    valueType = VRCExpressionParameters.ValueType.Float
+                }
+            };
+
+            AssetDatabase.CreateAsset(
+                parameters, GenerateSceneBasedPath(scene, s => $"ExpressionParameters_{s.name}.asset"));
+
+            Utilities.RecordChange(
+                referenceComponent,
+                "Configure default VRC expression parameters",
+                t => t.vrcExpressionParameters = parameters);
+        }
+
+        private static void CreateBasicFXLayerController(ReferenceComponent referenceComponent, Scene scene)
+            => Utilities.RecordChange(
+                referenceComponent,
+                "Configure default FX layer animator controller",
+                t =>
+                {
+                    VrcDefaultAnimatorControllers controllers = new VrcDefaultAnimatorControllers();
+                    t.fxLayerController = controllers.FX;
+                    AssetDatabase.CreateAsset(controllers.FX, GenerateSceneBasedPath(scene, s => $"FX_{s.name}.controller"));
+                });
+
+        private static string GenerateSceneBasedPath(Scene scene, Func<Scene, string> fileNameGenerator)
+        {
             string result = $"{Path.GetDirectoryName(scene.path)}/{fileNameGenerator(scene)}";
             return result;
         }
 
-        private static bool CopyAsset<T>(string guid, string destPath, out T asset) where T : UnityEngine.Object
-        {
-            //note that we use guids for asset generation because old-style vrcsdk is from a unitypackage
-            //and new-style is from VCC, both of which have different paths
-            destPath = AssetDatabase.GenerateUniqueAssetPath(destPath);
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            bool result = AssetDatabase.CopyAsset(path, destPath);
-
-            asset = result ? AssetDatabase.LoadAssetAtPath<T>(destPath) : null;
-            return result;
-        }
-
         private IEnumerable<T> GetComponentsInScene<T>(bool includeInactive = false) where T : Component
-            => TargetScene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: includeInactive));
+            => GetComponentsInScene<T>(TargetScene, includeInactive);
+        private static IEnumerable<T> GetComponentsInScene<T>(Scene scene, bool includeInactive = false) where T : Component
+            => scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: includeInactive));
     }
 }
