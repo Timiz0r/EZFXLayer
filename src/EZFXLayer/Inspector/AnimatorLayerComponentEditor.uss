@@ -6,4 +6,6 @@ AnimationConfigurationField {
     margin-bottom: 8px;
 }
 
-
+#objectName {
+    display: none;
+}

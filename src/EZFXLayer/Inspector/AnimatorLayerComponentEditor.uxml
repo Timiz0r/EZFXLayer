@@ -14,6 +14,7 @@
 
     <editor:Toolbar />
 
+    <TextField name="objectName" binding-path="m_Name" />
     <TextField name="name" label="loc:Name" binding-path="name" />
     <TextField label="loc:Menu path" binding-path="menuPath" />
     <Toggle class="left-toggle" label="loc:Manage states, conditions, and parameters" binding-path="manageAnimatorControllerStates" />

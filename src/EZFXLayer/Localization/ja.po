@@ -86,35 +86,35 @@ msgstr "生成する前にシーンを保存してください。"
 msgid "Applying generation to avatar"
 msgstr "アバターに生成されたアセットを適用する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:17
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:18
 msgid "Name"
 msgstr "名前"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:18
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:19
 msgid "Menu path"
 msgstr "メニューのパス"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:19
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:20
 msgid "Manage states, conditions, and parameters"
 msgstr "ステート、遷移の条件、パラメーターを管理する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:20
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:21
 msgid "Manage expressions menus and parameters"
 msgstr "エクスプレッションメニューとパラメーターを管理する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:24
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:25
 msgid "Reference animation"
 msgstr "参照アニメーション"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:27
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:28
 msgid "Animations"
 msgstr "アニメーション"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:28
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:29
 msgid "Hide unchanged items"
 msgstr "変更していないものを隠す"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:29
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:30
 msgid "Add new animation"
 msgstr "アニメーションを追加"
 
@@ -142,7 +142,7 @@ msgstr "ゲームオブジェクト"
 msgid "Add GameObject"
 msgstr "ゲームオブジェクトを追加"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:33
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:107
 # id format: EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'.
 msgid "EZFXLayer is already enabled through GameObject '{0}'."
 msgstr ""

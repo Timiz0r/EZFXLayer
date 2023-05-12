@@ -11,6 +11,8 @@ namespace EZUtils.EZFXLayer.UIElements
     [CustomEditor(typeof(AnimatorLayerComponent))]
     public class AnimatorLayerComponentEditor : Editor
     {
+        private SerializedObject gameObjectSerializedObject = null;
+
         [UnityEngine.SerializeField] private VisualTreeAsset uxml;
         public override VisualElement CreateInspectorGUI()
         {
@@ -91,8 +93,6 @@ namespace EZUtils.EZFXLayer.UIElements
                 animations.RefreshExternalChanges();
             };
 
-            //NOTE: if we find a good way to sync from gameobject name, would love to do that
-            //it may be hypothetically possible with some trickery in the component itself
             TextField nameField = visualElement.Q<TextField>(name: "name");
             nameField.isDelayed = true;
             _ = nameField.RegisterValueChangedCallback(evt =>
@@ -103,7 +103,23 @@ namespace EZUtils.EZFXLayer.UIElements
                 target.gameObject.name = evt.newValue;
             });
 
+            gameObjectSerializedObject = new SerializedObject(target.gameObject);
+            //we use a hidden field in order to get events
+            TextField objectNameField = visualElement.Q<TextField>(name: "objectName");
+            _ = objectNameField.RegisterValueChangedCallback(evt =>
+            {
+                if (target.gameObject.GetComponents<AnimatorLayerComponent>().Length > 1) return;
+                if (target.name != evt.previousValue) return;
+
+                target.name = evt.newValue;
+            });
+            //binding to the component hasn't happened yet. if we bind to gameobject too early, it will get overwritten
+            //so we bind a frame later
+            _ = visualElement.schedule.Execute(() => objectNameField.Bind(gameObjectSerializedObject));
+
             return visualElement;
         }
+
+        private void OnDestroy() => gameObjectSerializedObject?.Dispose();
     }
 }
