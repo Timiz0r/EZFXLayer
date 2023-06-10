@@ -106,5 +106,33 @@ namespace EZUtils.EZFXLayer
 
         public static IEnumerable<string> GetBlendShapeNames(this SkinnedMeshRenderer smr)
             => Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i));
+
+        //have not found an ideal way to call this via unity messaging in the component
+        //so we call it in the two places that matter most: inspector and generation
+        public static void PerformComponentUpgrades(this AnimatorLayerComponent layer, out bool changePerformed)
+        {
+            changePerformed = false;
+
+            //since we cant do a null check, we reuse isReferenceAnimation, which used to be true for the reference anim
+            //but doing away with them, setting it to false is a logical way to indicate otherwise
+            if (layer.referenceAnimation.isReferenceAnimation)
+            {
+                //decided against having undo records for these conversions, since we dont maintain code that uses
+                //these old fields
+                layer.referenceAnimatables.blendShapes =
+                    layer.referenceAnimation.blendShapes.Select(bs => bs.Clone()).ToList();
+                layer.referenceAnimatables.gameObjects =
+                    layer.referenceAnimation.gameObjects.Select(go => go.Clone()).ToList();
+                layer.referenceAnimatables.isFoldedOut = layer.referenceAnimation.isFoldedOut;
+                layer.referenceAnimation.isReferenceAnimation = false;
+                changePerformed = true;
+            }
+
+            if (changePerformed)
+            {
+                EditorUtility.SetDirty(layer);
+                PrefabUtility.RecordPrefabInstancePropertyModifications(layer);
+            }
+        }
     }
 }

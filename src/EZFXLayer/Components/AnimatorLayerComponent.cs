@@ -1,11 +1,7 @@
 namespace EZUtils.EZFXLayer
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using UnityEditor;
     using UnityEngine;
-
-    using static Localization;
 
     [ExecuteAlways]
     public class AnimatorLayerComponent : MonoBehaviour
@@ -13,14 +9,6 @@ namespace EZUtils.EZFXLayer
         public new string name;
 
         public ReferenceAnimatables referenceAnimatables = new ReferenceAnimatables();
-
-        [System.Obsolete("Has been split into referenceAnimatables and an additional animation.")]
-        public AnimationConfiguration referenceAnimation = new AnimationConfiguration()
-        {
-            name = "Default",
-            isDefaultAnimation = true,
-            isReferenceAnimation = true //wont add editor support to change this
-        };
         public List<AnimationConfiguration> animations = new List<AnimationConfiguration>();
 
         public bool manageAnimatorControllerStates = true;
@@ -35,18 +23,10 @@ namespace EZUtils.EZFXLayer
         public string menuPath = null;
         public bool hideUnchangedItemsInAnimationConfigurations = false;
 
+        [System.Obsolete("Has been split into referenceAnimatables and an additional animation.")]
+        public AnimationConfiguration referenceAnimation;
+
         //for the initial value of the component
         public void Reset() => name = name ?? gameObject.name;
-
-        public void PerformConversions()
-        {
-            if (false && referenceAnimation != null)
-            {
-                referenceAnimatables.blendShapes = referenceAnimation.blendShapes.Select(bs => bs.Clone()).ToList();
-                referenceAnimatables.gameObjects = referenceAnimation.gameObjects.Select(go => go.Clone()).ToList();
-                referenceAnimatables.isFoldedOut = referenceAnimation.isFoldedOut;
-                referenceAnimation = null;
-            }
-        }
     }
 }

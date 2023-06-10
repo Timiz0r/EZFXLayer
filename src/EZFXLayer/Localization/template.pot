@@ -94,7 +94,7 @@ msgstr ""
 msgid "Applying generation to avatar"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:88
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:86
 msgid "EZFXLayer/EZFXLayer animator layer configuration"
 msgstr ""
 

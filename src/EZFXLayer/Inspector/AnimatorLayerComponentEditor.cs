@@ -19,11 +19,16 @@ namespace EZUtils.EZFXLayer.UIElements
             VisualElement visualElement = uxml.CommonUIClone();
             TranslateElementTree(visualElement);
 
-            //is more convenient to do this immediately, in our case
-            //instead of waiting for it to happen later
-            visualElement.Bind(serializedObject);
-
             AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
+            target.PerformComponentUpgrades(out bool changePerformed);
+            if (changePerformed)
+            {
+                serializedObject.Update();
+            }
+
+            //is more convenient to do this early, in our case
+            //instead of waiting for it to happen later, as we read values early
+            visualElement.Bind(serializedObject);
 
             visualElement.Q<LayerCreationButtons>().SetTarget(target.gameObject);
 

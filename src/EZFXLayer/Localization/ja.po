@@ -103,7 +103,7 @@ msgstr "生成する前にシーンを保存してください。"
 msgid "Applying generation to avatar"
 msgstr "アバターに生成されたアセットを適用する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:88
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:86
 msgid "EZFXLayer/EZFXLayer animator layer configuration"
 msgstr "EZFXLayer/EZFXLayerアニメーターレイヤー設定"
 

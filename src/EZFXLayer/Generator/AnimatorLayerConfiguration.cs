@@ -68,16 +68,19 @@ namespace EZUtils.EZFXLayer
 
 
         public static AnimatorLayerConfiguration FromComponent(AnimatorLayerComponent layer, GenerationOptions generationOptions)
-            => layer != null
+        {
+            layer.PerformComponentUpgrades(out _);
+            return layer != null
                 ? new AnimatorLayerConfiguration(
                     name: layer.name,
-                    animations: layer.animations.Prepend(layer.referenceAnimation).ToArray(),
+                    animations: layer.animations.ToArray(),
                     menuPath: layer.menuPath,
                     manageAnimatorControllerStates: layer.manageAnimatorControllerStates,
                     manageExpressionMenuAndParameters: layer.manageExpressionMenuAndParameters,
                     saveExpressionParameters: layer.saveExpressionParameters,
                     generationOptions: generationOptions ?? throw new ArgumentNullException(nameof(generationOptions)))
                 : throw new ArgumentNullException(nameof(layer));
+        }
 
         internal void EnsureLayerExistsInController(
             AnimatorController controller,
