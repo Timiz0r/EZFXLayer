@@ -39,7 +39,7 @@ namespace EZUtils.EZFXLayer.UIElements
                 () => new AnimationConfigurationField(this));
             animations.Refresh();
 
-            defaultAnimationPopup = new DefaultAnimationPopupField(component.animations);
+            defaultAnimationPopup = DefaultAnimationPopupField.Create(component.animations);
             _ = defaultAnimationPopup.RegisterValueChangedCallback(evt =>
             {
                 Utilities.RecordChange(component, "Set default animation", layer =>
@@ -67,7 +67,7 @@ namespace EZUtils.EZFXLayer.UIElements
                 newAnimation.blendShapes.AddRange(component.referenceAnimatables.blendShapes.Select(bs => bs.Clone()));
                 newAnimation.gameObjects.AddRange(component.referenceAnimatables.gameObjects.Select(go => go.Clone()));
                 layer.animations.Add(newAnimation);
-                defaultAnimationPopup.Animations.Add(newAnimation);
+                defaultAnimationPopup.Add(newAnimation);
             });
             serializedObject.Update();
             animations.RefreshExternalChanges();
@@ -80,13 +80,7 @@ namespace EZUtils.EZFXLayer.UIElements
             animations.Remove(
                 sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
 
-            AnimationConfiguration animationToRemove =
-                defaultAnimationPopup.Animations.Single(a => a.key == animationConfigurationKey);
-            _ = defaultAnimationPopup.Animations.Remove(animationToRemove);
-            if (animationToRemove.isDefaultAnimation)
-            {
-                defaultAnimationPopup.SetValueWithoutNotify(defaultAnimationPopup.Animations[0]);
-            }
+            defaultAnimationPopup.Remove(animationConfigurationKey);
         }
 
         public void PropagateDefaultAnimationNameChangeToDefaultAnimationField() =>

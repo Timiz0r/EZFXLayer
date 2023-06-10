@@ -26,8 +26,13 @@ msgstr ""
 msgid "Add GameObject"
 msgstr ""
 
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/DefaultAnimationPopupField.cs:22
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/DefaultAnimationPopupField.cs:25
+msgid "No animations added"
+msgstr ""
+
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:215
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:218
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 msgid "Menu: {0}"
 msgstr ""
@@ -55,16 +60,16 @@ msgstr ""
 msgid "There is no reference animation."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:145
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:148
 # id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
 msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:146
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:149
 msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:214
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:217
 msgid "Cannot add a new toggle because there are already 8 items in the menu."
 msgstr ""
 
@@ -74,11 +79,11 @@ msgid "Duplicate non-empty layers found in configuration: {0}."
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "EZFXLayer generation"
+msgid "Failed EZFXLayer generation"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "Failed EZFXLayer generation"
+msgid "EZFXLayer generation"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59
@@ -89,7 +94,7 @@ msgstr ""
 msgid "Applying generation to avatar"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:81
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:88
 msgid "EZFXLayer/EZFXLayer animator layer configuration"
 msgstr ""
 
@@ -257,3 +262,7 @@ msgstr ""
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:62
 msgid "Cannot add a new sub menu because there are already 8 items in its parent."
 msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:118
+#~ msgid "Convert EZFXLayer Animator Layer to new version"
+#~ msgstr ""
