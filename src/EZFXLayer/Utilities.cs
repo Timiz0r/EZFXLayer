@@ -109,6 +109,8 @@ namespace EZUtils.EZFXLayer
 
         //have not found an ideal way to call this via unity messaging in the component
         //so we call it in the two places that matter most: inspector and generation
+        //decided against having undo records for these conversions, since we dont maintain code that uses
+        //these old fields
         public static void PerformComponentUpgrades(this AnimatorLayerComponent layer, out bool changePerformed)
         {
             changePerformed = false;
@@ -117,13 +119,26 @@ namespace EZUtils.EZFXLayer
             //but doing away with them, setting it to false is a logical way to indicate otherwise
             if (layer.referenceAnimation.isReferenceAnimation)
             {
-                //decided against having undo records for these conversions, since we dont maintain code that uses
-                //these old fields
+                AnimationConfiguration copiedAnimation = new AnimationConfiguration()
+                {
+                    key = layer.referenceAnimation.key,
+                    name = layer.referenceAnimation.name,
+                    customAnimatorStateName = layer.referenceAnimation.customAnimatorStateName,
+                    customToggleName = layer.referenceAnimation.customToggleName,
+                    isReferenceAnimation = false,
+                    isDefaultAnimation = layer.referenceAnimation.isDefaultAnimation,
+                    isFoldedOut = layer.referenceAnimation.isFoldedOut,
+                    blendShapes = layer.referenceAnimation.blendShapes.Select(bs => bs.Clone()).ToList(),
+                    gameObjects = layer.referenceAnimation.gameObjects.Select(go => go.Clone()).ToList(),
+                };
+                layer.animations.Insert(0, copiedAnimation);
+
                 layer.referenceAnimatables.blendShapes =
                     layer.referenceAnimation.blendShapes.Select(bs => bs.Clone()).ToList();
                 layer.referenceAnimatables.gameObjects =
                     layer.referenceAnimation.gameObjects.Select(go => go.Clone()).ToList();
                 layer.referenceAnimatables.isFoldedOut = layer.referenceAnimation.isFoldedOut;
+
                 layer.referenceAnimation.isReferenceAnimation = false;
                 changePerformed = true;
             }
