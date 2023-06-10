@@ -11,16 +11,14 @@ namespace EZUtils.EZFXLayer.UIElements
     internal class BlendShapeSelectorPopup : EditorWindow
     {
         private ConfigurationOperations configurationOperations;
-        private Scene scene;
+        private IEnumerable<GameObject> avatarGameObjects;
+        private bool isReference;
 
         public void CreateGUI()
         {
             ScrollView scrollView = new ScrollView();
             rootVisualElement.Add(scrollView);
 
-            IEnumerable<GameObject> avatarGameObjects = scene.GetRootGameObjects()
-                .SelectMany(go => go.GetComponentsInChildren<VRCAvatarDescriptor>(includeInactive: true))
-                .Select(c => c.gameObject);
             foreach (GameObject avatar in avatarGameObjects)
             {
                 Foldout avatarFoldout = new Foldout() { text = avatar.name, value = false };
@@ -50,16 +48,28 @@ namespace EZUtils.EZFXLayer.UIElements
                         {
                             if (evt.newValue)
                             {
-                                configurationOperations.AddBlendShape(smr, blendShape);
+                                if (isReference)
+                                {
+                                    configurationOperations.AddReferenceBlendShape(smr, blendShape);
+                                }
+                                //comes later
+                                // else
+                                // {
+                                //     configurationOperations.AddAnimationBlendShape(smr, blendShape);
+                                // }
                             }
                             else
                             {
-                                configurationOperations.RemoveBlendShape(smr, blendShape);
+                                if (isReference)
+                                {
+                                    configurationOperations.RemoveReferenceBlendShape(smr, blendShape);
+                                }
+                                //comes later
+                                // else
+                                // {
+                                //     configurationOperations.RemoveAnimationBlendShape(smr, blendShape);
+                                // }
                             }
-
-                            //the element hasn't been updated yet, so we'll check for 1, instead of 0
-                            //actually, kinda shitty for it to close like that, so we'll avoid it
-                            // avatarFoldout.value = avatarFoldout.Query<Toggle>().Where(t => t.value).AtIndex(1) != null;
                         });
                         avatarFoldout.Add(blendShapeToggle);
                     }
@@ -69,13 +79,16 @@ namespace EZUtils.EZFXLayer.UIElements
             }
         }
 
-        public static void Show(Rect buttonBox, ConfigurationOperations configurationOperations, Scene scene)
+        public static void Show(
+            Rect buttonBox, ConfigurationOperations configurationOperations, Scene scene, bool isReference)
         {
             BlendShapeSelectorPopup window = CreateInstance<BlendShapeSelectorPopup>();
             window.configurationOperations = configurationOperations;
-            window.scene = scene;
+            window.avatarGameObjects = scene.GetRootGameObjects()
+                .SelectMany(go => go.GetComponentsInChildren<VRCAvatarDescriptor>(includeInactive: true))
+                .Select(c => c.gameObject);
+            window.isReference = isReference;
 
-            // window.position = new Rect(popupPosition.x, popupPosition.y, window.position.width, window.position.height);
             window.ShowAsDropDown(
                 GUIUtility.GUIToScreenRect(buttonBox),
                 window.position.size);

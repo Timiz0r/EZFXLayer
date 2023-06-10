@@ -1,7 +1,5 @@
 namespace EZUtils.EZFXLayer.UIElements
 {
-    using System;
-    using System.Linq;
     using EZFXLayer;
     using UnityEditor;
     using UnityEditor.UIElements;
@@ -12,13 +10,13 @@ namespace EZUtils.EZFXLayer.UIElements
     internal class AnimatableGameObjectField : BindableElement, ISerializedPropertyContainerItem
     {
         private readonly ConfigurationOperations configOperations;
-        private readonly bool isFromReferenceAnimation;
+        private readonly bool isReference;
 
         public AnimatableGameObject GameObject { get; private set; }
 
         public AnimatableGameObjectField(
             ConfigurationOperations configOperations,
-            bool isFromReferenceAnimation)
+            bool isReference)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimatableGameObjectField.uxml");
@@ -26,18 +24,26 @@ namespace EZUtils.EZFXLayer.UIElements
             TranslateElementTree(this);
 
             this.configOperations = configOperations;
-            this.isFromReferenceAnimation = isFromReferenceAnimation;
+            this.isReference = isReference;
 
-            if (isFromReferenceAnimation)
+            this.Q<Button>().clicked += () =>
             {
-                this.Q<Button>().clicked += () => this.configOperations.RemoveGameObject(GameObject);
-            }
+                if (isReference)
+                {
+                    this.configOperations.RemoveReferenceGameObject(GameObject);
+                }
+                //comes later
+                // else
+                // {
+                //     this.configOperations.RemoveAnimationGameObject(GameObject);
+                // }
+            };
 
             _ = this.Q<Toggle>().RegisterValueChangedCallback(evt =>
             {
                 GameObject.active = evt.newValue;
 
-                if (isFromReferenceAnimation)
+                if (isReference)
                 {
                     this.configOperations.ReferenceGameObjectChanged();
                 }
@@ -51,15 +57,6 @@ namespace EZUtils.EZFXLayer.UIElements
         public void CheckForReferenceMatch()
             => EnableInClassList("blendshape-matches-reference", configOperations.GameObjectMatchesReference(GameObject));
 
-        public static int Compare(AnimatableBlendShapeField lhs, AnimatableBlendShapeField rhs)
-        {
-            string[] blendShapeNames = lhs.BlendShape.skinnedMeshRenderer.GetBlendShapeNames().ToArray();
-            int result =
-                Array.IndexOf(blendShapeNames, lhs.BlendShape.name)
-                - Array.IndexOf(blendShapeNames, rhs.BlendShape.name);
-            return result;
-        }
-
         public void Rebind(SerializedProperty serializedProperty)
         {
             GameObject = ConfigSerialization.DeserializeGameObject(serializedProperty);
@@ -67,7 +64,7 @@ namespace EZUtils.EZFXLayer.UIElements
             //RegisterValueChangedCallback, so we want the GameObject it uses to be initialized first
             this.BindProperty(serializedProperty);
 
-            if (!isFromReferenceAnimation)
+            if (!isReference)
             {
                 CheckForReferenceMatch();
             }

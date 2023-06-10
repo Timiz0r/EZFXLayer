@@ -15,15 +15,31 @@ msgstr ""
 "Language-Team: Japanese\n"
 "PO-Revision-Date: 2023-05-11 16:52\n"
 
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:31
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:17
+msgid "Blend shapes"
+msgstr "ブレンドシェイプ"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:33
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:19
+msgid "Add blend shapes"
+msgstr "ブレンドシェイプを追加"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:37
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:23
+msgid "GameObjects"
+msgstr "ゲームオブジェクト"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:25
+msgid "Add GameObject"
+msgstr "ゲームオブジェクトを追加"
+
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:215
 msgid "Menu: {0}"
 msgstr "メニュー: {0}"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/AnimatorLayerComponent.cs:13
-msgid "EZFXLayer/EZFXLayer animator layer configuration"
-msgstr "EZFXLayer/EZFXLayerアニメーターレイヤー設定"
 
 # id format: Only one {nameof(ReferenceComponent)} should exist per scene.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:28
@@ -67,12 +83,12 @@ msgid "Duplicate non-empty layers found in configuration: {0}."
 msgstr "空でない同じ様なレイヤーが設定で見つかりました: {0}。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "Failed EZFXLayer generation"
-msgstr "EZFXLayer生成失敗"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
 msgid "EZFXLayer generation"
 msgstr "EZFXLayer生成"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
+msgid "Failed EZFXLayer generation"
+msgstr "EZFXLayer生成失敗"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59
 msgid "Please save the scene before attempting to generate."
@@ -81,6 +97,10 @@ msgstr "生成する前にシーンを保存してください。"
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:91
 msgid "Applying generation to avatar"
 msgstr "アバターに生成されたアセットを適用する"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:81
+msgid "EZFXLayer/EZFXLayer animator layer configuration"
+msgstr "EZFXLayer/EZFXLayerアニメーターレイヤー設定"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:21
 msgid "Name"
@@ -126,22 +146,6 @@ msgstr "カスタムのトグル名"
 msgid "Custom state name"
 msgstr "カスタムのステート名"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:31
-msgid "Blend shapes"
-msgstr "ブレンドシェイプ"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:33
-msgid "Add blend shapes"
-msgstr "ブレンドシェイプを追加"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:37
-msgid "GameObjects"
-msgstr "ゲームオブジェクト"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
-msgid "Add GameObject"
-msgstr "ゲームオブジェクトを追加"
-
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:106
 # id format: Add layer '{newObjectName}'
 msgid "Add layer '{0}'"
@@ -169,6 +173,10 @@ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.uxml:22
 msgid "Bottom"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:15
+msgid "Reference"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:108

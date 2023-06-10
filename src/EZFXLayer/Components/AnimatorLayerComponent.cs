@@ -1,15 +1,20 @@
 namespace EZUtils.EZFXLayer
 {
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEditor;
     using UnityEngine;
 
     using static Localization;
 
+    [ExecuteAlways]
     public class AnimatorLayerComponent : MonoBehaviour
     {
         public new string name;
 
+        public ReferenceAnimatables referenceAnimatables = new ReferenceAnimatables();
+
+        [System.Obsolete("Has been split into referenceAnimatables and an additional animation.")]
         public AnimationConfiguration referenceAnimation = new AnimationConfiguration()
         {
             name = "Default",
@@ -33,5 +38,15 @@ namespace EZUtils.EZFXLayer
         //for the initial value of the component
         public void Reset() => name = name ?? gameObject.name;
 
+        public void PerformConversions()
+        {
+            if (false && referenceAnimation != null)
+            {
+                referenceAnimatables.blendShapes = referenceAnimation.blendShapes.Select(bs => bs.Clone()).ToList();
+                referenceAnimatables.gameObjects = referenceAnimation.gameObjects.Select(go => go.Clone()).ToList();
+                referenceAnimatables.isFoldedOut = referenceAnimation.isFoldedOut;
+                referenceAnimation = null;
+            }
+        }
     }
 }

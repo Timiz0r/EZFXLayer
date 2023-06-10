@@ -29,7 +29,7 @@
     <VisualElement class="animation-container">
       <VisualElement name="defaultAnimationPopup" />
       <Label class="heading-label" text="loc:Reference animation" />
-      <VisualElement name="reference-animation-container" />
+      <VisualElement name="reference-container" />
 
       <Label class="heading-label" text="loc:Animations" />
       <Toggle name="hideUnchangedItems" class="left-toggle" label="loc:Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />

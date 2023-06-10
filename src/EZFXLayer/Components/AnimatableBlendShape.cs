@@ -12,6 +12,10 @@ namespace EZUtils.EZFXLayer
         public string name;
         public float value;
 
+        //in the event these are for the reference itself, wont be used
+        public bool synchronizeValueWithReference;
+        public bool disabled;
+
         public bool Matches(AnimatableBlendShape blendShape) => blendShape == null
             ? throw new ArgumentNullException(nameof(blendShape))
             : key == blendShape.key;

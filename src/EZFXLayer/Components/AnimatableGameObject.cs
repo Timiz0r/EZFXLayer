@@ -16,6 +16,10 @@ namespace EZUtils.EZFXLayer
         public string path;
         public bool active;
 
+        //in the event these are for the reference itself, wont be used
+        public bool synchronizeActiveWithReference;
+        public bool disabled;
+
         public bool Matches(AnimatableGameObject gameObject) => gameObject == null
             ? throw new ArgumentNullException(nameof(gameObject))
             : key == gameObject.key;

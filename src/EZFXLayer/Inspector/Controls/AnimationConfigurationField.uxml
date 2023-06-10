@@ -23,20 +23,20 @@
     <VisualElement name="animationFoldoutContent" class="animation-foldout-content">
       <VisualElement class="general-animation-content">
         <!-- reference animation doesnt have a toggle, so only show this for normal animations -->
-        <TextField class="animation-edit" label="loc:Custom toggle name" binding-path="customToggleName" />
+        <TextField label="loc:Custom toggle name" binding-path="customToggleName" />
         <TextField label="loc:Custom state name" binding-path="customAnimatorStateName" />
       </VisualElement>
 
       <VisualElement class="blend-shape-content">
         <Label class="heading-label" text="loc:Blend shapes" />
         <VisualElement class="blend-shape-container" />
-        <Button class="reference-animation-edit" name="addBlendShape" text="loc:Add blend shapes" />
+        <Button name="addBlendShape" text="loc:Add blend shapes" />
       </VisualElement>
 
       <VisualElement class="gameobject-content">
         <Label class="heading-label" text="loc:GameObjects" />
         <VisualElement class="gameobject-container" />
-        <ezfx:ObjectField class="reference-animation-edit" name="addGameObject" label="loc:Add GameObject" objectType="UnityEngine.GameObject, UnityEngine" />
+        <ezfx:ObjectField name="addGameObject" label="loc:Add GameObject" objectType="UnityEngine.GameObject, UnityEngine" />
       </VisualElement>
     </VisualElement>
   </VisualElement>

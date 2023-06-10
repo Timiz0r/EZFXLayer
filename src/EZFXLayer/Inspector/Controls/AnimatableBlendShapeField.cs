@@ -16,7 +16,7 @@ namespace EZUtils.EZFXLayer.UIElements
         public AnimatableBlendShapeField(
             ConfigurationOperations configOperations,
             SerializedProperty serializedProperty,
-            bool isFromReferenceAnimation)
+            bool isReference)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimatableBlendShapeField.uxml");
@@ -26,21 +26,18 @@ namespace EZUtils.EZFXLayer.UIElements
             this.BindProperty(serializedProperty);
             BlendShape = ConfigSerialization.DeserializeBlendShape(serializedProperty);
 
-            if (!isFromReferenceAnimation)
+            if (!isReference)
             {
                 CheckForReferenceMatch();
             }
 
-            if (isFromReferenceAnimation)
-            {
-                this.Q<Button>().clicked += () => this.configOperations.RemoveBlendShape(BlendShape);
-            }
+            this.Q<Button>().clicked += () => this.configOperations.RemoveReferenceBlendShape(BlendShape);
 
             _ = this.Q<Slider>().RegisterValueChangedCallback(evt =>
             {
                 BlendShape.value = evt.newValue;
 
-                if (isFromReferenceAnimation)
+                if (isReference)
                 {
                     this.configOperations.ReferenceBlendShapeChanged();
                 }

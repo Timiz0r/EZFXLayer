@@ -8,47 +8,23 @@ namespace EZUtils.EZFXLayer.UIElements
 
     internal class DefaultAnimationPopupField : PopupField<AnimationConfiguration>
     {
-        private readonly List<AnimationConfiguration> nonReferenceAnimations;
-        //including reference as the first
-        public List<AnimationConfiguration> AllAnimations { get; }
+        public List<AnimationConfiguration> Animations { get; }
 
-        //all animations include the reference
-        private DefaultAnimationPopupField(
-            List<AnimationConfiguration> allAnimations, List<AnimationConfiguration> nonReferenceAnimations)
+        public DefaultAnimationPopupField(List<AnimationConfiguration> animations)
             : base(
                 "Default animation",
-                allAnimations,
-                GetCurrentDefaultAnimation(allAnimations),
+                animations,
+                GetCurrentDefaultAnimation(animations),
                 formatSelectedValueCallback: ItemFormatter,
                 formatListItemCallback: ItemFormatter)
         {
-            AllAnimations = allAnimations;
-            this.nonReferenceAnimations = nonReferenceAnimations;
+            Animations = animations;
 
             Undo.undoRedoPerformed += HandleUndoRedo;
-            this.RegisterCallback<DetachFromPanelEvent>(evt => Undo.undoRedoPerformed -= HandleUndoRedo);
+            RegisterCallback<DetachFromPanelEvent>(evt => Undo.undoRedoPerformed -= HandleUndoRedo);
         }
 
-        public static DefaultAnimationPopupField Create(
-            AnimationConfiguration referenceAnimation,
-            List<AnimationConfiguration> animations)
-        {
-            //we can do most of this just via the ctor, except store the result here for adding and removing
-            List<AnimationConfiguration> allAnimations = animations.Prepend(referenceAnimation).ToList();
-            DefaultAnimationPopupField result = new DefaultAnimationPopupField(allAnimations, animations);
-            return result;
-        }
-
-        private void HandleUndoRedo()
-        {
-            //rather than finding the undid or redid animation, just clear all but the reference animation
-            if (nonReferenceAnimations.Count + 1 != AllAnimations.Count)
-            {
-                AllAnimations.RemoveRange(1, AllAnimations.Count - 1);
-                AllAnimations.AddRange(nonReferenceAnimations);
-            }
-            SetValueWithoutNotify(GetCurrentDefaultAnimation(AllAnimations));
-        }
+        private void HandleUndoRedo() => SetValueWithoutNotify(GetCurrentDefaultAnimation(Animations));
 
         private static AnimationConfiguration GetCurrentDefaultAnimation(IEnumerable<AnimationConfiguration> animations)
             => animations.SingleOrDefault(a => a.isDefaultAnimation) ?? animations.First();
