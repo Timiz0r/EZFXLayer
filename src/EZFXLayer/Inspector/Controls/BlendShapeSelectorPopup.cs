@@ -10,9 +10,8 @@ namespace EZUtils.EZFXLayer.UIElements
 
     internal class BlendShapeSelectorPopup : EditorWindow
     {
-        private ConfigurationOperations configurationOperations;
+        private IAnimatableConfigurator configurator;
         private IEnumerable<GameObject> avatarGameObjects;
-        private bool isReference;
 
         public void CreateGUI()
         {
@@ -39,36 +38,42 @@ namespace EZUtils.EZFXLayer.UIElements
 
                     foreach (string blendShape in blendShapes)
                     {
+                        bool isSelected = configurator.IsBlendShapeSelected(
+                            smr, blendShape, out bool permanent, out string key);
                         Toggle blendShapeToggle = new Toggle()
                         {
                             text = blendShape,
-                            value = configurationOperations.HasBlendShape(smr, blendShape)
+                            value = isSelected,
+                            userData = key
                         };
+                        if (permanent)
+                        {
+                            blendShapeToggle.SetEnabled(false);
+                        }
+
                         _ = blendShapeToggle.RegisterValueChangedCallback(evt =>
                         {
+                            AnimatableBlendShape animatableBlendShape = new AnimatableBlendShape()
+                            {
+                                skinnedMeshRenderer = smr,
+                                name = blendShape
+                            };
+                            //if not given as part of IsBlendShapeSelected, then we'll end up using the auto-gen'd key
+                            //if a selected blendshape is deselected then selected, we also get to reuse the key, which is nice
+                            //though it's worth noting we'd lose values as currently designed. this is somewhat preferable,
+                            //since we have a convenient way to reset a blendshape, though the most ideal implementation
+                            //is to only apply changes when the popup is closed, and add a reset button instead.
+                            //pretty low-pri though.
+                            animatableBlendShape.key = (string)((VisualElement)evt.target).userData
+                                ?? animatableBlendShape.key;
+
                             if (evt.newValue)
                             {
-                                if (isReference)
-                                {
-                                    configurationOperations.AddReferenceBlendShape(smr, blendShape);
-                                }
-                                //comes later
-                                // else
-                                // {
-                                //     configurationOperations.AddAnimationBlendShape(smr, blendShape);
-                                // }
+                                configurator.AddBlendShape(animatableBlendShape);
                             }
                             else
                             {
-                                if (isReference)
-                                {
-                                    configurationOperations.RemoveReferenceBlendShape(smr, blendShape);
-                                }
-                                //comes later
-                                // else
-                                // {
-                                //     configurationOperations.RemoveAnimationBlendShape(smr, blendShape);
-                                // }
+                                configurator.RemoveBlendShape(animatableBlendShape);
                             }
                         });
                         avatarFoldout.Add(blendShapeToggle);
@@ -79,15 +84,13 @@ namespace EZUtils.EZFXLayer.UIElements
             }
         }
 
-        public static void Show(
-            Rect buttonBox, ConfigurationOperations configurationOperations, Scene scene, bool isReference)
+        public static void Show(Rect buttonBox, IAnimatableConfigurator configurator, Scene scene)
         {
             BlendShapeSelectorPopup window = CreateInstance<BlendShapeSelectorPopup>();
-            window.configurationOperations = configurationOperations;
+            window.configurator = configurator;
             window.avatarGameObjects = scene.GetRootGameObjects()
                 .SelectMany(go => go.GetComponentsInChildren<VRCAvatarDescriptor>(includeInactive: true))
                 .Select(c => c.gameObject);
-            window.isReference = isReference;
 
             window.ShowAsDropDown(
                 GUIUtility.GUIToScreenRect(buttonBox),

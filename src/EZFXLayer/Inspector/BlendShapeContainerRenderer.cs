@@ -12,8 +12,7 @@ namespace EZUtils.EZFXLayer.UIElements
     //not that the current design is bad, so not a priority
     internal class BlendShapeContainerRenderer : ISerializedPropertyContainerRenderer
     {
-        private readonly ConfigurationOperations configOperations;
-        private readonly bool isReference;
+        private readonly IAnimatableConfigurator configurator;
         private readonly VisualTreeAsset groupVisualTree;
 
         //these BlendShapeContainers will be simple ones that we'll sort later when finalizing refresh
@@ -22,12 +21,10 @@ namespace EZUtils.EZFXLayer.UIElements
 
         private Dictionary<AnimatableBlendShapeField, bool> refreshElementTracker;
 
-        public BlendShapeContainerRenderer(
-            VisualElement rootContainer, ConfigurationOperations configOperations, bool isReference)
+        public BlendShapeContainerRenderer(VisualElement rootContainer, IAnimatableConfigurator configurator)
         {
             RootContainer = rootContainer;
-            this.configOperations = configOperations;
-            this.isReference = isReference;
+            this.configurator = configurator;
 
             groupVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/BlendShapeContainer.uxml");
@@ -54,8 +51,7 @@ namespace EZUtils.EZFXLayer.UIElements
 
             if (matchingElement == null)
             {
-                AnimatableBlendShapeField newElement =
-                    new AnimatableBlendShapeField(configOperations, item, isReference);
+                AnimatableBlendShapeField newElement = new AnimatableBlendShapeField(configurator, item);
                 blendShapeContainer.Add(newElement);
             }
             else

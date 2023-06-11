@@ -9,53 +9,23 @@ namespace EZUtils.EZFXLayer.UIElements
 
     internal class AnimatableGameObjectField : BindableElement, ISerializedPropertyContainerItem
     {
-        private readonly ConfigurationOperations configOperations;
-        private readonly bool isReference;
+        private readonly IAnimatableConfigurator configurator;
 
         public AnimatableGameObject GameObject { get; private set; }
 
-        public AnimatableGameObjectField(
-            ConfigurationOperations configOperations,
-            bool isReference)
+        public AnimatableGameObjectField(IAnimatableConfigurator configurator)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimatableGameObjectField.uxml");
             visualTree.CloneTree(this);
             TranslateElementTree(this);
 
-            this.configOperations = configOperations;
-            this.isReference = isReference;
+            this.configurator = configurator;
 
-            this.Q<Button>().clicked += () =>
-            {
-                if (isReference)
-                {
-                    this.configOperations.RemoveReferenceGameObject(GameObject);
-                }
-                //comes later
-                // else
-                // {
-                //     this.configOperations.RemoveAnimationGameObject(GameObject);
-                // }
-            };
+            this.Q<Button>().clicked += () => this.configurator.RemoveGameObject(GameObject);
 
-            _ = this.Q<Toggle>().RegisterValueChangedCallback(evt =>
-            {
-                GameObject.active = evt.newValue;
-
-                if (isReference)
-                {
-                    this.configOperations.ReferenceGameObjectChanged();
-                }
-                else
-                {
-                    CheckForReferenceMatch();
-                }
-            });
+            _ = this.Q<Toggle>().RegisterValueChangedCallback(evt => GameObject.active = evt.newValue);
         }
-
-        public void CheckForReferenceMatch()
-            => EnableInClassList("blendshape-matches-reference", configOperations.GameObjectMatchesReference(GameObject));
 
         public void Rebind(SerializedProperty serializedProperty)
         {
@@ -63,11 +33,6 @@ namespace EZUtils.EZFXLayer.UIElements
             //note that under some circumstances (including redos), a rebind will trigger the toggle's
             //RegisterValueChangedCallback, so we want the GameObject it uses to be initialized first
             this.BindProperty(serializedProperty);
-
-            if (!isReference)
-            {
-                CheckForReferenceMatch();
-            }
         }
     }
 }

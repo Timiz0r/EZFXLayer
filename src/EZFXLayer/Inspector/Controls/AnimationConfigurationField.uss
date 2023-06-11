@@ -29,3 +29,7 @@
 .gameobject-content > ObjectField {
     margin-left: 15px;
 }
+
+#isDefaultAnimation {
+    display: none;
+}

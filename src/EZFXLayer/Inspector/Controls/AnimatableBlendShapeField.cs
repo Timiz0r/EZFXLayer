@@ -9,47 +9,26 @@ namespace EZUtils.EZFXLayer.UIElements
 
     internal class AnimatableBlendShapeField : BindableElement
     {
-        private readonly ConfigurationOperations configOperations;
+        private readonly IAnimatableConfigurator configurator;
 
         public AnimatableBlendShape BlendShape { get; }
 
         public AnimatableBlendShapeField(
-            ConfigurationOperations configOperations,
-            SerializedProperty serializedProperty,
-            bool isReference)
+            IAnimatableConfigurator configurator,
+            SerializedProperty serializedProperty)
         {
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimatableBlendShapeField.uxml");
             visualTree.CloneTree(this);
 
-            this.configOperations = configOperations;
+            this.configurator = configurator;
             this.BindProperty(serializedProperty);
             BlendShape = ConfigSerialization.DeserializeBlendShape(serializedProperty);
 
-            if (!isReference)
-            {
-                CheckForReferenceMatch();
-            }
+            this.Q<Button>().clicked += () => this.configurator.RemoveBlendShape(BlendShape);
 
-            this.Q<Button>().clicked += () => this.configOperations.RemoveReferenceBlendShape(BlendShape);
-
-            _ = this.Q<Slider>().RegisterValueChangedCallback(evt =>
-            {
-                BlendShape.value = evt.newValue;
-
-                if (isReference)
-                {
-                    this.configOperations.ReferenceBlendShapeChanged();
-                }
-                else
-                {
-                    CheckForReferenceMatch();
-                }
-            });
+            _ = this.Q<Slider>().RegisterValueChangedCallback(evt => BlendShape.value = evt.newValue);
         }
-
-        public void CheckForReferenceMatch()
-            => EnableInClassList("blendshape-matches-reference", configOperations.BlendShapeMatchesReference(BlendShape));
 
         public static int Compare(AnimatableBlendShapeField lhs, AnimatableBlendShapeField rhs)
         {

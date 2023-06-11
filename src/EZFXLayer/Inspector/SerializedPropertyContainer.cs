@@ -75,7 +75,7 @@ namespace EZUtils.EZFXLayer.UIElements
             preUndoRedoArrayLength = array.arraySize;
         }
 
-        public SerializedProperty Add(Action<SerializedProperty> initializer, bool apply = true)
+        public SerializedProperty Add(Action<SerializedProperty> initializer, bool applyModifiedProperties = true)
         {
             array.arraySize++;
             SerializedProperty newProperty = array.GetArrayElementAtIndex(array.arraySize - 1);
@@ -84,7 +84,7 @@ namespace EZUtils.EZFXLayer.UIElements
             preUndoRedoArrayLength++;
             currentChangeSequence++;
 
-            if (apply)
+            if (applyModifiedProperties)
             {
                 _ = array.serializedObject.ApplyModifiedProperties();
             }
@@ -94,7 +94,7 @@ namespace EZUtils.EZFXLayer.UIElements
             return newProperty;
         }
 
-        public void Remove(Func<SerializedProperty, bool> predicate, bool apply = true)
+        public void Remove(Func<SerializedProperty, bool> predicate, bool applyModifiedProperties = true)
         {
             //reverse because DeleteCommand shifts elements
             //toarray because DeleteCommand changes the count
@@ -107,12 +107,41 @@ namespace EZUtils.EZFXLayer.UIElements
             preUndoRedoArrayLength -= all.Length;
             currentChangeSequence++;
 
-            if (apply)
+            if (applyModifiedProperties)
             {
                 _ = array.serializedObject.ApplyModifiedProperties();
             }
 
             Refresh();
+        }
+
+        public bool Transform(
+            Func<SerializedProperty, bool> predicate,
+            Action<SerializedProperty> transformer,
+            bool applyModifiedProperties = true)
+        {
+            bool transformationOccurred = false;
+
+            foreach (SerializedProperty sp in AllProperties)
+            {
+                if (!predicate(sp)) continue;
+
+                transformationOccurred = true;
+                transformer(sp);
+            }
+
+            if (transformationOccurred)
+            {
+                if (applyModifiedProperties)
+                {
+                    _ = array.serializedObject.ApplyModifiedProperties();
+                }
+
+                currentChangeSequence++;
+                Refresh();
+            }
+
+            return transformationOccurred;
         }
 
         public void ForEachProperty(Action<int, SerializedProperty> action) => array.ForEachArrayElement(action);

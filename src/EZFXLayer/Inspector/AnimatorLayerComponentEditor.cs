@@ -1,19 +1,19 @@
 namespace EZUtils.EZFXLayer.UIElements
 {
+    using EZUtils.Localization.UIElements;
     using UnityEditor;
     using UnityEngine.UIElements;
     using UnityEditor.UIElements;
-    using System.Linq;
 
     using static Localization;
-    using EZUtils.Localization.UIElements;
 
     [CustomEditor(typeof(AnimatorLayerComponent))]
-    public class AnimatorLayerComponentEditor : Editor
+    internal class AnimatorLayerComponentEditor : Editor
     {
         private SerializedObject gameObjectSerializedObject = null;
 
         [UnityEngine.SerializeField] private VisualTreeAsset uxml;
+
         public override VisualElement CreateInspectorGUI()
         {
             VisualElement visualElement = uxml.CommonUIClone();
@@ -37,13 +37,8 @@ namespace EZUtils.EZFXLayer.UIElements
             VisualElement referenceContainer = visualElement.Q<VisualElement>(name: "reference-container");
             VisualElement animationContainer = visualElement.Q<VisualElement>(name: "other-animation-container");
             VisualElement defaultAnimationPopupContainer = visualElement.Q<VisualElement>(name: "defaultAnimationPopup");
-
-            ConfigurationOperations configOperations = new ConfigurationOperations(
-                target,
-                serializedObject,
-                referenceContainer,
-                animationContainer,
-                defaultAnimationPopupContainer);
+            AnimatorLayerConfigurator configurator = new AnimatorLayerConfigurator(
+                target, serializedObject, referenceContainer, animationContainer, defaultAnimationPopupContainer);
 
             Toggle hideUnchangedItemsToggle = visualElement.Q<Toggle>(name: "hideUnchangedItems");
             _ = hideUnchangedItemsToggle.RegisterValueChangedCallback(
@@ -51,7 +46,7 @@ namespace EZUtils.EZFXLayer.UIElements
             visualElement.EnableInClassList(
                 "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
-            visualElement.Q<Button>(name: "addNewAnimation").clicked += () => configOperations.AddNewAnimation();
+            visualElement.Q<Button>(name: "addNewAnimation").clicked += () => configurator.AddNewAnimation();
 
             TextField nameField = visualElement.Q<TextField>(name: "name");
             nameField.isDelayed = true;

@@ -12,6 +12,9 @@
   <VisualElement>
     <Style src="AnimationConfigurationField.uss" />
 
+    <!-- the easiest way to get an up-to-date indication of this -->
+    <Toggle name="isDefaultAnimation" binding-path="isDefaultAnimation" />
+
     <!-- cant use a Foldout control if we want the textfield next to the toggle -->
     <!-- but getting poor results, so will leaveit for now. control doesnt load folded in -->
     <VisualElement class="animation-foldout-header">

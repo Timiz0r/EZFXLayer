@@ -1,5 +1,6 @@
 namespace EZUtils.EZFXLayer.UIElements
 {
+    using System.Linq;
     using UnityEditor;
     using UnityEditor.UIElements;
     using UnityEngine;
@@ -7,18 +8,17 @@ namespace EZUtils.EZFXLayer.UIElements
 
     using static Localization;
 
-    internal class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem
+    public class AnimationConfigurationField : BindableElement, ISerializedPropertyContainerItem, IAnimatableConfigurator
     {
-        private readonly ConfigurationOperations configOperations;
+        private readonly AnimatorLayerConfigurator configurator;
         private string animationConfigurationKey = null;
-        private bool isDefaultAnimation;
 
-        public SerializedPropertyContainer BlendShapes { get; private set; }
-        public SerializedPropertyContainer GameObjects { get; private set; }
+        private SerializedPropertyContainer blendShapes;
+        private SerializedPropertyContainer gameObjects;
 
-        public AnimationConfigurationField(ConfigurationOperations configOperations)
+        public AnimationConfigurationField(AnimatorLayerConfigurator configurator)
         {
-            this.configOperations = configOperations;
+            this.configurator = configurator;
 
             //TODO: on second thought, go with serialized fields since we dont have to hard code paths
             //prob not this, but other controls may move to a common area
@@ -28,16 +28,17 @@ namespace EZUtils.EZFXLayer.UIElements
             TranslateElementTree(this);
 
             this.Q<Button>(name: "addBlendShape").clickable.clickedWithEventInfo += evt
-                => configOperations.SelectBlendShapes(buttonBox: ((Button)evt.target).worldBound, isReference: false);
+                => BlendShapeSelectorPopup.Show(((Button)evt.target).worldBound, this, this.configurator.Scene);
 
             this.Q<Button>(name: "removeAnimationConfiguration").clicked += ()
-                => this.configOperations.RemoveAnimation(animationConfigurationKey);
+                => this.configurator.RemoveAnimation(animationConfigurationKey);
 
+            Toggle isDefaultAnimationToggle = this.Q<Toggle>(name: "isDefaultAnimation");
             _ = this.Q<TextField>(name: "animationName").RegisterValueChangedCallback(evt =>
             {
-                if (isDefaultAnimation)
+                if (isDefaultAnimationToggle.value)
                 {
-                    configOperations.PropagateDefaultAnimationNameChangeToDefaultAnimationField();
+                    configurator.PropagateDefaultAnimationNameChangeToDefaultAnimationField();
                 }
             });
         }
@@ -46,7 +47,6 @@ namespace EZUtils.EZFXLayer.UIElements
         {
             string newKey =
                 serializedProperty.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue;
-            isDefaultAnimation = serializedProperty.FindPropertyRelative("isDefaultAnimation").boolValue;
             if (newKey == animationConfigurationKey) return;
 
             animationConfigurationKey = newKey;
@@ -60,20 +60,20 @@ namespace EZUtils.EZFXLayer.UIElements
             VisualElement blendShapeContainer = foldoutContent.Q<VisualElement>(className: "blend-shape-container");
             blendShapeContainer.Clear(); //BlendShapeContainerRenderer doesn't support reuse
             SerializedProperty blendShapesProperty = serializedProperty.FindPropertyRelative("blendShapes");
-            BlendShapes?.StopUndoRedoHandling(); //about to make a new one
-            BlendShapes = new SerializedPropertyContainer(
+            blendShapes?.StopUndoRedoHandling(); //about to make a new one
+            blendShapes = new SerializedPropertyContainer(
                 blendShapesProperty,
-                new BlendShapeContainerRenderer(blendShapeContainer, configOperations, isReference: false));
-            BlendShapes.Refresh();
+                new BlendShapeContainerRenderer(blendShapeContainer, this));
+            blendShapes.Refresh();
 
             VisualElement gameObjectContainer = foldoutContent.Q<VisualElement>(className: "gameobject-container");
             SerializedProperty gameObjectsProperty = serializedProperty.FindPropertyRelative("gameObjects");
-            GameObjects?.StopUndoRedoHandling();
-            GameObjects = SerializedPropertyContainer.CreateSimple(
+            gameObjects?.StopUndoRedoHandling();
+            gameObjects = SerializedPropertyContainer.CreateSimple(
                 gameObjectContainer,
                 gameObjectsProperty,
-                () => new AnimatableGameObjectField(configOperations, isReference: false));
-            GameObjects.Refresh();
+                () => new AnimatableGameObjectField(this));
+            gameObjects.Refresh();
 
 #pragma warning disable IDE0001 //purposely spelling out the full object field name because unity has one as well
             _ = foldoutContent.Q<EZFXLayer.UIElements.ObjectField>(name: "addGameObject").RegisterValueChangedCallback(evt =>
@@ -83,7 +83,7 @@ namespace EZUtils.EZFXLayer.UIElements
 #pragma warning disable IDE0001 //purposely spelling out the full object field name because unity has one as well
                 ((EZFXLayer.UIElements.ObjectField)evt.target).SetValueWithoutNotify(null);
 #pragma warning restore IDE0001
-                _ = GameObjects.Add(
+                _ = gameObjects.Add(
                     sp => ConfigSerialization.SerializeGameObject(
                         sp,
                         new AnimatableGameObject()
@@ -96,8 +96,80 @@ namespace EZUtils.EZFXLayer.UIElements
                             synchronizeActiveWithReference = false,
                             disabled = false
                         }),
-                    apply: false);
+                    applyModifiedProperties: false);
             });
         }
+
+        public bool IsBlendShapeSelected(SkinnedMeshRenderer smr, string name, out bool permanent, out string key)
+        {
+            AnimatableBlendShape blendShape = blendShapes.AllElements<AnimatableBlendShapeField>()
+                .Select(bs => bs.BlendShape)
+                .SingleOrDefault(bs => bs.skinnedMeshRenderer == smr && bs.name == name);
+            key = blendShape?.key;
+            //note that we should be ensuring key consistency elsewhere, in the case that we add to the reference
+            //a blend shape that already exists in the animation
+            permanent = configurator.Reference.IsBlendShapeSelected(smr, name, out _, out string refKey)
+                && key == refKey;
+
+            return blendShape != null;
+        }
+
+        public void AddBlendShape(AnimatableBlendShape blendShape)
+            => AddBlendShape(blendShape, applyModifiedProperties: true);
+        public void RemoveBlendShape(AnimatableBlendShape blendShape)
+            => RemoveBlendShape(blendShape, applyModifiedProperties: true);
+        public void AddGameObject(AnimatableGameObject gameObject)
+            => AddGameObject(gameObject, applyModifiedProperties: true);
+        public void RemoveGameObject(AnimatableGameObject gameObject)
+            => RemoveGameObject(gameObject, applyModifiedProperties: true);
+
+        //these exist because reference needs a way to not apply modified properties, since it's doing a batch operation
+        //the above methods are meant for adding animatables specifically to a single animation and therefore can apply
+        //
+        //when adding an animatable that already exists...
+        //we don't want duplicates
+        //to support reference animatables being added after animation animatables, we want consistent keys
+        internal void AddBlendShape(AnimatableBlendShape blendShape, bool applyModifiedProperties)
+        {
+            bool alreadyExists = blendShapes.Transform(
+                sp => ConfigSerialization.DeserializeBlendShape(sp) is AnimatableBlendShape current
+                    && current.skinnedMeshRenderer == blendShape.skinnedMeshRenderer
+                    && current.name == blendShape.name,
+                sp => sp.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue = blendShape.key,
+                applyModifiedProperties);
+
+            if (!alreadyExists)
+            {
+                _ = blendShapes.Add(
+                sp => ConfigSerialization.SerializeBlendShape(sp, blendShape),
+                applyModifiedProperties);
+            }
+        }
+
+        internal void RemoveBlendShape(AnimatableBlendShape blendShape, bool applyModifiedProperties)
+            => blendShapes.Remove(
+                sp => ConfigSerialization.DeserializeBlendShape(sp).Matches(blendShape),
+                applyModifiedProperties);
+
+        internal void AddGameObject(AnimatableGameObject gameObject, bool applyModifiedProperties)
+        {
+            bool alreadyExists = blendShapes.Transform(
+                sp => ConfigSerialization.DeserializeGameObject(sp) is AnimatableGameObject current
+                    && current.gameObject == gameObject.gameObject,
+                sp => sp.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue = gameObject.key,
+                applyModifiedProperties);
+
+            if (!alreadyExists)
+            {
+                _ = gameObjects.Add(
+                    sp => ConfigSerialization.SerializeGameObject(sp, gameObject),
+                    applyModifiedProperties);
+            }
+        }
+
+        internal void RemoveGameObject(AnimatableGameObject gameObject, bool applyModifiedProperties)
+            => gameObjects.Remove(
+                sp => ConfigSerialization.DeserializeGameObject(sp).Matches(gameObject),
+                applyModifiedProperties);
     }
 }

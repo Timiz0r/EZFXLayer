@@ -6,22 +6,22 @@ msgstr "Language: en\n"
 "Plural-Forms: nplurals=1; 0;\n"
 "X-PluralRules-Other: \n"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:31
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:34
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:17
 msgid "Blend shapes"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:33
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:36
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:19
 msgid "Add blend shapes"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:37
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:40
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:23
 msgid "GameObjects"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:42
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:25
 msgid "Add GameObject"
 msgstr ""
@@ -94,7 +94,7 @@ msgstr ""
 msgid "Applying generation to avatar"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:86
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:81
 msgid "EZFXLayer/EZFXLayer animator layer configuration"
 msgstr ""
 
@@ -134,11 +134,11 @@ msgstr ""
 msgid "Add new animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:26
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:29
 msgid "Custom toggle name"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:27
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:30
 msgid "Custom state name"
 msgstr ""
 
