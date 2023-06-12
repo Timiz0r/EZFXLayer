@@ -15,7 +15,7 @@ msgstr ""
 "Language-Team: Japanese\n"
 "PO-Revision-Date: 2023-05-11 16:52\n"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:80
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:84
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:36
 msgid "Add new animation"
 msgstr "アニメーションを追加"
@@ -40,8 +40,8 @@ msgstr "ゲームオブジェクト"
 msgid "Add GameObject"
 msgstr "ゲームオブジェクトを追加"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:27
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:30
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:34
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:37
 msgid "No animations added"
 msgstr ""
 
@@ -148,15 +148,15 @@ msgstr "変更していないものを隠す"
 msgid "Default animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:50
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:52
 msgid "Set default animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:62
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:64
 msgid "Toggle off animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:66
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:70
 msgid "Set toggle off animation"
 msgstr ""
 

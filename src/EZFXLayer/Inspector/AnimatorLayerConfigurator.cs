@@ -44,7 +44,9 @@ namespace EZUtils.EZFXLayer
             animations.Refresh();
 
             defaultAnimationPopup = AnimationPopupField.Create(
-                T("Default animation"), layerComponent.animations, a => a.isDefaultAnimation);
+                T("Default animation"),
+                () => layerComponent.animations,
+                a => a.isDefaultAnimation);
             animationPopupContainer.Add(defaultAnimationPopup);
             _ = defaultAnimationPopup.RegisterValueChangedCallback(evt =>
             {
@@ -60,7 +62,9 @@ namespace EZUtils.EZFXLayer
             });
 
             toggleOffAnimationPopup = AnimationPopupField.Create(
-                T("Toggle off animation"), layerComponent.animations, a => a.isToggleOffAnimation);
+                T("Toggle off animation"),
+                () => layerComponent.animations,
+                a => a.isToggleOffAnimation);
             animationPopupContainer.Add(toggleOffAnimationPopup);
             _ = toggleOffAnimationPopup.RegisterValueChangedCallback(evt =>
             {
@@ -88,7 +92,8 @@ namespace EZUtils.EZFXLayer
                 newAnimation.blendShapes.AddRange(layerComponent.referenceAnimatables.blendShapes.Select(bs => bs.Clone()));
                 newAnimation.gameObjects.AddRange(layerComponent.referenceAnimatables.gameObjects.Select(go => go.Clone()));
                 layer.animations.Add(newAnimation);
-                defaultAnimationPopup.Add(newAnimation);
+                defaultAnimationPopup.Refresh();
+                toggleOffAnimationPopup.Refresh();
             });
             serializedObject.Update();
             animations.RefreshExternalChanges();
@@ -101,7 +106,8 @@ namespace EZUtils.EZFXLayer
             animations.Remove(
                 sp => sp.FindPropertyRelative(nameof(AnimationConfiguration.key)).stringValue == animationConfigurationKey);
 
-            defaultAnimationPopup.Remove(animationConfigurationKey);
+            defaultAnimationPopup.Refresh();
+            toggleOffAnimationPopup.Refresh();
         }
 
         public void PropagateAnimationNameChangeToPopups()
@@ -113,6 +119,11 @@ namespace EZUtils.EZFXLayer
             //we used to pass in the new name and do `defaultAnimationPopup.value.name = newName;`,
             //but this caused us to be unable to change the name of the default animation
             //or, rather, the field wasn't set as dirty 🤷‍
+            //
+            //NOTE: this currently causes no known issues, but the underlying animation name change event also gets triggered
+            //when deleting animations. it seems to be unity behavior, and looks like `On; Off -> delete On -> On name changes to Off`
+            //it doesn't currently cause an issue, though, and shouldn't since the refresh just sets the value back without notify
+            //to allow the formatter to do its work
             defaultAnimationPopup.RefreshFormat();
             toggleOffAnimationPopup.RefreshFormat();
         }

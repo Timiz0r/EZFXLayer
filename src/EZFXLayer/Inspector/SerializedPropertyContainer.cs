@@ -98,11 +98,20 @@ namespace EZUtils.EZFXLayer.UIElements
         {
             //reverse because DeleteCommand shifts elements
             //toarray because DeleteCommand changes the count
-            SerializedProperty[] all = AllProperties.Reverse().ToArray();
-            foreach (SerializedProperty sp in all)
+            SerializedProperty[] all = AllProperties.ToArray();
+            for (int i = all.Length - 1; i >= 0; i--)
             {
+                SerializedProperty sp = all[i];
                 if (!predicate(sp)) continue;
-                _ = sp.DeleteCommand();
+
+                //otherwise size doesnt change
+                if (sp.propertyType == SerializedPropertyType.ObjectReference
+                    && sp.objectReferenceValue != null)
+                {
+                    sp.objectReferenceValue = null;
+                }
+
+                array.DeleteArrayElementAtIndex(i);
             }
             preUndoRedoArrayLength -= all.Length;
             currentChangeSequence++;

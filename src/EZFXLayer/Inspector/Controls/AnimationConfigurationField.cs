@@ -200,8 +200,8 @@ namespace EZUtils.EZFXLayer.UIElements
             else
             {
                 gameObjects.Remove(
-                            sp => ConfigSerialization.DeserializeGameObject(sp).Matches(gameObject),
-                            applyModifiedProperties);
+                    sp => ConfigSerialization.DeserializeGameObject(sp).Matches(gameObject),
+                    applyModifiedProperties);
             }
         }
     }
