@@ -38,7 +38,7 @@ namespace EZUtils.EZFXLayer.UIElements
             {
                 if (isDefaultAnimationToggle.value)
                 {
-                    configurator.PropagateDefaultAnimationNameChangeToDefaultAnimationField();
+                    configurator.PropagateAnimationNameChangeToPopups();
                 }
             });
         }
@@ -83,36 +83,37 @@ namespace EZUtils.EZFXLayer.UIElements
 #pragma warning disable IDE0001 //purposely spelling out the full object field name because unity has one as well
                 ((EZFXLayer.UIElements.ObjectField)evt.target).SetValueWithoutNotify(null);
 #pragma warning restore IDE0001
-                _ = gameObjects.Add(
-                    sp => ConfigSerialization.SerializeGameObject(
-                        sp,
-                        new AnimatableGameObject()
-                        {
-                            gameObject = value,
-                            path = value.GetRelativePath(),
-                            active = false,
-                            //since this isn't added from reference propagation,
-                            //and, if later added to reference, probably more useful not being synced
-                            synchronizeActiveWithReference = false,
-                            disabled = false
-                        }),
-                    applyModifiedProperties: false);
+                AddGameObject(new AnimatableGameObject(
+                    gameObject: value,
+                    path: value.GetRelativePath(),
+                    active: false,
+                    //note that this is added to animation, not reference
+                    //in the event the same is later added to reference, the most desired behavior would be
+                    //to maintain the existing value and not sync
+                    //while it would be hypothetically desirable to sync if the value matches, the desired
+                    //reference value is set after being added, so we should not do this automatically
+                    synchronizeActiveWithReference: false,
+                    disabled: false));
             });
         }
 
-        public bool IsBlendShapeSelected(SkinnedMeshRenderer smr, string name, out bool permanent, out string key)
+        public bool IsBlendShapeSelected(
+            SkinnedMeshRenderer smr, string name, out bool permanent, out AnimatableBlendShape existing)
         {
-            AnimatableBlendShape blendShape = blendShapes.AllElements<AnimatableBlendShapeField>()
+            existing = blendShapes.AllElements<AnimatableBlendShapeField>()
                 .Select(bs => bs.BlendShape)
                 .SingleOrDefault(bs => bs.skinnedMeshRenderer == smr && bs.name == name);
-            key = blendShape?.key;
             //note that we should be ensuring key consistency elsewhere, in the case that we add to the reference
             //a blend shape that already exists in the animation
-            permanent = configurator.Reference.IsBlendShapeSelected(smr, name, out _, out string refKey)
-                && key == refKey;
+            permanent = configurator.Reference.IsBlendShapeSelected(
+                smr, name, out _, out AnimatableBlendShape refExisting)
+                && existing != null
+                && existing.key == refExisting?.key;
 
-            return blendShape != null;
+            return existing != null;
         }
+        //if blendshapes added to animation, we dont want them synced up if reference ever gets the same
+        public bool DefaultSynchronizeValueWithReference() => false;
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
             => AddBlendShape(blendShape, applyModifiedProperties: true);

@@ -61,28 +61,28 @@ namespace EZUtils.EZFXLayer.UIElements
                 ((EZFXLayer.UIElements.ObjectField)evt.target).SetValueWithoutNotify(null);
 #pragma warning restore IDE0001
 
-                AddGameObject(new AnimatableGameObject()
-                {
-                    gameObject = value,
-                    path = value.GetRelativePath(),
-                    active = false,
-                    synchronizeActiveWithReference = true,
-                    disabled = false
-                });
+                AddGameObject(new AnimatableGameObject(
+                    gameObject: value,
+                    path: value.GetRelativePath(),
+                    active: false,
+                    synchronizeActiveWithReference: true,
+                    disabled: false));
             });
         }
 
-        public bool IsBlendShapeSelected(SkinnedMeshRenderer smr, string name, out bool permanent, out string key)
+        public bool IsBlendShapeSelected(
+            SkinnedMeshRenderer smr, string name, out bool permanent, out AnimatableBlendShape existing)
         {
             permanent = false;
 
-            AnimatableBlendShape blendShape = blendShapes.AllElements<AnimatableBlendShapeField>()
+            existing = blendShapes.AllElements<AnimatableBlendShapeField>()
                 .Select(bs => bs.BlendShape)
                 .SingleOrDefault(bs => bs.skinnedMeshRenderer == smr && bs.name == name);
-            key = blendShape?.key;
 
-            return blendShape != null;
+            return existing != null;
         }
+
+        public bool DefaultSynchronizeValueWithReference() => true;
 
         public void AddBlendShape(AnimatableBlendShape blendShape)
         {
@@ -92,7 +92,7 @@ namespace EZUtils.EZFXLayer.UIElements
 
             foreach (AnimationConfigurationField animation in configurator.Animations)
             {
-                animation.AddBlendShape(blendShape, applyModifiedProperties: false);
+                animation.AddBlendShape(blendShape.Clone(), applyModifiedProperties: false);
             }
 
             configurator.ApplyModifiedProperties();
@@ -121,7 +121,7 @@ namespace EZUtils.EZFXLayer.UIElements
 
             foreach (AnimationConfigurationField animation in configurator.Animations)
             {
-                animation.AddGameObject(gameObject, applyModifiedProperties: false);
+                animation.AddGameObject(gameObject.Clone(), applyModifiedProperties: false);
             }
 
             //for undo reasons, we've suppressed this call until this point

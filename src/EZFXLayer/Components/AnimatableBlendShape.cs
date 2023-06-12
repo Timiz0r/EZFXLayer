@@ -16,16 +16,44 @@ namespace EZUtils.EZFXLayer
         public bool synchronizeValueWithReference;
         public bool disabled;
 
+        //for unity
+        public AnimatableBlendShape() { }
+
+        public AnimatableBlendShape(
+            SkinnedMeshRenderer skinnedMeshRenderer,
+            string name,
+            float value,
+            bool synchronizeValueWithReference,
+            bool disabled)
+        {
+            this.skinnedMeshRenderer = skinnedMeshRenderer;
+            this.name = name;
+            this.value = value;
+            this.synchronizeValueWithReference = synchronizeValueWithReference;
+            this.disabled = disabled;
+        }
+
+        public AnimatableBlendShape(
+            SkinnedMeshRenderer skinnedMeshRenderer,
+            string name)
+        {
+            this.skinnedMeshRenderer = skinnedMeshRenderer;
+            this.name = name;
+        }
+
         public bool Matches(AnimatableBlendShape blendShape) => blendShape == null
             ? throw new ArgumentNullException(nameof(blendShape))
             : key == blendShape.key;
 
-        public AnimatableBlendShape Clone() => new AnimatableBlendShape()
-        {
-            key = key,
-            skinnedMeshRenderer = skinnedMeshRenderer,
-            name = name,
-            value = value
-        };
+        public AnimatableBlendShape Clone()
+            => new AnimatableBlendShape(
+                skinnedMeshRenderer: skinnedMeshRenderer,
+                name: name,
+                value: value,
+                synchronizeValueWithReference: synchronizeValueWithReference,
+                disabled: disabled)
+            {
+                key = key
+            };
     }
 }

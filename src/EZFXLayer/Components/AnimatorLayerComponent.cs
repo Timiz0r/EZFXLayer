@@ -26,6 +26,8 @@ namespace EZUtils.EZFXLayer
         [System.Obsolete("Has been split into referenceAnimatables and an additional animation.")]
         public AnimationConfiguration referenceAnimation;
 
+        private AnimatorLayerComponent() { }
+
         //for the initial value of the component
         public void Reset() => name = name ?? gameObject.name;
     }

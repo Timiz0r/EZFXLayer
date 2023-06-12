@@ -8,12 +8,15 @@ namespace EZUtils.EZFXLayer
     using UnityEngine.SceneManagement;
     using UnityEngine.UIElements;
 
+    using static Localization;
+
     public class AnimatorLayerConfigurator
     {
         private readonly AnimatorLayerComponent layerComponent;
         private readonly SerializedObject serializedObject;
         private readonly SerializedPropertyContainer animations;
-        private readonly DefaultAnimationPopupField defaultAnimationPopup;
+        private readonly AnimationPopupField defaultAnimationPopup;
+        private readonly AnimationPopupField toggleOffAnimationPopup;
 
         public ReferenceAnimatablesField Reference { get; }
         public IEnumerable<AnimationConfigurationField> Animations => animations.AllElements<AnimationConfigurationField>();
@@ -24,7 +27,7 @@ namespace EZUtils.EZFXLayer
             SerializedObject serializedObject,
             VisualElement referenceContainer,
             VisualElement animationContainer,
-            VisualElement defaultAnimationPopupContainer)
+            VisualElement animationPopupContainer)
         {
             this.layerComponent = layerComponent;
             this.serializedObject = serializedObject;
@@ -40,11 +43,12 @@ namespace EZUtils.EZFXLayer
                 () => new AnimationConfigurationField(this));
             animations.Refresh();
 
-            defaultAnimationPopup = DefaultAnimationPopupField.Create(layerComponent.animations);
-            defaultAnimationPopupContainer.Add(defaultAnimationPopup);
+            defaultAnimationPopup = AnimationPopupField.Create(
+                T("Default animation"), layerComponent.animations, a => a.isDefaultAnimation);
+            animationPopupContainer.Add(defaultAnimationPopup);
             _ = defaultAnimationPopup.RegisterValueChangedCallback(evt =>
             {
-                Utilities.RecordChange(this.layerComponent, "Set default animation", layer =>
+                Utilities.RecordChange(this.layerComponent, T("Set default animation"), layer =>
                 {
                     foreach (AnimationConfiguration animation in this.layerComponent.animations)
                     {
@@ -54,19 +58,33 @@ namespace EZUtils.EZFXLayer
                 this.serializedObject.Update();
                 //no other refreshing to do
             });
+
+            toggleOffAnimationPopup = AnimationPopupField.Create(
+                T("Toggle off animation"), layerComponent.animations, a => a.isToggleOffAnimation);
+            animationPopupContainer.Add(toggleOffAnimationPopup);
+            _ = toggleOffAnimationPopup.RegisterValueChangedCallback(evt =>
+            {
+                Utilities.RecordChange(this.layerComponent, T("Set toggle off animation"), layer =>
+                {
+                    foreach (AnimationConfiguration animation in this.layerComponent.animations)
+                    {
+                        animation.isToggleOffAnimation = animation == evt.newValue;
+                    }
+                });
+                this.serializedObject.Update();
+            });
         }
 
         //layer addition and removal need to go here because we get a circular dependency if we put the layer component editor here
-        //TODO: need a better class name
         public void AddNewAnimation()
         {
-            Utilities.RecordChange(layerComponent, "Add new animation", layer =>
+            Utilities.RecordChange(layerComponent, T("Add new animation"), layer =>
             {
                 //seems rather difficult to do this duplication with just  serializedproperties
                 string name = animations.Count == 0
                     ? layerComponent.name :
                     $"{layerComponent.name}_{animations.Count}";
-                AnimationConfiguration newAnimation = new AnimationConfiguration() { name = name };
+                AnimationConfiguration newAnimation = AnimationConfiguration.Create(name);
                 newAnimation.blendShapes.AddRange(layerComponent.referenceAnimatables.blendShapes.Select(bs => bs.Clone()));
                 newAnimation.gameObjects.AddRange(layerComponent.referenceAnimatables.gameObjects.Select(go => go.Clone()));
                 layer.animations.Add(newAnimation);
@@ -86,16 +104,19 @@ namespace EZUtils.EZFXLayer
             defaultAnimationPopup.Remove(animationConfigurationKey);
         }
 
-        public void PropagateDefaultAnimationNameChangeToDefaultAnimationField() =>
-            //we're doing this weird trick because this method gets called a bit too early
+        public void PropagateAnimationNameChangeToPopups()
+        {
+            //we're going ahead a frame because this method gets called a bit too early
             //defaultAnimationPopup.value doesn't yet have its name set. if we do it immediately,
             //we're missing the newest chars
             //
             //we used to pass in the new name and do `defaultAnimationPopup.value.name = newName;`,
             //but this caused us to be unable to change the name of the default animation
             //or, rather, the field wasn't set as dirty 🤷‍
-            _ = defaultAnimationPopup.schedule.Execute(
-                () => defaultAnimationPopup.SetValueWithoutNotify(defaultAnimationPopup.value));
+            defaultAnimationPopup.RefreshFormat();
+            toggleOffAnimationPopup.RefreshFormat();
+        }
+
         public void ApplyModifiedProperties() => serializedObject.ApplyModifiedProperties();
         public void Update() => serializedObject.Update();
     }

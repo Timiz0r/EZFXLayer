@@ -9,16 +9,21 @@ namespace EZUtils.EZFXLayer.UIElements
 
     using static Localization;
 
-    internal class DefaultAnimationPopupField : PopupField<AnimationConfiguration>
+    internal class AnimationPopupField : PopupField<AnimationConfiguration>
     {
-        private static readonly AnimationConfiguration nullAnimationConfiguration = new AnimationConfiguration();
+        private static readonly AnimationConfiguration nullAnimationConfiguration =
+            AnimationConfiguration.Create("null");
         private readonly List<AnimationConfiguration> animations;
+        private readonly Func<AnimationConfiguration, bool> targetAnimationPredicate;
 
-        private DefaultAnimationPopupField(List<AnimationConfiguration> animations)
+        private AnimationPopupField(
+            string label,
+            List<AnimationConfiguration> animations,
+            Func<AnimationConfiguration, bool> targetAnimationPredicate)
             : base(
-                "Default animation",
+                label,
                 animations,
-                GetCurrentDefaultAnimation(animations),
+                GetCurrentDefaultAnimation(animations, targetAnimationPredicate),
                 formatSelectedValueCallback: item => animations.Count == 1 && animations[0] == nullAnimationConfiguration
                     ? T("No animations added")
                     : item.name,
@@ -27,12 +32,15 @@ namespace EZUtils.EZFXLayer.UIElements
                     : item.name)
         {
             this.animations = animations;
-
+            this.targetAnimationPredicate = targetAnimationPredicate;
             Undo.undoRedoPerformed += HandleUndoRedo;
             RegisterCallback<DetachFromPanelEvent>(evt => Undo.undoRedoPerformed -= HandleUndoRedo);
         }
 
-        public static DefaultAnimationPopupField Create(List<AnimationConfiguration> animations)
+        public static AnimationPopupField Create(
+            string label,
+            List<AnimationConfiguration> animations,
+            Func<AnimationConfiguration, bool> targetAnimationPredicate)
         {
             //we can't get away with just using a ctor
             //in order to handle empty lists, we need to create a copy and potentially altered list
@@ -40,7 +48,7 @@ namespace EZUtils.EZFXLayer.UIElements
             animations = animations.Count == 0
                 ? new List<AnimationConfiguration>() { nullAnimationConfiguration }
                 : animations.ToList();
-            return new DefaultAnimationPopupField(animations);
+            return new AnimationPopupField(label, animations, targetAnimationPredicate);
         }
 
         public void Add(AnimationConfiguration animationConfiguration)
@@ -62,10 +70,16 @@ namespace EZUtils.EZFXLayer.UIElements
                 animations.Add(nullAnimationConfiguration);
             }
 
-            if (animationToRemove.isDefaultAnimation)
+            if (targetAnimationPredicate(animationToRemove))
             {
                 SetValueWithoutNotify(animations[0]);
             }
+        }
+
+        public void RefreshFormat()
+        {
+            if (value == null) return;
+            _ = schedule.Execute(() => SetValueWithoutNotify(value));
         }
 
         public override AnimationConfiguration value
@@ -89,9 +103,12 @@ namespace EZUtils.EZFXLayer.UIElements
             base.SetValueWithoutNotify(newValue ?? throw new ArgumentNullException(nameof(newValue)));
         }
 
-        private void HandleUndoRedo() => SetValueWithoutNotify(GetCurrentDefaultAnimation(animations));
+        private void HandleUndoRedo()
+            => SetValueWithoutNotify(GetCurrentDefaultAnimation(animations, targetAnimationPredicate));
 
-        private static AnimationConfiguration GetCurrentDefaultAnimation(IEnumerable<AnimationConfiguration> animations)
-            => animations.SingleOrDefault(a => a.isDefaultAnimation) ?? animations.First();
+        private static AnimationConfiguration GetCurrentDefaultAnimation(
+            IEnumerable<AnimationConfiguration> animations,
+            Func<AnimationConfiguration, bool> targetAnimationPredicate)
+            => animations.SingleOrDefault(targetAnimationPredicate) ?? animations.First();
     }
 }

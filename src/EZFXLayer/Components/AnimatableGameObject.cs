@@ -20,16 +20,31 @@ namespace EZUtils.EZFXLayer
         public bool synchronizeActiveWithReference;
         public bool disabled;
 
+        public AnimatableGameObject() { }
+
+        public AnimatableGameObject(
+            GameObject gameObject, string path, bool active, bool synchronizeActiveWithReference, bool disabled)
+        {
+            this.gameObject = gameObject;
+            this.path = path;
+            this.active = active;
+            this.synchronizeActiveWithReference = synchronizeActiveWithReference;
+            this.disabled = disabled;
+        }
+
         public bool Matches(AnimatableGameObject gameObject) => gameObject == null
             ? throw new ArgumentNullException(nameof(gameObject))
             : key == gameObject.key;
 
-        public AnimatableGameObject Clone() => new AnimatableGameObject()
-        {
-            key = key,
-            gameObject = gameObject,
-            path = path,
-            active = active
-        };
+        public AnimatableGameObject Clone()
+            => new AnimatableGameObject(
+                gameObject: gameObject,
+                path: path,
+                active: active,
+                synchronizeActiveWithReference: synchronizeActiveWithReference,
+                disabled: disabled)
+            {
+                key = key
+            };
     }
 }

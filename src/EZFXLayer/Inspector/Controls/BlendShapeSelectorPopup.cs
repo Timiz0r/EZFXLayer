@@ -39,12 +39,15 @@ namespace EZUtils.EZFXLayer.UIElements
                     foreach (string blendShape in blendShapes)
                     {
                         bool isSelected = configurator.IsBlendShapeSelected(
-                            smr, blendShape, out bool permanent, out string key);
+                            smr,
+                            blendShape,
+                            out bool permanent,
+                            out AnimatableBlendShape existing);
                         Toggle blendShapeToggle = new Toggle()
                         {
                             text = blendShape,
                             value = isSelected,
-                            userData = key
+                            userData = existing
                         };
                         if (permanent)
                         {
@@ -53,11 +56,13 @@ namespace EZUtils.EZFXLayer.UIElements
 
                         _ = blendShapeToggle.RegisterValueChangedCallback(evt =>
                         {
-                            AnimatableBlendShape animatableBlendShape = new AnimatableBlendShape()
-                            {
-                                skinnedMeshRenderer = smr,
-                                name = blendShape
-                            };
+                            AnimatableBlendShape animatableBlendShape = new AnimatableBlendShape(
+                                skinnedMeshRenderer: smr,
+                                name: blendShape,
+                                value: existing?.value ?? 0f,
+                                synchronizeValueWithReference: existing?.synchronizeValueWithReference
+                                    ?? configurator.DefaultSynchronizeValueWithReference(),
+                                disabled: existing?.disabled ?? false);
                             //if not given as part of IsBlendShapeSelected, then we'll end up using the auto-gen'd key
                             //if a selected blendshape is deselected then selected, we also get to reuse the key, which is nice
                             //though it's worth noting we'd lose values as currently designed. this is somewhat preferable,

@@ -6,6 +6,11 @@ msgstr "Language: en\n"
 "Plural-Forms: nplurals=1; 0;\n"
 "X-PluralRules-Other: \n"
 
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:80
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:36
+msgid "Add new animation"
+msgstr ""
+
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:34
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:17
 msgid "Blend shapes"
@@ -26,8 +31,8 @@ msgstr ""
 msgid "Add GameObject"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/DefaultAnimationPopupField.cs:22
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/DefaultAnimationPopupField.cs:25
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:27
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:30
 msgid "No animations added"
 msgstr ""
 
@@ -130,8 +135,20 @@ msgstr ""
 msgid "Hide unchanged items"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:36
-msgid "Add new animation"
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:46
+msgid "Default animation"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:50
+msgid "Set default animation"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:62
+msgid "Toggle off animation"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:66
+msgid "Set toggle off animation"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:29
