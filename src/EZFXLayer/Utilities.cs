@@ -117,6 +117,7 @@ namespace EZUtils.EZFXLayer
 
             //since we cant do a null check, we reuse isReferenceAnimation, which used to be true for the reference anim
             //but doing away with them, setting it to false is a logical way to indicate otherwise
+#pragma warning disable CS0618 // Type or member is obsolete
             if (layer.referenceAnimation.isReferenceAnimation)
             {
                 AnimationConfiguration copiedAnimation = new AnimationConfiguration()
@@ -142,6 +143,7 @@ namespace EZUtils.EZFXLayer
                 layer.referenceAnimation.isReferenceAnimation = false;
                 changePerformed = true;
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             if (changePerformed)
             {

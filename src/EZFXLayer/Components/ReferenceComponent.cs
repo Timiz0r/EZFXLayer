@@ -2,7 +2,6 @@ namespace EZUtils.EZFXLayer
 {
     using System;
     using System.Linq;
-    using UnityEditor;
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 

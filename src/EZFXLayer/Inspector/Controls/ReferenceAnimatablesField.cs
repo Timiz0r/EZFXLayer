@@ -113,6 +113,15 @@ namespace EZUtils.EZFXLayer.UIElements
             configurator.ApplyModifiedProperties();
         }
 
+        public bool IsGameObjectSelected(GameObject gameObject, out AnimatableGameObject existing)
+        {
+            existing = gameObjects.AllElements<AnimatableGameObjectField>()
+                .Select(go => go.GameObject)
+                .SingleOrDefault(bs => bs.gameObject == gameObject);
+
+            return existing != null;
+        }
+
         public void AddGameObject(AnimatableGameObject gameObject)
         {
             _ = gameObjects.Add(

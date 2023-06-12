@@ -42,12 +42,12 @@ msgstr ""
 msgid "Menu: {0}"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:28
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:27
 # id format: Only one {nameof(ReferenceComponent)} should exist per scene.
 msgid "Only one {0} should exist per scene."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:29
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:28
 # id format: Game objects with the component: {parentNames}.
 msgid "Game objects with the component: {0}."
 msgstr ""

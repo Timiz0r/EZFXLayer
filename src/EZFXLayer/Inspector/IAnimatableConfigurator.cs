@@ -12,6 +12,7 @@ namespace EZUtils.EZFXLayer
 
         void AddGameObject(AnimatableGameObject gameObject);
         void RemoveGameObject(AnimatableGameObject gameObject);
+
         bool DefaultSynchronizeValueWithReference();
     }
 }

@@ -148,9 +148,26 @@ namespace EZUtils.EZFXLayer.UIElements
         }
 
         internal void RemoveBlendShape(AnimatableBlendShape blendShape, bool applyModifiedProperties)
-            => blendShapes.Remove(
-                sp => ConfigSerialization.DeserializeBlendShape(sp).Matches(blendShape),
-                applyModifiedProperties);
+        {
+            if (configurator.Reference.IsBlendShapeSelected(
+                blendShape.skinnedMeshRenderer,
+                blendShape.name,
+                out _,
+                out AnimatableBlendShape existing)
+                && existing.key == blendShape.key)
+            {
+                _ = blendShapes.Transform(
+                    sp => sp.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue == blendShape.key,
+                    sp => sp.FindPropertyRelative(nameof(AnimatableBlendShape.disabled)).boolValue = true,
+                    applyModifiedProperties);
+            }
+            else
+            {
+                blendShapes.Remove(
+                    sp => ConfigSerialization.DeserializeBlendShape(sp).Matches(blendShape),
+                    applyModifiedProperties);
+            }
+        }
 
         internal void AddGameObject(AnimatableGameObject gameObject, bool applyModifiedProperties)
         {
@@ -169,8 +186,23 @@ namespace EZUtils.EZFXLayer.UIElements
         }
 
         internal void RemoveGameObject(AnimatableGameObject gameObject, bool applyModifiedProperties)
-            => gameObjects.Remove(
-                sp => ConfigSerialization.DeserializeGameObject(sp).Matches(gameObject),
-                applyModifiedProperties);
+        {
+            if (configurator.Reference.IsGameObjectSelected(
+                gameObject.gameObject,
+                out AnimatableGameObject existing)
+                && existing.key == gameObject.key)
+            {
+                _ = blendShapes.Transform(
+                    sp => sp.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue == gameObject.key,
+                    sp => sp.FindPropertyRelative(nameof(AnimatableGameObject.disabled)).boolValue = true,
+                    applyModifiedProperties);
+            }
+            else
+            {
+                gameObjects.Remove(
+                            sp => ConfigSerialization.DeserializeGameObject(sp).Matches(gameObject),
+                            applyModifiedProperties);
+            }
+        }
     }
 }

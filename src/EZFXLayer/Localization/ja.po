@@ -52,12 +52,12 @@ msgid "Menu: {0}"
 msgstr "メニュー: {0}"
 
 # id format: Only one {nameof(ReferenceComponent)} should exist per scene.
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:28
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:27
 msgid "Only one {0} should exist per scene."
 msgstr "シーンごとに 1つの{0}だけが存在する必要があります。"
 
 # id format: Game objects with the component: {parentNames}.
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:29
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Components/ReferenceComponent.cs:28
 msgid "Game objects with the component: {0}."
 msgstr "このコンポーネントを持っているゲームオブジェクト: {0}"
 
