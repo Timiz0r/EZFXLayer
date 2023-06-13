@@ -9,19 +9,12 @@
       UnityEditor.UIElements ../../../../UIElementsSchema/UnityEditor.UIElements.xsd
       EZUtils.EZFXLayer.UIElements ../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
-  <VisualElement>
-    <Style src="AnimatableBlendShapeField.uss" />
+  <VisualElement style="flex-grow: 1; justify-content: center;">
+    <Style src="AnimatableStatus.uss" />
 
-    <VisualElement class="animatable-field-container">
-      <Toggle name="disabled" binding-path="disabled" />
-
-      <ezfx:AnimatableStatus />
-      <Label binding-path="name" />
-      <Slider name="valueSlider" low-value="0" high-value="100" binding-path="value" />
-      <editor:FloatField binding-path="value" />
-      <Button name="remove" text="Ｘ" />
-      <Button name="add" text="＋" />
-    </VisualElement>
+    <VisualElement class="status status-enabled" />
+    <VisualElement class="status status-disabled" />
+    <VisualElement class="status status-error" />
 
   </VisualElement>
 </UXML>

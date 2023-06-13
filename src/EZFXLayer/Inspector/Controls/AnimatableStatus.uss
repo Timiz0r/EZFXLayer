@@ -1,0 +1,32 @@
+
+.status {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+.status-enabled {
+    background-image: url("Icons/AnimatableEnabled.psd");
+    /* disabling for now because, when we add error indication, it will be weird for green and red icons to appear side-by-side */
+    display: none;
+}
+.animatable-disabled .status-enabled {
+    display: none;
+}
+
+.status-disabled {
+    background-image: url("Icons/AnimatableDisabled.psd") ;
+    display: none;
+}
+.animatable-disabled .status-disabled {
+    display: flex;
+}
+
+.status-error {
+    background-image: url("Icons/AnimatableError.psd");
+    display: none;
+}
+.animatable-error .status-error {
+    display: flex;
+}

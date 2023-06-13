@@ -9,11 +9,17 @@
       UnityEditor.UIElements ../../../../UIElementsSchema/UnityEditor.UIElements.xsd
       EZUtils.EZFXLayer.UIElements ../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
-  <VisualElement style="flex-direction: row;">
+  <VisualElement>
     <Style src="AnimatableGameObjectField.uss" />
 
-    <ezfx:ObjectField objectType="UnityEngine.GameObject, UnityEngine" enabled="false" binding-path="gameObject"/>
-    <Toggle binding-path="active" />
-    <Button text="X" />
+    <VisualElement class="animatable-field-container">
+      <Toggle name="disabled" binding-path="disabled" />
+
+      <ezfx:AnimatableStatus />
+      <ezfx:ObjectField objectType="UnityEngine.GameObject, UnityEngine" enabled="false" binding-path="gameObject"/>
+      <Toggle name="activeToggle" binding-path="active" />
+      <Button name="remove" text="Ｘ" />
+      <Button name="add" text="＋" />
+    </VisualElement>
   </VisualElement>
 </UXML>

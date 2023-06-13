@@ -1,9 +1,30 @@
-Slider {
+.animatable-field-container {
+    flex-direction: row;
+}
+.animatable-field-container > Slider {
     flex-grow: 1;
 }
-FloatField {
+.animatable-field-container > FloatField {
     width: 50px;
 }
-Label {
+.animatable-field-container > Label {
     min-width: 100px;
+    align-self: center;
+}
+
+.animatable-field-container > Button#remove {
+    display: flex;
+}
+.animatable-field-container.animatable-disabled > Button#remove {
+    display: none;
+}
+.animatable-field-container > Button#add {
+    display: none;
+}
+.animatable-field-container.animatable-disabled > Button#add {
+    display: flex;
+}
+
+Toggle#disabled {
+    display: none;
 }

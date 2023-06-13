@@ -4,6 +4,7 @@ namespace EZUtils.EZFXLayer.UIElements
     using UnityEditor;
     using UnityEditor.UIElements;
     using UnityEngine;
+    using UnityEngine.Rendering;
     using UnityEngine.UIElements;
 
     using static Localization;
@@ -126,17 +127,20 @@ namespace EZUtils.EZFXLayer.UIElements
 
         //these exist because reference needs a way to not apply modified properties, since it's doing a batch operation
         //the above methods are meant for adding animatables specifically to a single animation and therefore can apply
-        //
-        //when adding an animatable that already exists...
-        //we don't want duplicates
-        //to support reference animatables being added after animation animatables, we want consistent keys
         internal void AddBlendShape(AnimatableBlendShape blendShape, bool applyModifiedProperties)
         {
             bool alreadyExists = blendShapes.Transform(
                 sp => ConfigSerialization.DeserializeBlendShape(sp) is AnimatableBlendShape current
                     && current.skinnedMeshRenderer == blendShape.skinnedMeshRenderer
                     && current.name == blendShape.name,
-                sp => sp.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue = blendShape.key,
+                sp =>
+                {
+                    //covers the case of a reference animatable being added, that matches an animation's animatable
+                    sp.FindPropertyRelative(nameof(AnimatableBlendShape.key)).stringValue = blendShape.key;
+                    //covers the case of a disabled one being enabled
+                    sp.FindPropertyRelative(nameof(AnimatableBlendShape.disabled)).boolValue = false;
+                    //note that we can't serialize the whole blendShape because, at the very least, we want to maintain the value
+                },
                 applyModifiedProperties);
 
             if (!alreadyExists)
@@ -171,10 +175,17 @@ namespace EZUtils.EZFXLayer.UIElements
 
         internal void AddGameObject(AnimatableGameObject gameObject, bool applyModifiedProperties)
         {
-            bool alreadyExists = blendShapes.Transform(
+            bool alreadyExists = gameObjects.Transform(
                 sp => ConfigSerialization.DeserializeGameObject(sp) is AnimatableGameObject current
                     && current.gameObject == gameObject.gameObject,
-                sp => sp.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue = gameObject.key,
+                sp =>
+                {
+                    //covers the case of a reference animatable being added, that matches an animation's animatable
+                    sp.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue = gameObject.key;
+                    //covers the case of a disabled one being enabled
+                    sp.FindPropertyRelative(nameof(AnimatableGameObject.disabled)).boolValue = false;
+                    //note that we can't serialize the whole gameObject because, at the very least, we want to maintain active
+                },
                 applyModifiedProperties);
 
             if (!alreadyExists)
@@ -192,7 +203,7 @@ namespace EZUtils.EZFXLayer.UIElements
                 out AnimatableGameObject existing)
                 && existing.key == gameObject.key)
             {
-                _ = blendShapes.Transform(
+                _ = gameObjects.Transform(
                     sp => sp.FindPropertyRelative(nameof(AnimatableGameObject.key)).stringValue == gameObject.key,
                     sp => sp.FindPropertyRelative(nameof(AnimatableGameObject.disabled)).boolValue = true,
                     applyModifiedProperties);

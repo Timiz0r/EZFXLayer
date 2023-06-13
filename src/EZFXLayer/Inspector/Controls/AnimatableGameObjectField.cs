@@ -22,9 +22,19 @@ namespace EZUtils.EZFXLayer.UIElements
 
             this.configurator = configurator;
 
-            this.Q<Button>().clicked += () => this.configurator.RemoveGameObject(GameObject);
+            VisualElement fieldContainer = this.Q<VisualElement>(className: "animatable-field-container");
+            Toggle disabledToggle = this.Q<Toggle>(name: "disabled");
+            _ = disabledToggle.RegisterValueChangedCallback(
+                evt => fieldContainer.EnableInClassList("animatable-disabled", evt.newValue));
+            _ = schedule.Execute(() => fieldContainer.EnableInClassList("animatable-disabled", disabledToggle.value));
 
-            _ = this.Q<Toggle>().RegisterValueChangedCallback(evt => GameObject.active = evt.newValue);
+
+            this.Q<Button>(name: "remove").clicked += () => this.configurator.RemoveGameObject(GameObject);
+            //note that this button will be hidden unless disabled
+            //and whether or not disabled is able to be set is controlled by ref and anim fields
+            this.Q<Button>(name: "add").clicked += () => this.configurator.AddGameObject(GameObject);
+
+            _ = this.Q<Toggle>(name: "activeToggle").RegisterValueChangedCallback(evt => GameObject.active = evt.newValue);
         }
 
         public void Rebind(SerializedProperty serializedProperty)
