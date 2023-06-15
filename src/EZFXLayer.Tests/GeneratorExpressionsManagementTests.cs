@@ -5,7 +5,7 @@ namespace EZUtils.EZFXLayer.Test
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
-    //we'll also throw controller parameter stuff in here just because
+    //NOTE: we'll also throw controller parameter stuff in here just because there's no need to duplicate
     public class GeneratorExpressionsManagementTests
     {
         [SetUp]
@@ -214,6 +214,21 @@ namespace EZUtils.EZFXLayer.Test
 
             Assert.That(testSetup.Assets.Parameters.parameters.Single(p => p.name == "1").saved, Is.False);
             Assert.That(testSetup.Assets.Parameters.parameters.Single(p => p.name == "2").saved, Is.True);
+        }
+
+        [Test]
+        public void ParameterNotAdded_IfTheLayerHasLessThanTwoAnimations()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "1", l => { });
+            _ = testSetup.ConfigurationBuilder.AddLayer(
+                "2", l => l.AddInitialAnimation(a => { }));
+
+            testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Parameters.parameters, Is.Empty);
+            Assert.That(testSetup.Assets.FXController.parameters, Is.Empty);
         }
 
         [Test]

@@ -1,5 +1,6 @@
 namespace EZUtils.EZFXLayer.Test
 {
+    using System;
     using NUnit.Framework;
     using UnityEngine;
 
@@ -41,6 +42,26 @@ namespace EZUtils.EZFXLayer.Test
                         r => r.SetBlendShape(smr, "foo", 1)));
 
             Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
+        }
+
+        [Test]
+        public void Throws_WhenNoToggleOffAnimations()
+        {
+            TestSetup testSetup = new TestSetup();
+            SkinnedMeshRenderer smr = testSetup.Avatar.AddComponent<SkinnedMeshRenderer>();
+            _ = testSetup.ConfigurationBuilder.AddLayer("foo", l => l.AddAnimation("foo", a => a.MakeDefaultAnimation()));
+
+            Assert.That(() => testSetup.StandardGenerate(), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
+        }
+
+        [Test]
+        public void Throws_WhenNoDefaultAnimation()
+        {
+            TestSetup testSetup = new TestSetup();
+            SkinnedMeshRenderer smr = testSetup.Avatar.AddComponent<SkinnedMeshRenderer>();
+            _ = testSetup.ConfigurationBuilder.AddLayer("foo", l => l.AddAnimation("foo", a => a.MakeToggleOffAnimation()));
+
+            Assert.That(() => testSetup.StandardGenerate(), Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
         }
 
         //TODO: tests and design for if existing menus and parameters are encountered

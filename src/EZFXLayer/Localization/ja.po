@@ -47,7 +47,7 @@ msgstr ""
 
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:215
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:219
 msgid "Menu: {0}"
 msgstr "メニュー: {0}"
 
@@ -106,11 +106,11 @@ msgstr "参照のアニメーターコントローラー「{2}」に、コント
 msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
 msgstr "コントローラからステートを削除することを検討してください。生成されたコントローラーから自動的に削除されましたが、参照のコントローラーからは削除されていません。 すべての遷移の条件を切り替えて、未知のステートに対してどのように切り替えるかを知る方法がありませんので。"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:214
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:218
 msgid "Cannot add a new toggle because there are already 8 items in the menu."
 msgstr "すでに親メニューに8つのアイテムがあるため、新しいトグルを追加することができません。"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:228
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:232
 # id format: State machine for layer '{layer.Name}' not found.
 msgid "State machine for layer '{0}' not found."
 msgstr ""

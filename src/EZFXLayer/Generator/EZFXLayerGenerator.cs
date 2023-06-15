@@ -170,7 +170,11 @@ namespace EZUtils.EZFXLayer
                 AnimationConfigurationHelper animation = layer.Animations[i];
             }
 
-            layer.Parameter.ApplyToControllerParameters(controller);
+            if (layer.Animations.Count > 1)
+            {
+                //can't toggle things unless there are two states/animations
+                layer.Parameter.ApplyToControllerParameters(controller);
+            }
         }
 
         private static void UpdateStatesWithClips(
