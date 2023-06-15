@@ -225,17 +225,20 @@ namespace EZUtils.EZFXLayer.Test
                     "1",
                     l => l
                         .WithMenuPath(null)
-                        .AddInitialAnimation("foo", a => { }))
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("foo", a => { }))
                 .AddLayer(
                     "2",
                     l => l
                         .WithMenuPath(string.Empty)
-                        .AddInitialAnimation("bar", a => { }))
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("bar", a => { }))
                 .AddLayer(
                     "3",
                     l => l
                         .WithMenuPath("/")
-                        .AddInitialAnimation("baz", a => { }));
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("baz", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -254,7 +257,8 @@ namespace EZUtils.EZFXLayer.Test
                     "1",
                     l => l
                         .WithMenuPath("1/foo")
-                        .AddInitialAnimation("foo", a => { }));
+                        .AddInitialAnimation("foo", a => { })
+                        .AddAnimation("second animation", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -270,13 +274,22 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder
                 .AddLayer(
                     "1",
-                    l => l.WithMenuPath(@"\/1").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath(@"\/1")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "2",
-                    l => l.WithMenuPath(@"2\/").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath(@"2\/")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "3",
-                    l => l.WithMenuPath(@"/\//3\//\/foo\//\//").AddInitialAnimation(a => { }));
+                    l => l
+                        .WithMenuPath(@"/\//3\//\/foo\//\//")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -303,19 +316,34 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder
                 .AddLayer(
                     "1",
-                    l => l.WithMenuPath(@"\\/1").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath(@"\\/1")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "2",
-                    l => l.WithMenuPath(@"2/\\").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath(@"2/\\")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "3",
-                    l => l.WithMenuPath(@"3\\\\/foo").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath(@"3\\\\/foo")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "4",
-                    l => l.WithMenuPath(@"4\\\\\/foo").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath(@"4\\\\\/foo")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "5",
-                    l => l.WithMenuPath(@"\foo\bar\").AddInitialAnimation(a => { })); //aka that backslashes not preceeding a [\\/] work fine
+                    l => l
+                        .WithMenuPath(@"\foo\bar\")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { })); //aka that backslashes not preceeding a [\\/] work fine
 
             testSetup.StandardGenerate();
 
@@ -340,13 +368,22 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder
                 .AddLayer(
                     "1",
-                    l => l.WithMenuPath("1/").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath("1/")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "2",
-                    l => l.WithMenuPath("/2").AddInitialAnimation(a => { }))
+                    l => l
+                        .WithMenuPath("/2")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }))
                 .AddLayer(
                     "3",
-                    l => l.WithMenuPath("////////////3////////////////foo/////bar/////").AddInitialAnimation(a => { }));
+                    l => l
+                        .WithMenuPath("////////////3////////////////foo/////bar/////")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -363,14 +400,31 @@ namespace EZUtils.EZFXLayer.Test
         }
 
         [Test]
+        public void MenuControlNamesNotChanged_WhenCustomToggleNameIsSetForToggleOffAnimation()
+        {
+            TestSetup testSetup = new TestSetup();
+            _ = testSetup.ConfigurationBuilder
+                .AddLayer(
+                    "layer1",
+                    l => l
+                        .AddInitialAnimation(a => a.WithToggleName("notused"))
+                        .AddAnimation("foo", a => { }));
+
+            testSetup.StandardGenerate();
+
+            Assert.That(testSetup.Assets.Menu.controls[0].name, Is.EqualTo("foo"));
+        }
+
+        [Test]
         public void MenuControlNamesCanBeChanged_WhenCustomToggleNameIsSet()
         {
             TestSetup testSetup = new TestSetup();
             _ = testSetup.ConfigurationBuilder
                 .AddLayer(
-                    "layer",
+                    "layer1",
                     l => l
-                        .AddInitialAnimation("foo", a => a.WithToggleName("bar")));
+                        .AddInitialAnimation(a => a.WithToggleName("notused"))
+                        .AddAnimation("foo", a => a.WithToggleName("bar")));
 
             testSetup.StandardGenerate();
 
@@ -390,7 +444,10 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder
                 .AddLayer(
                     "layer",
-                    l => l.WithMenuPath("foo/bar").AddInitialAnimation(a => { }));
+                    l => l
+                        .WithMenuPath("foo/bar")
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("second animation", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -399,16 +456,14 @@ namespace EZUtils.EZFXLayer.Test
         }
 
         [Test]
-        public void NoTogglesCreated_WhenOnlyReferenceAnimation()
+        public void NoTogglesOrParametersCreated_WhenNotAtLeastTwoAnimations()
         {
-            //which is virtually useless, at least at the time of wrinting, having an always-on animation
-            //as such, we dont expose a way to change a toggle on the reference animation via configuration builder
             TestSetup testSetup = new TestSetup();
             _ = testSetup.ConfigurationBuilder
                 .AddLayer(
-                    "layer",
-                    l => l
-                        .AddInitialAnimation("foo", a => { }));
+                    "layer", l => { })
+                .AddLayer(
+                    "layer2", l => l.AddInitialAnimation("foo", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -426,7 +481,8 @@ namespace EZUtils.EZFXLayer.Test
                     "layer",
                     l => l
                         .WithMenuPath(@"foo/\/bar/\\baz")
-                        .AddInitialAnimation("anim", a => { }));
+                        .AddInitialAnimation(a => { })
+                        .AddAnimation("anim", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -448,15 +504,15 @@ namespace EZUtils.EZFXLayer.Test
         {
             TestSetup testSetup = new TestSetup();
             _ = testSetup.ConfigurationBuilder
-                .AddLayer("1", l => l.AddInitialAnimation("anim1", a => { }))
-                .AddLayer("2", l => l.AddInitialAnimation("anim2", a => { }))
-                .AddLayer("3", l => l.AddInitialAnimation("anim3", a => { }))
-                .AddLayer("4", l => l.AddInitialAnimation("anim4", a => { }))
-                .AddLayer("5", l => l.AddInitialAnimation("anim5", a => { }))
-                .AddLayer("6", l => l.AddInitialAnimation("anim6", a => { }))
-                .AddLayer("7", l => l.AddInitialAnimation("anim7", a => { }))
-                .AddLayer("8", l => l.AddInitialAnimation("anim8", a => { }))
-                .AddLayer("9", l => l.AddInitialAnimation("anim9", a => { }));
+                .AddLayer("1", l => l.AddInitialAnimation("anim1", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("2", l => l.AddInitialAnimation("anim2", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("3", l => l.AddInitialAnimation("anim3", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("4", l => l.AddInitialAnimation("anim4", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("5", l => l.AddInitialAnimation("anim5", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("6", l => l.AddInitialAnimation("anim6", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("7", l => l.AddInitialAnimation("anim7", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("8", l => l.AddInitialAnimation("anim8", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("9", l => l.AddInitialAnimation("anim9", a => { }).AddAnimation("second animation", a => { }));
 
             Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
         }
@@ -466,15 +522,15 @@ namespace EZUtils.EZFXLayer.Test
         {
             TestSetup testSetup = new TestSetup();
             _ = testSetup.ConfigurationBuilder
-                .AddLayer("1", l => l.WithMenuPath("1").AddInitialAnimation("anim", a => { }))
-                .AddLayer("2", l => l.WithMenuPath("2").AddInitialAnimation("anim", a => { }))
-                .AddLayer("3", l => l.WithMenuPath("3").AddInitialAnimation("anim", a => { }))
-                .AddLayer("4", l => l.WithMenuPath("4").AddInitialAnimation("anim", a => { }))
-                .AddLayer("5", l => l.WithMenuPath("5").AddInitialAnimation("anim", a => { }))
-                .AddLayer("6", l => l.WithMenuPath("6").AddInitialAnimation("anim", a => { }))
-                .AddLayer("7", l => l.WithMenuPath("7").AddInitialAnimation("anim", a => { }))
-                .AddLayer("8", l => l.WithMenuPath("8").AddInitialAnimation("anim", a => { }))
-                .AddLayer("9", l => l.WithMenuPath("9").AddInitialAnimation("anim", a => { }));
+                .AddLayer("1", l => l.WithMenuPath("1").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("2", l => l.WithMenuPath("2").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("3", l => l.WithMenuPath("3").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("4", l => l.WithMenuPath("4").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("5", l => l.WithMenuPath("5").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("6", l => l.WithMenuPath("6").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("7", l => l.WithMenuPath("7").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("8", l => l.WithMenuPath("8").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }))
+                .AddLayer("9", l => l.WithMenuPath("9").AddInitialAnimation("anim", a => { }).AddAnimation("second animation", a => { }));
 
             Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
         }

@@ -71,6 +71,8 @@ namespace EZUtils.EZFXLayer
             string previousLayerName,
             IAssetRepository assetRepository)
         {
+            if (!layer.ManageAnimatorControllerStates) return;
+
             List<AnimatorControllerLayer> layers = new List<AnimatorControllerLayer>(controller.layers);
             if (layers.Any(l => l.name.Equals(layer.Name, StringComparison.OrdinalIgnoreCase))) return;
 
@@ -192,6 +194,9 @@ namespace EZUtils.EZFXLayer
             IAssetRepository assetRepository)
         {
             if (!layer.ManageExpressionMenuAndParameters) return;
+            //with one animation, there's nothing to toggle
+            //with zero animations, there's obviously nothing at all (so a marker layer)
+            if (layer.Animations.Count < 2) return;
 
             layer.Parameter.ApplyToExpressionParameters(vrcExpressionParameters);
 
@@ -201,6 +206,9 @@ namespace EZUtils.EZFXLayer
             foreach (AnimationConfigurationHelper animation in layer.Animations)
             {
                 int animationToggleValue = layer.GetAnimationToggleValue(animation);
+                //aka the value that occurs when no toggle in the layer is on, so don't need a toggle
+                if (animationToggleValue == 0) continue;
+
                 VRCExpressionsMenu.Control toggle = animation.GetMenuToggle(layer.Parameter.Name, animationToggleValue);
                 if (toggle == null) continue;
                 if (targetMenu.controls.Count >= 8) throw new InvalidOperationException(
@@ -211,6 +219,16 @@ namespace EZUtils.EZFXLayer
         }
 
         private static AnimatorStateMachine GetStateMachine(AnimatorLayerConfiguration layer, AnimatorController controller)
-            => controller.layers.Single(l => l.name.Equals(layer.Name, StringComparison.OrdinalIgnoreCase)).stateMachine;
+        {
+            AnimatorStateMachine stateMachine = controller.layers.SingleOrDefault(
+                l => l.name.Equals(layer.Name, StringComparison.OrdinalIgnoreCase))?.stateMachine;
+
+            //this should be impossible, since we ensure the layer is created if we're managing states
+            //but we threw this check in here anyway
+            if (stateMachine == null && layer.ManageAnimatorControllerStates) throw new InvalidOperationException(
+                T($"State machine for layer '{layer.Name}' not found."));
+
+            return stateMachine;
+        }
     }
 }

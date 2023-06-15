@@ -7,6 +7,8 @@ namespace EZUtils.EZFXLayer
     using UnityEngine;
     using VRC.SDK3.Avatars.ScriptableObjects;
 
+    using static Localization;
+
     //this class exists because we decided to keep AnimationConfiguration in the components library, which means
     //no referencing UnityEditor. this gives us a data-only class and a basically behavior-only class
     //the alternative to this antipattern is to duplicate the class's structure and copy values over,
@@ -41,7 +43,10 @@ namespace EZUtils.EZFXLayer
             assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);
 
-            stateMachineDefaultState = animation.isToggleOffAnimation ? correspondingState : stateMachineDefaultState;
+            //since the expression parameters will "take things over", it kinda doesn't matter if toggle off or default
+            //but toggle off is meant to indicate the state with an anystate transition for 0/false
+            //and default is meant to indicate, well default, so we use that
+            stateMachineDefaultState = animation.isDefaultAnimation ? correspondingState : stateMachineDefaultState;
         }
 
         //could hypothetically add these params to ctor, but wont for now
@@ -59,10 +64,20 @@ namespace EZUtils.EZFXLayer
         internal bool SetMotion(AnimatorStateMachine stateMachine, string layerName, out GeneratedClip clip)
         {
             clip = null;
+            //would happen if not managing states and layer containing the state machine is not preexisting
+            if (stateMachine == null)
+            {
+                Debug.LogWarning(T($"Unable to add animation '{animation.name}' to layer '{layerName}' because the layer does not exist."));
+                return false;
+            }
             ChildAnimatorState[] states = stateMachine.states;
             AnimatorState correspondingState = states.SingleOrDefault(s => MatchesState(s.state)).state;
             //would happen if not managing states and the state is not preexisting
-            if (correspondingState == null) return false;
+            if (correspondingState == null)
+            {
+                Debug.LogWarning(T($"Unable to add animation '{animation.name}' to layer '{layerName}' because a state with a matching name does not exist."));
+                return false;
+            }
 
 
             AnimationClip animationClip = GenerateAnimationClip();

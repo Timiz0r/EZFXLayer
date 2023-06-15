@@ -14,7 +14,6 @@ namespace EZUtils.EZFXLayer
         public bool isDefaultAnimation;
         public bool isToggleOffAnimation;
         public List<AnimatableBlendShape> blendShapes = new List<AnimatableBlendShape>();
-
         public List<AnimatableGameObject> gameObjects = new List<AnimatableGameObject>();
         public bool isFoldedOut = true;
 
