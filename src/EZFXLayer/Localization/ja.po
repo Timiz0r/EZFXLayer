@@ -47,7 +47,7 @@ msgstr ""
 
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:218
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:207
 msgid "Menu: {0}"
 msgstr "メニュー: {0}"
 
@@ -71,34 +71,42 @@ msgid "Path '{0}' is not rooted in Assets."
 msgstr "パス「{0}」のルートは「Assets」ではありません。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:58
-msgid "There is no reference animation."
-msgstr "参照アニメーションがありません。"
+#~ msgid "There is no reference animation."
+#~ msgstr "参照アニメーションがありません。"
 
-# id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:148
-msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
-msgstr "参照のアニメーターコントローラー「{2}」に、コントローラーレイヤー「{1}」のアニメーターステート「{0}」がすでに存在していますが、対応するアニメーションはありません。"
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:74
+msgid "There is no default animation."
+msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:149
-msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
-msgstr "コントローラからステートを削除することを検討してください。生成されたコントローラーから自動的に削除されましたが、参照のコントローラーからは削除されていません。 すべての遷移の条件を切り替えて、未知のステートに対してどのように切り替えるかを知る方法がありませんので。"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:217
-msgid "Cannot add a new toggle because there are already 8 items in the menu."
-msgstr "すでに親メニューに8つのアイテムがあるため、新しいトグルを追加することができません。"
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:76
+msgid "There is no toggle off animation."
+msgstr ""
 
 # id format: Duplicate non-empty layers found in configuration: {string.Join(", ", duplicateLayers)}.
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:62
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:64
 msgid "Duplicate non-empty layers found in configuration: {0}."
 msgstr "空でない同じ様なレイヤーが設定で見つかりました: {0}。"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "Failed EZFXLayer generation"
-msgstr "EZFXLayer生成失敗"
+# id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:133
+msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
+msgstr "参照のアニメーターコントローラー「{2}」に、コントローラーレイヤー「{1}」のアニメーターステート「{0}」がすでに存在していますが、対応するアニメーションはありません。"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:134
+msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
+msgstr "コントローラからステートを削除することを検討してください。生成されたコントローラーから自動的に削除されましたが、参照のコントローラーからは削除されていません。 すべての遷移の条件を切り替えて、未知のステートに対してどのように切り替えるかを知る方法がありませんので。"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:206
+msgid "Cannot add a new toggle because there are already 8 items in the menu."
+msgstr "すでに親メニューに8つのアイテムがあるため、新しいトグルを追加することができません。"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
 msgid "EZFXLayer generation"
 msgstr "EZFXLayer生成"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
+msgid "Failed EZFXLayer generation"
+msgstr "EZFXLayer生成失敗"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59
 msgid "Please save the scene before attempting to generate."

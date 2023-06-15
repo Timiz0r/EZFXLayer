@@ -24,7 +24,9 @@ namespace EZUtils.EZFXLayer
         public bool hideUnchangedItemsInAnimationConfigurations = false;
 
         [System.Obsolete("Has been split into referenceAnimatables and an additional animation.")]
-        public AnimationConfiguration referenceAnimation;
+        //we set a new one, even when obsolete, because serialization does it anyway
+        //as such, our code expects it to be non-null, which doesn't work well for unit tests that dont serialize it
+        public AnimationConfiguration referenceAnimation = new AnimationConfiguration();
 
         private AnimatorLayerComponent() { }
 

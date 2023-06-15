@@ -16,8 +16,9 @@ namespace EZUtils.EZFXLayer
         private readonly AnimationConfiguration animation;
         private readonly GenerationOptions generationOptions;
 
-        //if by chance we grow the list of parameters here that come from the layer configuration, then just pass it
-        public AnimationConfigurationHelper(AnimationConfiguration animation, GenerationOptions generationOptions)
+        public AnimationConfigurationHelper(
+            AnimationConfiguration animation,
+            GenerationOptions generationOptions)
         {
             this.animation = animation;
             this.generationOptions = generationOptions;
@@ -27,7 +28,7 @@ namespace EZUtils.EZFXLayer
             => state.name.Equals(EffectiveStateName, StringComparison.OrdinalIgnoreCase);
 
         internal void AddState(
-            List<AnimatorState> states, ref AnimatorState defaultState, IAssetRepository assetRepository)
+            List<AnimatorState> states, ref AnimatorState stateMachineDefaultState, IAssetRepository assetRepository)
         {
             AnimatorState correspondingState = states.SingleOrDefault(s => MatchesState(s));
             if (correspondingState != null) return;
@@ -40,11 +41,11 @@ namespace EZUtils.EZFXLayer
             assetRepository.FXAnimatorControllerStateAdded(correspondingState);
             states.Add(correspondingState);
 
-            defaultState = animation.isReferenceAnimation ? correspondingState : defaultState;
+            stateMachineDefaultState = animation.isToggleOffAnimation ? correspondingState : stateMachineDefaultState;
         }
 
         //could hypothetically add these params to ctor, but wont for now
-        internal VRCExpressionsMenu.Control GetMenuToggle(string parameterName, float toggleValue)
+        internal VRCExpressionsMenu.Control GetMenuToggle(string parameterName, float parameterValue)
             => animation.isReferenceAnimation ? null : new VRCExpressionsMenu.Control()
             {
                 name = string.IsNullOrEmpty(animation.customToggleName)
@@ -52,7 +53,7 @@ namespace EZUtils.EZFXLayer
                     : animation.customToggleName,
                 parameter = new VRCExpressionsMenu.Control.Parameter() { name = parameterName },
                 type = VRCExpressionsMenu.Control.ControlType.Toggle,
-                value = toggleValue
+                value = parameterValue
             };
 
         internal bool SetMotion(AnimatorStateMachine stateMachine, string layerName, out GeneratedClip clip)

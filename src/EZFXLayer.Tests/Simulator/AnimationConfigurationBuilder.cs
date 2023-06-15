@@ -14,52 +14,60 @@ namespace EZUtils.EZFXLayer.Test
         {
             if (layer == null) throw new ArgumentNullException(nameof(layer));
 
-            layer.animations.Add(animation = new AnimationConfiguration() { name = name });
+            layer.animations.Add(animation = AnimationConfiguration.Create(name));
             this.layer = layer;
         }
 
-        public AnimationConfigurationBuilder SetGameObject(GameObject gameObject, bool isActive)
+        public AnimationConfigurationBuilder SetGameObject(GameObject gameObject, bool isActive, bool disabled = false)
         {
             if (gameObject == null) throw new ArgumentNullException(nameof(gameObject));
 
-            if (!layer.referenceAnimation.gameObjects.Any(go => go.gameObject == gameObject))
+            if (animation.gameObjects.SingleOrDefault(go => go.gameObject == gameObject) is AnimatableGameObject existing)
             {
-                throw new ArgumentOutOfRangeException(
-                    nameof(gameObject), $"GameObject '{gameObject}' is not in the reference animation.");
+                existing.active = isActive;
+                existing.disabled = disabled;
             }
-
-            animation.gameObjects.Add(new AnimatableGameObject() { gameObject = gameObject, active = isActive });
+            else
+            {
+                animation.gameObjects.Add(new AnimatableGameObject(
+                    gameObject,
+                    path: null,
+                    active: isActive,
+                    synchronizeActiveWithReference: false,
+                    disabled: disabled));
+            }
 
             return this;
         }
 
         public AnimationConfigurationBuilder SetBlendShape(
-            SkinnedMeshRenderer skinnedMeshRenderer, string blendShapeName, float value)
+            SkinnedMeshRenderer skinnedMeshRenderer, string blendShapeName, float value, bool disabled = false)
         {
             if (skinnedMeshRenderer == null) throw new ArgumentNullException(nameof(skinnedMeshRenderer));
             if (string.IsNullOrEmpty(blendShapeName)) throw new ArgumentNullException(nameof(blendShapeName));
 
-            if (!layer.referenceAnimation.blendShapes.Any(bs =>
-                bs.skinnedMeshRenderer == skinnedMeshRenderer
-                && bs.name.Equals(blendShapeName, StringComparison.OrdinalIgnoreCase)))
+            if (animation.blendShapes.SingleOrDefault(
+                bs => bs.skinnedMeshRenderer == skinnedMeshRenderer
+                    && bs.name == blendShapeName) is AnimatableBlendShape existing)
             {
-                throw new ArgumentOutOfRangeException(
-                    nameof(blendShapeName), $"Blend shape '{blendShapeName}' is not in the reference animation.");
+                existing.value = value;
+                existing.disabled = disabled;
             }
-
-            animation.blendShapes.Add(new AnimatableBlendShape()
+            else
             {
-                skinnedMeshRenderer = skinnedMeshRenderer,
-                name = blendShapeName,
-                value = value
-            });
+                animation.blendShapes.Add(new AnimatableBlendShape(
+                skinnedMeshRenderer,
+                blendShapeName,
+                value,
+                synchronizeValueWithReference: false,
+                disabled));
+            }
 
             return this;
         }
 
         public AnimationConfigurationBuilder MakeDefaultAnimation()
         {
-            layer.referenceAnimation.isDefaultAnimation = false;
             foreach (AnimationConfiguration animation in layer.animations)
             {
                 animation.isDefaultAnimation = false;
@@ -69,10 +77,34 @@ namespace EZUtils.EZFXLayer.Test
             return this;
         }
 
+        public AnimationConfigurationBuilder MakeToggleOffAnimation()
+        {
+            foreach (AnimationConfiguration animation in layer.animations)
+            {
+                animation.isToggleOffAnimation = false;
+            }
+            animation.isToggleOffAnimation = true;
+
+            return this;
+        }
+
         public AnimationConfigurationBuilder WithToggleName(string toggleName)
         {
             animation.customToggleName = toggleName;
 
+            return this;
+        }
+
+        public AnimationConfigurationBuilder WithStateName(string stateName)
+        {
+            animation.customAnimatorStateName = stateName;
+
+            return this;
+        }
+
+        public AnimationConfigurationBuilder Mutate(Action<AnimationConfiguration> mutator)
+        {
+            mutator?.Invoke(animation);
             return this;
         }
     }

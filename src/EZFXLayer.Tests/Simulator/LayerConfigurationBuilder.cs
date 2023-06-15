@@ -19,18 +19,11 @@ namespace EZUtils.EZFXLayer.Test
             layers.Add(layer);
         }
 
-        public LayerConfigurationBuilder ConfigureReferenceAnimation(Action<ReferenceAnimationConfigurationBuilder> builder)
-            => ConfigureReferenceAnimation(null, builder);
+        public LayerConfigurationBuilder AddInitialAnimation(Action<AnimationConfigurationBuilder> builder)
+            => AddInitialAnimation("Default", builder);
 
-        public LayerConfigurationBuilder ConfigureReferenceAnimation(
-            string name, Action<ReferenceAnimationConfigurationBuilder> builder)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            ReferenceAnimationConfigurationBuilder b = new ReferenceAnimationConfigurationBuilder(name, layer);
-            builder(b);
-
-            return this;
-        }
+        public LayerConfigurationBuilder AddInitialAnimation(string name, Action<AnimationConfigurationBuilder> builder)
+            => AddAnimation(name, ac => builder(ac.MakeDefaultAnimation().MakeToggleOffAnimation()));
 
         public LayerConfigurationBuilder AddAnimation(string name, Action<AnimationConfigurationBuilder> builder)
         {

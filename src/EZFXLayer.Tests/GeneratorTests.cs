@@ -34,11 +34,11 @@ namespace EZUtils.EZFXLayer.Test
             SkinnedMeshRenderer smr = testSetup.Avatar.AddComponent<SkinnedMeshRenderer>();
             _ = testSetup.ConfigurationBuilder
                 .AddLayer("foo",
-                    l => l.ConfigureReferenceAnimation(
-                        r => r.AddBlendShape(smr, "foo", 1)))
+                    l => l.AddInitialAnimation(
+                        r => r.SetBlendShape(smr, "foo", 1)))
                 .AddLayer("foo",
-                    l => l.ConfigureReferenceAnimation(
-                        r => r.AddBlendShape(smr, "foo", 1)));
+                    l => l.AddInitialAnimation(
+                        r => r.SetBlendShape(smr, "foo", 1)));
 
             Assert.That(() => testSetup.StandardGenerate(), Throws.InvalidOperationException);
         }

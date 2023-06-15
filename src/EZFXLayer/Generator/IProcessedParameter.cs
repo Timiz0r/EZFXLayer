@@ -9,9 +9,10 @@ namespace EZUtils.EZFXLayer
 
     internal interface IProcessedParameter
     {
-        VRCExpressionParameters.Parameter ApplyToExpressionParameters(VRCExpressionParameters vrcExpressionParameters);
+        string Name { get; }
+        void ApplyToExpressionParameters(VRCExpressionParameters vrcExpressionParameters);
         void ApplyToControllerParameters(AnimatorController controller);
-        AnimatorCondition GetAnimatorCondition(int animationIndex);
+        AnimatorCondition GetAnimatorCondition(int animationToggleValue);
     }
 
     internal static class ProcessedParameter

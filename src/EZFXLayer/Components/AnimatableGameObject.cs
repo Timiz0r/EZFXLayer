@@ -20,7 +20,7 @@ namespace EZUtils.EZFXLayer
         public bool synchronizeActiveWithReference;
         public bool disabled;
 
-        public AnimatableGameObject() { }
+        private AnimatableGameObject() { }
 
         public AnimatableGameObject(
             GameObject gameObject, string path, bool active, bool synchronizeActiveWithReference, bool disabled)

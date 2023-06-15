@@ -37,7 +37,7 @@ msgid "No animations added"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:218
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:207
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 msgid "Menu: {0}"
 msgstr ""
@@ -62,33 +62,41 @@ msgid "Path '{0}' is not rooted in Assets."
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:58
-msgid "There is no reference animation."
+#~ msgid "There is no reference animation."
+#~ msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:74
+msgid "There is no default animation."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:148
-# id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
-msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:76
+msgid "There is no toggle off animation."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:149
-msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:217
-msgid "Cannot add a new toggle because there are already 8 items in the menu."
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:62
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:64
 # id format: Duplicate non-empty layers found in configuration: {string.Join(", ", duplicateLayers)}.
 msgid "Duplicate non-empty layers found in configuration: {0}."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
-msgid "Failed EZFXLayer generation"
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:133
+# id format: The animator state '{state.name}' of controller layer '{Name}' exists in the base animator controller '{controller.name}' but has no corresponding animation set.
+msgid "The animator state '{0}' of controller layer '{1}' exists in the base animator controller '{2}' but has no corresponding animation set. "
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:134
+msgid "Consider removing the state from the controller. It has been removed from the generated controller automatically, but not the base one. This has been done because we replace all of the transitions' conditions and have no way to know how to create them for unknown states."
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:206
+msgid "Cannot add a new toggle because there are already 8 items in the menu."
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
 msgid "EZFXLayer generation"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:50
+msgid "Failed EZFXLayer generation"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/GeneratorRunner.cs:59

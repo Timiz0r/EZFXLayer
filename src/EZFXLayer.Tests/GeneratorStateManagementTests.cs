@@ -78,7 +78,7 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "layer",
                 l => l
-                    .ConfigureReferenceAnimation("foo", a => { }));
+                    .AddInitialAnimation("foo", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -86,7 +86,7 @@ namespace EZUtils.EZFXLayer.Test
         }
 
         [Test]
-        public void AltersDefaultStateToReferenceAnimation_IfTheOriginalDefaultStateIsDifferent()
+        public void AltersStateMachineDefaultStateToToggleOffAnimation_IfTheOriginalDefaultStateIsDifferent()
         {
             //but will touch conditions
             //also not exhaustively testing all fields because why
@@ -105,7 +105,7 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "layer",
                 l => l
-                    .ConfigureReferenceAnimation("default", a => { })
+                    .AddInitialAnimation("default", a => { })
                     .AddAnimation("state", a => { }));
 
             testSetup.StandardGenerate();
@@ -131,7 +131,7 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "layer",
                 l => l
-                    .AddAnimation("state", a => { }));
+                    .AddInitialAnimation("state", a => { }));
 
             testSetup.StandardGenerate();
 
@@ -146,12 +146,12 @@ namespace EZUtils.EZFXLayer.Test
                 .AddLayer(
                     "1",
                     l => l
-                        .ConfigureReferenceAnimation("default", a => { })
+                        .AddInitialAnimation("default", a => { })
                         .AddAnimation("foo", a => { }))
                 .AddLayer(
                     "2",
                     l => l
-                        .ConfigureReferenceAnimation("default", a => { })
+                        .AddInitialAnimation("default", a => { })
                         .AddAnimation("foo", a => { })
                         .AddAnimation("bar", a => { })
                         .AddAnimation("baz", a => { }));
@@ -184,7 +184,7 @@ namespace EZUtils.EZFXLayer.Test
                 .AddLayer(
                     "layer",
                     l => l
-                        .ConfigureReferenceAnimation("default", a => a.WithStateName("default2"))
+                        .AddInitialAnimation("default", a => a.WithStateName("default2"))
                         .AddAnimation("foo", a => { }));
 
             testSetup.StandardGenerate();

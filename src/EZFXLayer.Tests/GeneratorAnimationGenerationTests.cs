@@ -21,7 +21,7 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "1",
                 l => l
-                    .ConfigureReferenceAnimation(a => { })
+                    .AddInitialAnimation("default", a => { })
                     .AddAnimation("animation", a => { }));
 
             testSetup.StandardGenerate();
@@ -45,7 +45,7 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "Part",
                 l => l
-                    .ConfigureReferenceAnimation("Off", a => a.AddGameObject(avatarPart, isActive: false))
+                    .AddInitialAnimation("Off", a => a.SetGameObject(avatarPart, isActive: false))
                     .AddAnimation("On", a => a.SetGameObject(avatarPart, isActive: true))
             );
 
@@ -86,7 +86,7 @@ namespace EZUtils.EZFXLayer.Test
             _ = testSetup.ConfigurationBuilder.AddLayer(
                 "Part",
                 l => l
-                    .ConfigureReferenceAnimation("Off", a => a.AddBlendShape(smr, "blendshape", 0f))
+                    .AddInitialAnimation("Off", a => a.SetBlendShape(smr, "blendshape", 0f))
                     .AddAnimation("On", a => a.SetBlendShape(smr, "blendshape", 1f))
             );
 
@@ -121,7 +121,7 @@ namespace EZUtils.EZFXLayer.Test
                     "layer",
                     l => l
                         .DisableStateManagement()
-                        .ConfigureReferenceAnimation("default", a => { })
+                        .AddInitialAnimation("default", a => { })
                         .AddAnimation("foo", a => { }));
 
             testSetup.StandardGenerate();

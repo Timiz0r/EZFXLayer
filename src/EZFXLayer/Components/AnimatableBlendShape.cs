@@ -17,7 +17,7 @@ namespace EZUtils.EZFXLayer
         public bool disabled;
 
         //for unity
-        public AnimatableBlendShape() { }
+        private AnimatableBlendShape() { }
 
         public AnimatableBlendShape(
             SkinnedMeshRenderer skinnedMeshRenderer,
@@ -31,14 +31,6 @@ namespace EZUtils.EZFXLayer
             this.value = value;
             this.synchronizeValueWithReference = synchronizeValueWithReference;
             this.disabled = disabled;
-        }
-
-        public AnimatableBlendShape(
-            SkinnedMeshRenderer skinnedMeshRenderer,
-            string name)
-        {
-            this.skinnedMeshRenderer = skinnedMeshRenderer;
-            this.name = name;
         }
 
         public bool Matches(AnimatableBlendShape blendShape) => blendShape == null
