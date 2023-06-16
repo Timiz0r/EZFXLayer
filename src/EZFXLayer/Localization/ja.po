@@ -16,26 +16,26 @@ msgstr ""
 "PO-Revision-Date: 2023-05-11 16:52\n"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:84
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:36
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:37
 msgid "Add new animation"
 msgstr "アニメーションを追加"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:34
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:31
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:17
 msgid "Blend shapes"
 msgstr "ブレンドシェイプ"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:36
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:33
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:19
 msgid "Add blend shapes"
 msgstr "ブレンドシェイプを追加"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:40
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:37
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:23
 msgid "GameObjects"
 msgstr "ゲームオブジェクト"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:42
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:25
 msgid "Add GameObject"
 msgstr "ゲームオブジェクトを追加"
@@ -131,7 +131,7 @@ msgstr "生成する前にシーンを保存してください。"
 msgid "Applying generation to avatar"
 msgstr "アバターに生成されたアセットを適用する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:81
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.cs:82
 msgid "EZFXLayer/EZFXLayer animator layer configuration"
 msgstr "EZFXLayer/EZFXLayerアニメーターレイヤー設定"
 
@@ -164,8 +164,8 @@ msgid "Animations"
 msgstr "アニメーション"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:35
-msgid "Hide unchanged items"
-msgstr "変更していないものを隠す"
+#~ msgid "Hide unchanged items"
+#~ msgstr "変更していないものを隠す"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:46
 msgid "Default animation"
@@ -183,11 +183,11 @@ msgstr ""
 msgid "Set toggle off animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:29
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:26
 msgid "Custom toggle name"
 msgstr "カスタムのトグル名"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:30
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:27
 msgid "Custom state name"
 msgstr "カスタムのステート名"
 

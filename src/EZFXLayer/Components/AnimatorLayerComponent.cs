@@ -21,6 +21,7 @@ namespace EZUtils.EZFXLayer
         //  clips in a separate layer using the same parameters
         //public bool manageAnimations = true;
         public string menuPath = null;
+        //not currently used due to increasing complexity of configuration and behavior
         public bool hideUnchangedItemsInAnimationConfigurations = false;
 
         [System.Obsolete("Has been split into referenceAnimatables and an additional animation.")]

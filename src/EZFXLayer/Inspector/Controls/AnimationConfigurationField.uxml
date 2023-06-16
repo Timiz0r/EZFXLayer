@@ -15,8 +15,6 @@
     <!-- the easiest way to get an up-to-date indication of this -->
     <Toggle name="isDefaultAnimation" binding-path="isDefaultAnimation" />
 
-    <!-- cant use a Foldout control if we want the textfield next to the toggle -->
-    <!-- but getting poor results, so will leaveit for now. control doesnt load folded in -->
     <VisualElement class="animation-foldout-header">
       <ezfx:FoldoutWithContainer binding-path="isFoldedOut" />
       <TextField name="animationName" binding-path="name" />
@@ -25,7 +23,6 @@
 
     <VisualElement name="animationFoldoutContent" class="animation-foldout-content">
       <VisualElement class="general-animation-content">
-        <!-- reference animation doesnt have a toggle, so only show this for normal animations -->
         <TextField label="loc:Custom toggle name" binding-path="customToggleName" />
         <TextField label="loc:Custom state name" binding-path="customAnimatorStateName" />
       </VisualElement>

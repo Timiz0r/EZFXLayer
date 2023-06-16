@@ -12,11 +12,11 @@ namespace EZUtils.EZFXLayer.UIElements
     {
         private SerializedObject gameObjectSerializedObject = null;
 
-        [UnityEngine.SerializeField] private VisualTreeAsset uxml;
-
         public override VisualElement CreateInspectorGUI()
         {
-            VisualElement visualElement = uxml.CommonUIClone();
+            VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                "Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml");
+            VisualElement visualElement = visualTree.CommonUIClone();
             TranslateElementTree(visualElement);
 
             AnimatorLayerComponent target = (AnimatorLayerComponent)this.target;
@@ -40,11 +40,12 @@ namespace EZUtils.EZFXLayer.UIElements
             AnimatorLayerConfigurator configurator = new AnimatorLayerConfigurator(
                 target, serializedObject, referenceContainer, animationContainer, defaultAnimationPopupContainer);
 
-            Toggle hideUnchangedItemsToggle = visualElement.Q<Toggle>(name: "hideUnchangedItems");
-            _ = hideUnchangedItemsToggle.RegisterValueChangedCallback(
-                evt => visualElement.EnableInClassList("hide-unchanged-items", evt.newValue));
-            visualElement.EnableInClassList(
-                "hide-unchanged-items", hideUnchangedItemsToggle.value);
+            //not currently used due to increasing complexity of configuration and behavior
+            // Toggle hideUnchangedItemsToggle = visualElement.Q<Toggle>(name: "hideUnchangedItems");
+            // _ = hideUnchangedItemsToggle.RegisterValueChangedCallback(
+            //     evt => visualElement.EnableInClassList("hide-unchanged-items", evt.newValue));
+            // visualElement.EnableInClassList(
+            //     "hide-unchanged-items", hideUnchangedItemsToggle.value);
 
             visualElement.Q<Button>(name: "addNewAnimation").clicked += () => configurator.AddNewAnimation();
 

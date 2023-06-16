@@ -32,7 +32,8 @@
       <VisualElement name="reference-container" />
 
       <Label class="heading-label" text="loc:Animations" />
-      <Toggle name="hideUnchangedItems" class="left-toggle" label="loc:Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" />
+      <!-- not currently used due to increasing complexity of configuration and behavior -->
+      <!-- <Toggle name="hideUnchangedItems" class="left-toggle" label="loc:Hide unchanged items" binding-path="hideUnchangedItemsInAnimationConfigurations" /> -->
       <Button name="addNewAnimation" text="loc:Add new animation" />
       <VisualElement name="other-animation-container" />
     </VisualElement>
