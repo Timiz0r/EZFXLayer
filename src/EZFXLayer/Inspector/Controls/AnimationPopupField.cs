@@ -86,13 +86,15 @@ namespace EZUtils.EZFXLayer.UIElements
 
         public void RefreshFormat()
         {
-            if (value == nullAnimationConfiguration) return;
-            _ = schedule.Execute(() => SetValueWithoutNotify(value));
+            _ = schedule.Execute(() => SetValueWithoutNotify(value ?? nullAnimationConfiguration));
         }
 
         public override AnimationConfiguration value
         {
-            get => base.value == nullAnimationConfiguration ? null : base.value;
+            //we generally want to return null instead of nullAnimationConfiguration
+            //but popupfield makes a call to value in the ctor, before the format callbacks are set
+            //and not after they are set.
+            get => base.formatListItemCallback == null || base.value != nullAnimationConfiguration ? base.value : null;
             set
             {
                 //this would happen if the user opened the popup and selected nullAnimationConfiguration
