@@ -96,6 +96,25 @@ namespace EZUtils.EZFXLayer.UIElements
 
             VisualElement blendShapeGroup = groupVisualTree.CloneTree();
             TranslateElementTree(blendShapeGroup);
+
+            VisualElement objectFieldContainer =
+                blendShapeGroup.Q<VisualElement>(className: "blendshape-smr-objectfield-container");
+            EZUtils.EZFXLayer.UIElements.ObjectField objectField =
+                objectFieldContainer.Q<EZUtils.EZFXLayer.UIElements.ObjectField>();
+            objectFieldContainer.RegisterCallback<MouseDownEvent>(mouseUpEvent =>
+            {
+                if (!(objectField.value is Object targetObject)) return;
+
+                if (mouseUpEvent.clickCount == 1)
+                {
+                    EditorGUIUtility.PingObject(targetObject);
+                }
+                else if (mouseUpEvent.clickCount == 2)
+                {
+                    _ = AssetDatabase.OpenAsset(targetObject);
+                }
+            });
+
             blendShapeGroup.Q<EZFXLayer.UIElements.ObjectField>().value = blendShape.skinnedMeshRenderer;
             blendShapeGroups.Add(blendShape.skinnedMeshRenderer, blendShapeGroup);
             RootContainer.Add(blendShapeGroup);

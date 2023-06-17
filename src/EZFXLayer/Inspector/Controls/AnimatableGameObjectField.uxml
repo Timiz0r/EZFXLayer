@@ -16,7 +16,9 @@
       <Toggle name="disabled" binding-path="disabled" />
 
       <ezfx:AnimatableStatus />
-      <ezfx:ObjectField objectType="UnityEngine.GameObject, UnityEngine" enabled="false" binding-path="gameObject"/>
+      <VisualElement name="gameObjectContainer">
+        <ezfx:ObjectField objectType="UnityEngine.GameObject, UnityEngine" enabled="false" binding-path="gameObject"/>
+      </VisualElement>
       <Toggle name="activeToggle" binding-path="active" />
       <Button name="remove" text="Ｘ" />
       <Button name="add" text="＋" />

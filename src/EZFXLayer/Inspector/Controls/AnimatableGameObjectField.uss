@@ -2,7 +2,7 @@
     flex-direction: row;
 }
 
-.animatable-field-container > ObjectField {
+.animatable-field-container #gameObjectContainer {
     flex-grow: 1;
 }
 

@@ -5,12 +5,14 @@
     xmlns:editor="UnityEditor.UIElements"
     xmlns:ezfx="EZUtils.EZFXLayer.UIElements"
     xsi:schemaLocation="
-      UnityEngine.UIElements ../../../../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
-      UnityEditor.UIElements ../../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
-      EZUtils.EZFXLayer.UIElements ../../../../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
+      UnityEngine.UIElements ../../../UIElementsSchema/UnityEngine.UIElements.fixed.xsd
+      UnityEditor.UIElements ../../../UIElementsSchema/UnityEditor.UIElements.xsd
+      EZUtils.EZFXLayer.UIElements ../../../UIElementsSchema/EZUtils.EZFXLayer.UIElements.xsd"
 >
   <VisualElement class="blendshape-smr-group">
-    <ezfx:ObjectField type="UnityEngine.SkinnedMeshRenderer, UnityEngine" enabled="false" />
+    <VisualElement class="blendshape-smr-objectfield-container" style="flex-grow: 1">
+      <ezfx:ObjectField type="UnityEngine.SkinnedMeshRenderer, UnityEngine" enabled="false" />
+    </VisualElement>
 
     <VisualElement class="blendshape-smr-container" />
   </VisualElement>
