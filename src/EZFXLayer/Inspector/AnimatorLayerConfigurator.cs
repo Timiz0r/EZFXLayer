@@ -1,6 +1,5 @@
 namespace EZUtils.EZFXLayer
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using EZUtils.EZFXLayer.UIElements;
@@ -44,7 +43,7 @@ namespace EZUtils.EZFXLayer
             animations.Refresh();
 
             defaultAnimationPopup = AnimationPopupField.Create(
-                T("Default animation"),
+                "Default animation",
                 () => layerComponent.animations,
                 a => a.isDefaultAnimation);
             animationPopupContainer.Add(defaultAnimationPopup);
@@ -62,7 +61,7 @@ namespace EZUtils.EZFXLayer
             });
 
             toggleOffAnimationPopup = AnimationPopupField.Create(
-                T("Toggle off animation"),
+                "Toggle off animation",
                 () => layerComponent.animations,
                 a => a.isToggleOffAnimation);
             animationPopupContainer.Add(toggleOffAnimationPopup);

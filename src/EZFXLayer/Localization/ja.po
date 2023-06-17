@@ -15,7 +15,7 @@ msgstr ""
 "Language-Team: Japanese\n"
 "PO-Revision-Date: 2023-05-11 16:52\n"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:84
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:83
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:37
 msgid "Add new animation"
 msgstr "アニメーションを追加"
@@ -39,11 +39,6 @@ msgstr "ゲームオブジェクト"
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:25
 msgid "Add GameObject"
 msgstr "ゲームオブジェクトを追加"
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:34
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:37
-msgid "No animations added"
-msgstr ""
 
 # id format: Menu: {string.Join(" -> ", accumulatedMenuPaths)}
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
@@ -167,19 +162,19 @@ msgstr "アニメーション"
 #~ msgid "Hide unchanged items"
 #~ msgstr "変更していないものを隠す"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:46
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:44
 msgid "Default animation"
-msgstr ""
+msgstr "ディフォルトのアニメーション"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:52
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:51
 msgid "Set default animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:64
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:62
 msgid "Toggle off animation"
-msgstr ""
+msgstr "トグルがオフのアニメーション"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:70
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:69
 msgid "Set toggle off animation"
 msgstr ""
 
@@ -190,6 +185,10 @@ msgstr "カスタムのトグル名"
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:27
 msgid "Custom state name"
 msgstr "カスタムのステート名"
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:136
+msgid "No animations added"
+msgstr "アニメーションが追加されていません"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:106
 # id format: Add layer '{newObjectName}'

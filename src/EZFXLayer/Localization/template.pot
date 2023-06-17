@@ -6,7 +6,7 @@ msgstr "Language: en\n"
 "Plural-Forms: nplurals=1; 0;\n"
 "X-PluralRules-Other: \n"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:84
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:83
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:37
 msgid "Add new animation"
 msgstr ""
@@ -29,11 +29,6 @@ msgstr ""
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:39
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/ReferenceAnimatablesField.uxml:25
 msgid "Add GameObject"
-msgstr ""
-
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:34
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:37
-msgid "No animations added"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:63
@@ -158,19 +153,19 @@ msgstr ""
 #~ msgid "Hide unchanged items"
 #~ msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:46
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:44
 msgid "Default animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:52
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:51
 msgid "Set default animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:64
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:62
 msgid "Toggle off animation"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:70
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:69
 msgid "Set toggle off animation"
 msgstr ""
 
@@ -180,6 +175,10 @@ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:27
 msgid "Custom state name"
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationPopupField.cs:136
+msgid "No animations added"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:106

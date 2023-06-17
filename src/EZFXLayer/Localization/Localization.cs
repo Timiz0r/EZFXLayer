@@ -7,7 +7,7 @@ namespace EZUtils.EZFXLayer
     using UnityEngine.UIElements;
 
     //ports-and-adapters-wise, EZLocalization is a driver adapter connecting unity editor to a catalog
-    [LocalizationProxy] //keep in sync with AnalysisResultIdentifier
+    [LocalizationProxy] //keep in sync with AnimationPopupField; TODO: perhaps we can pass in another proxy type as a reference?
     [GenerateLanguage("en", "{CalleeAssemblyRoot}/template.pot")] //we dont generate plural rules because crowdin will then try to overwrite others'
     [GenerateLanguage("ja", "{CalleeAssemblyRoot}/ja.po", Other = " @integer 0~15, 100, 1000, 10000, 100000, 1000000, … @decimal 0.0~1.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …")]
     public static class Localization
