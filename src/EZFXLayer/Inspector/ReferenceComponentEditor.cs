@@ -7,6 +7,7 @@ namespace EZUtils.EZFXLayer.UIElements
     using EZUtils.Localization.UIElements;
     using UnityEditor;
     using UnityEditor.Animations;
+    using UnityEditor.SceneManagement;
     using UnityEditor.UIElements;
     using UnityEngine;
     using UnityEngine.SceneManagement;
@@ -246,12 +247,37 @@ namespace EZUtils.EZFXLayer.UIElements
         private static IEnumerable<T> GetComponentsInScene<T>(Scene scene, bool includeInactive = false) where T : Component
             => scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>(includeInactive: includeInactive));
 
+        private static void AddSampleToScene()
+        {
+            Scene activeScene = SceneManager.GetActiveScene();
+
+            Scene sampleScene = EditorSceneManager.OpenScene(
+                "Packages/com.timiz0r.ezutils.ezfxlayer/Samples/Sample.unity", OpenSceneMode.Additive);
+
+            //TODO: undo doesn't seem to work, though the dirting of the scene works fine
+            using (UndoGroup undo = new UndoGroup(T("Add EZFXLayer sample to active scene")))
+            {
+                foreach (GameObject sampleObject in sampleScene.GetRootGameObjects())
+                {
+                    //GameObject duplicate = Instantiate(sampleObject);
+                    //SceneManager.MoveGameObjectToScene(duplicate, activeScene);
+                    //instead of duplicating, we'll move and close the sample scene without saving
+
+                    Undo.MoveGameObjectToScene(sampleObject, activeScene, T("Copy sample objects to active scene"));
+                    sampleObject.transform.SetAsLastSibling();
+                }
+            }
+
+            _ = EditorSceneManager.CloseScene(sampleScene, removeScene: true);
+        }
+
 
         [InitializeOnLoadMethod]
         private static void UnityInitialize()
         {
             AddComponentMenu<ReferenceComponent>("EZFXLayer/EZFXLayer reference configuration", priority: 0);
             AddMenu("GameObject/Enable EZFXLayer in Scene", priority: 20, EnableInScene);
+            AddMenu("GameObject/Add EZFXLayer Sample to Scene", priority: 20, AddSampleToScene);
         }
     }
 }

@@ -224,12 +224,10 @@ namespace EZUtils.EZFXLayer
 
         private static string EnsureFolderCreated(string path)
         {
-            if (!Regex.IsMatch(path, @"^Assets[/\\]")) throw new ArgumentOutOfRangeException(
-                nameof(path), T($"Path '{path}' is not rooted in Assets."));
             if (AssetDatabase.IsValidFolder(path)) return path;
 
             string[] splitPath = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            string currentPath = "Assets";
+            string currentPath = splitPath[0];
             foreach (string pathComponent in splitPath.Skip(1))
             {
                 //since unity uses /, avoid Path.Combine in case windows adds \
