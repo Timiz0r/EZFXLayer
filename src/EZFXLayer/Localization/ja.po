@@ -1,11 +1,11 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-PluralRules-Other:  @integer 0~15, 100, 1000, 10000, 100000, 1000000, … @decimal 0.0~1.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …\n"
+"X-PluralRules-Other: \n"
 "X-Crowdin-Project: ezfxlayer\n"
 "X-Crowdin-Project-ID: 587153\n"
 "X-Crowdin-Language: ja\n"
@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 25\n"
 "Project-Id-Version: ezfxlayer\n"
 "Language-Team: Japanese\n"
-"PO-Revision-Date: 2023-05-11 16:52\n"
+"PO-Revision-Date: 2023-06-17 10:31\n"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:83
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:37
@@ -63,21 +63,21 @@ msgstr "EZFXLayerが生成したアセットを上書きする"
 # id format: Path '{path}' is not rooted in Assets.
 #: Packages/com.timiz0r.ezutils.ezfxlayer/EZFXLayerAssetRepository.cs:227
 #~ msgid "Path '{0}' is not rooted in Assets."
-#~ msgstr "パス「{0}」のルートは「Assets」ではありません。"
+#~ msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimationConfigurationHelper.cs:69
 # id format: Unable to add animation '{animation.name}' to layer '{layerName}' because the layer does not exist.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimationConfigurationHelper.cs:69
 msgid "Unable to add animation '{0}' to layer '{1}' because the layer does not exist."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimationConfigurationHelper.cs:77
 # id format: Unable to add animation '{animation.name}' to layer '{layerName}' because a state with a matching name does not exist.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimationConfigurationHelper.cs:77
 msgid "Unable to add animation '{0}' to layer '{1}' because a state with a matching name does not exist."
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:58
 #~ msgid "There is no reference animation."
-#~ msgstr "参照アニメーションがありません。"
+#~ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/AnimatorLayerConfiguration.cs:74
 msgid "There is no default animation."
@@ -105,8 +105,8 @@ msgstr "コントローラからステートを削除することを検討して
 msgid "Cannot add a new toggle because there are already 8 items in the menu."
 msgstr "すでに親メニューに8つのアイテムがあるため、新しいトグルを追加することができません。"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:232
 # id format: State machine for layer '{layer.Name}' not found.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Generator/EZFXLayerGenerator.cs:232
 msgid "State machine for layer '{0}' not found."
 msgstr ""
 
@@ -152,7 +152,7 @@ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:31
 #~ msgid "Reference animation"
-#~ msgstr "参照アニメーション"
+#~ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:34
 msgid "Animations"
@@ -160,7 +160,7 @@ msgstr "アニメーション"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:35
 #~ msgid "Hide unchanged items"
-#~ msgstr "変更していないものを隠す"
+#~ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:44
 msgid "Default animation"
@@ -194,8 +194,8 @@ msgstr "カスタムのステート名"
 msgid "No animations added"
 msgstr "アニメーションが追加されていません"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:106
 # id format: Add layer '{newObjectName}'
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/LayerCreationButtons.cs:106
 msgid "Add layer '{0}'"
 msgstr ""
 
@@ -227,8 +227,8 @@ msgstr ""
 msgid "Reference"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:109
 # id format: EZFXLayer is already enabled through GameObject '{existingComponents[0].name}'.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:109
 msgid "EZFXLayer is already enabled through GameObject '{0}'."
 msgstr ""
 
@@ -244,18 +244,18 @@ msgstr ""
 msgid "Populate reference configuration from first avatar"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:156
 # id format: The avatar '{firstAvatar.gameObject.name}' has no FX layer.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:156
 msgid "The avatar '{0}' has no FX layer."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:162
 # id format: The avatar '{firstAvatar.gameObject.name}' has no expression parameters.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:162
 msgid "The avatar '{0}' has no expression parameters."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:168
 # id format: The avatar '{firstAvatar.gameObject.name}' has no expressions menu.
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:168
 msgid "The avatar '{0}' has no expressions menu."
 msgstr ""
 
@@ -330,3 +330,4 @@ msgstr "すでに親メニューに8つのアイテムがあるため、新し�
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Utilities.cs:118
 #~ msgid "Convert EZFXLayer Animator Layer to new version"
 #~ msgstr ""
+
