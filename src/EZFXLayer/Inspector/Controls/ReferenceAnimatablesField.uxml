@@ -12,7 +12,7 @@
   <VisualElement>
     <Style src="ReferenceAnimatablesField.uss" />
 
-    <Foldout text="loc:Reference">
+    <Foldout class="reference-container" text="loc:Reference">
       <VisualElement class="blend-shape-content">
         <Label class="heading-label" text="loc:Blend shapes" />
         <VisualElement class="blend-shape-container" />

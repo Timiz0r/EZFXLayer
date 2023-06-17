@@ -15,10 +15,7 @@
 }
 
 .general-animation-content {
-    margin-bottom: 8px;
-}
-
-.blend-shape-content, .gameobject-content {
+    /* if we add more to this, we could make it a foldout. we'll need 8px left margin if we do, and no bottom margin. */
     margin-bottom: 8px;
 }
 
@@ -32,4 +29,24 @@
 
 #isDefaultAnimation {
     display: none;
+}
+
+.animation-foldout-content {
+    border-left-width: 2px;
+    border-left-color: #757575;
+    margin-left: 8px;
+    margin-top: 2px;
+}
+
+.blend-shape-content {
+    border-left-width: 2px;
+    border-left-color: #eb6f17;
+    padding-left: 2px;
+    margin-bottom: 4px;
+}
+
+.gameobject-content {
+    border-left-width: 2px;
+    border-left-color: #921df2;
+    padding-left: 2px;
 }

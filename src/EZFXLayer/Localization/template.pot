@@ -142,8 +142,8 @@ msgid "Expression parameters save values"
 msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:31
-msgid "Reference animation"
-msgstr ""
+#~ msgid "Reference animation"
+#~ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:34
 msgid "Animations"
@@ -168,6 +168,10 @@ msgstr ""
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:69
 msgid "Set toggle off animation"
 msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:25
+#~ msgid "Advanced settings"
+#~ msgstr ""
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/Controls/AnimationConfigurationField.uxml:26
 msgid "Custom toggle name"

@@ -28,7 +28,7 @@
 
     <VisualElement class="animation-container">
       <VisualElement name="defaultAnimationPopup" />
-      <Label class="heading-label" text="loc:Reference animation" />
+
       <VisualElement name="reference-container" />
 
       <Label class="heading-label" text="loc:Animations" />

@@ -18,14 +18,35 @@
     margin-bottom: 8px;
 }
 
-.blend-shape-content, .gameobject-content {
-    margin-bottom: 8px;
-}
-
 .blend-shape-container, .gameobject-container, .blend-shape-content > Button {
     margin-left: 12px;
 }
 
 .gameobject-content > ObjectField {
     margin-left: 15px;
+}
+
+Foldout.reference-container > Toggle Label {
+    -unity-font-style: bold;
+}
+
+.reference-container .unity-foldout__content {
+    padding-left: 12px;
+    border-left-width: 2px;
+    border-left-color: #757575;
+    margin-left: 8px;
+    margin-bottom: 12px;
+}
+
+.blend-shape-content {
+    border-left-width: 2px;
+    border-left-color: #eb6f17;
+    padding-left: 2px;
+    margin-bottom: 4px;
+}
+
+.gameobject-content {
+    border-left-width: 2px;
+    border-left-color: #921df2;
+    padding-left: 2px;
 }
