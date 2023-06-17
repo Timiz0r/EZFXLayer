@@ -271,23 +271,23 @@ msgstr ""
 msgid "Configure default FX layer animator controller"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:256
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:257
 msgid "Add EZFXLayer sample to active scene"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:264
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:265
 msgid "Copy sample objects to active scene"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:276
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:277
 msgid "EZFXLayer/EZFXLayer reference configuration"
 msgstr "EZFXLayer/EZFXLayer参照設定"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:277
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:278
 msgid "GameObject/Enable EZFXLayer in Scene"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:278
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:279
 msgid "GameObject/Add EZFXLayer Sample to Scene"
 msgstr ""
 
