@@ -1,11 +1,11 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-PluralRules-Other:  @integer 0~15, 100, 1000, 10000, 100000, 1000000, … @decimal 0.0~1.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, …\n"
+"X-PluralRules-Other: \n"
 "X-Crowdin-Project: ezfxlayer\n"
 "X-Crowdin-Project-ID: 587153\n"
 "X-Crowdin-Language: ja\n"
@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 25\n"
 "Project-Id-Version: ezfxlayer\n"
 "Language-Team: Japanese\n"
-"PO-Revision-Date: 2023-06-17 11:01\n"
+"PO-Revision-Date: 2023-06-26 12:36\n"
 
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerConfigurator.cs:83
 #: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/AnimatorLayerComponentEditor.uxml:37
