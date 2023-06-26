@@ -145,7 +145,12 @@ namespace EZUtils.EZFXLayer.UIElements
             //we do first avatar instead of selected avatar because it's easier for the user
             //and this is likely just for initial setup. otherwise, would need to lock the inspector
             //though could allow dragging and dropping into an object field to popupate
-            VRCAvatarDescriptor firstAvatar = GetComponentsInScene<VRCAvatarDescriptor>(scene).First();
+            VRCAvatarDescriptor firstAvatar = GetComponentsInScene<VRCAvatarDescriptor>(scene).FirstOrDefault();
+            if (firstAvatar == null)
+            {
+                Debug.LogWarning(T("No avatar found in scene."));
+                return;
+            }
 
             Utilities.RecordChange(referenceComponent, T("Populate reference configuration from first avatar"), target =>
             {

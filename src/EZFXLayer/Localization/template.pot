@@ -231,54 +231,58 @@ msgstr ""
 msgid "Add new EZFXLayer object"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:149
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:150
+msgid "No avatar found in scene."
+msgstr ""
+
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:154
 msgid "Populate reference configuration from first avatar"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:156
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:161
 # id format: The avatar '{firstAvatar.gameObject.name}' has no FX layer.
 msgid "The avatar '{0}' has no FX layer."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:162
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:167
 # id format: The avatar '{firstAvatar.gameObject.name}' has no expression parameters.
 msgid "The avatar '{0}' has no expression parameters."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:168
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:173
 # id format: The avatar '{firstAvatar.gameObject.name}' has no expressions menu.
 msgid "The avatar '{0}' has no expressions menu."
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:181
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:186
 msgid "Configure default VRC root expressions menu"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:218
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:223
 msgid "Configure default VRC expression parameters"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:225
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:230
 msgid "Configure default FX layer animator controller"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:263
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:268
 msgid "Add EZFXLayer sample to active scene"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:271
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:276
 msgid "Copy sample objects to active scene"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:284
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:289
 msgid "EZFXLayer/EZFXLayer reference configuration"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:285
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:290
 msgid "GameObject/Enable EZFXLayer in Scene"
 msgstr ""
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:286
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:291
 msgid "GameObject/Add EZFXLayer Sample to Scene"
 msgstr ""
 
