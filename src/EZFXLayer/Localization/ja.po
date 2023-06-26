@@ -271,23 +271,23 @@ msgstr "デフォルトのVRCエクスプレッションパラメーターを生
 msgid "Configure default FX layer animator controller"
 msgstr "デフォルトのFXレイヤーのアニメーターコントローラーを生成する"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:257
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:263
 msgid "Add EZFXLayer sample to active scene"
 msgstr "アクティブのシーンにEZFXLayerのサンプルをコピーする"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:265
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:271
 msgid "Copy sample objects to active scene"
 msgstr "アクティブのシーンにサンプルのオブジェクトをコピーする"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:277
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:284
 msgid "EZFXLayer/EZFXLayer reference configuration"
 msgstr "EZFXLayer/EZFXLayer参照設定"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:278
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:285
 msgid "GameObject/Enable EZFXLayer in Scene"
 msgstr "GameObject/EZFXLayerを有効にする"
 
-#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:279
+#: Packages/com.timiz0r.ezutils.ezfxlayer/Inspector/ReferenceComponentEditor.cs:286
 msgid "GameObject/Add EZFXLayer Sample to Scene"
 msgstr "GameObject/EZFXLayerサンプルをシーンに追加する"
 

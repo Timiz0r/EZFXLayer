@@ -251,8 +251,14 @@ namespace EZUtils.EZFXLayer.UIElements
         {
             Scene activeScene = SceneManager.GetActiveScene();
 
+            //this copy must be done because scenes cannot be loaded from packages
+            const string sampleSceneCopyPath = "Assets/EZFXLayerSample.unity";
+            _ = AssetDatabase.CopyAsset(
+                path: "Packages/com.timiz0r.ezutils.ezfxlayer/Samples/Sample.unity",
+                newPath: sampleSceneCopyPath);
+
             Scene sampleScene = EditorSceneManager.OpenScene(
-                "Packages/com.timiz0r.ezutils.ezfxlayer/Samples/Sample.unity", OpenSceneMode.Additive);
+                sampleSceneCopyPath, OpenSceneMode.Additive);
 
             //TODO: undo doesn't seem to work, though the dirting of the scene works fine
             using (UndoGroup undo = new UndoGroup(T("Add EZFXLayer sample to active scene")))
@@ -269,6 +275,7 @@ namespace EZUtils.EZFXLayer.UIElements
             }
 
             _ = EditorSceneManager.CloseScene(sampleScene, removeScene: true);
+            _ = AssetDatabase.DeleteAsset(sampleSceneCopyPath);
         }
 
 
