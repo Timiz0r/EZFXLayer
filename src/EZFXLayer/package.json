@@ -14,8 +14,8 @@
         "type": "git",
         "url": "https://github.com/Timiz0r/EZFXLayer.git"
     },
-    "dependencies": {
-      "com.timiz0r.ezutils.localization": "1.0.6",
-      "com.timiz0r.ezutils.common": "1.0.7"
+    "vpmDependencies": {
+      "com.timiz0r.ezutils.localization": "1.0.7",
+      "com.timiz0r.ezutils.common": "1.0.8"
     }
 }
