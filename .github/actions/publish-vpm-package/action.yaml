@@ -1,0 +1,86 @@
+name: Publish VPM package
+description: Incrementally ublishes a new VPM package if it doesn't already exist in the index
+inputs:
+  package-path:
+    required: true
+  index-path:
+    required: true
+outputs:
+  manifest-url:
+    description: Manifest URL
+    value: ${{ steps.prepare-package-manifest.outputs.manifest-url }}
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/get-package-info
+      id: package-info
+      with:
+        package-path: ${{ inputs.package-path }}
+        index-path: ${{ inputs.index-path }}
+    - name: Set tag name
+      shell: bash
+      run: echo 'tag_name=${{ steps.package-info.outputs.name }}-${{ steps.package-info.outputs.version }}' >> $GITHUB_ENV
+    - name: Create package zip
+      id: create-package-zip
+      if: "!fromJson(steps.package-info.outputs.version-exists)"
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      run: |
+        filename="$tag_name.zip"
+        zip -r "$filename" *
+        echo "filename=$filename" >> $GITHUB_OUTPUT
+        echo "fullpath=$(realpath "$filename")" >> $GITHUB_OUTPUT
+        echo "sha256=$(sha256sum "$filename" | head -c 64)" >> $GITHUB_OUTPUT
+    - name: Create release
+      id: create-release
+      if: "!fromJson(steps.package-info.outputs.version-exists)"
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.tag_name }}
+        prerelease: ${{ contains(steps.package-info.outputs.version, 'preview') }}
+        files: ${{ steps.create-package-zip.outputs.fullpath }}
+    - name: Prepare package manifest
+      id: prepare-package-manifest
+      if: "!fromJson(steps.package-info.outputs.version-exists)"
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        release_assets=$(gh release view "$tag_name" --json assets)
+        package_url=$( \
+          echo $release_assets \
+          | jq -r --arg filename "${{ steps.create-package-zip.outputs.filename }}" '.assets[] | select(.name == $filename) | .url' \
+        )
+        sha256='${{ steps.create-package-zip.outputs.sha256 }}'
+        jq --arg sha256 "$sha256" --arg package_url "$package_url" \
+          '. + { "zipSHA256": $sha256, "url": $package_url }' package.json > Manifest.json
+
+        gh release upload "$tag_name" Manifest.json
+        echo "fullpath=$(realpath Manifest.json)" >> $GITHUB_OUTPUT
+
+        manifest_url=$(gh release view "$tag_name" --json assets -q '.assets[] | select(.name == "Manifest.json") | .url')
+        echo "manifest-url=$manifest_url" >> $GITHUB_OUTPUT
+    - name: Add package manifest artifact
+      if: "!fromJson(steps.package-info.outputs.version-exists)"
+      uses: actions/upload-artifact@v3
+      with:
+        name: Manifest-${{ env.tag_name }}
+        path: ${{ steps.prepare-package-manifest.outputs.fullpath }}
+        retention-days: 1
+    - shell: bash
+      if: success() && !fromJson(steps.package-info.outputs.version-exists)
+      run: echo "### Successfully uploaded package" >> $GITHUB_STEP_SUMMARY
+    - shell: bash
+      if: success() && fromJson(steps.package-info.outputs.version-exists)
+      run: echo "### Package upload not required" >> $GITHUB_STEP_SUMMARY
+    - shell: bash
+      if: failure()
+      run: echo "### Failed to uploaded package" >> $GITHUB_STEP_SUMMARY
+    - if: always()
+      shell: bash
+      run: |
+        echo "* Package name: ${{ steps.package-info.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+        echo "* Package version: ${{ steps.package-info.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "* Package versions before upload: ${{ steps.package-info.outputs.published-versions }}" >> $GITHUB_STEP_SUMMARY
+        echo "* Version already exists: ${{ steps.package-info.outputs.version-exists }}" >> $GITHUB_STEP_SUMMARY

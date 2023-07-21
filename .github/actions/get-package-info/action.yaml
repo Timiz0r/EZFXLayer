@@ -1,0 +1,42 @@
+name: Get package info
+description: Gets information about a package
+inputs:
+  package-path:
+    required: true
+  index-path:
+    required: true
+outputs:
+  name:
+    description: "Package name"
+    value: ${{ steps.package-info.outputs.name }}
+  version:
+    description: "Package version"
+    value: ${{ steps.package-info.outputs.version }}
+  published-versions:
+    description: "Published versions"
+    value: ${{ steps.package-info.outputs.published-versions }}
+  version-exists:
+    description: "Version exists"
+    value: ${{ steps.package-info.outputs.version-exists }}
+runs:
+  using: composite
+  steps:
+    - name: Get package info
+      id: package-info
+      shell: bash --noprofile --norc {0}
+      run: |
+        package_json_path=${{ inputs.package-path }}/package.json
+        package_name=$(jq -r '.name' "$package_json_path")
+        package_version=$(jq -r '.version' "$package_json_path")
+        published_versions=$(jq -c --arg package_name "$package_name" '.packages?[$package_name]?.versions? // {} | keys_unsorted' '${{ inputs.index-path }}')
+        version_exists=$(echo $published_versions | jq --arg package_version "$package_version" 'any(. == $package_version)')
+
+        echo "name=$package_name" >> $GITHUB_OUTPUT
+        echo "version=$package_version" >> $GITHUB_OUTPUT
+        echo "published-versions=$published_versions" >> $GITHUB_OUTPUT
+        echo "version-exists=$version_exists" >> $GITHUB_OUTPUT
+
+        echo "Package name: $package_name"
+        echo "Package version: $package_version"
+        echo "Package versions before upload: $published_versions"
+        echo "Version exists: $version_exists"

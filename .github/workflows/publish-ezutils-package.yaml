@@ -1,0 +1,51 @@
+name: Create a release for packages and remotely publishes to EZUtils VPM feed
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**/package.json'
+
+jobs:
+  publish:
+    name: Publish ${{ matrix.package.name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      # an awkward consequence is that dependencies might not get published
+      # but nothing to do about that in a workflow
+      fail-fast: false
+      matrix:
+        package:
+          - name: com.timiz0r.ezutils.ezfxlayer
+            path: ./src/EZFXLayer
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+      #will perhaps one day make them available in marketplace? didnt really look into it or anything
+      #need to be careful with making sure we dont overwrite stuff when we checkout other repo
+      - name: Checkout EZUtils VPM
+        uses: actions/checkout@v3
+        with:
+          repository: timiz0r/EZUtils
+          token: ${{ secrets.EZUTILS_REMOTE }}
+          path: EZUtilsArtifacts
+          sparse-checkout: |
+            vpm
+      - name: Publish VPM package and create release
+        id: publish-vpm-package
+        uses: ./.github/actions/publish-vpm-package
+        with:
+          package-path: ${{ matrix.package.path }}
+          index-path: EZUtilsArtifacts/vpm/index.json
+      - name: EZUtils remote publish
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.EZUTILS_REMOTE }}
+          repository: timiz0r/EZUtils
+          event-type: external_vpm_release
+          client-payload: '{ "manifest-url": "${{ steps.publish-vpm-package.outputs.manifest-url }}" }'
