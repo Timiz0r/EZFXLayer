@@ -1,7 +1,7 @@
 {
     "$schema": "../emptyschema.json",
     "name": "com.timiz0r.ezutils.ezfxlayer",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Tool providing an easy way to configure VRChat's FX playable animator controller layer",
     "displayName": "EZUtils EZFXLayer",
     "unity": "2019.4",
